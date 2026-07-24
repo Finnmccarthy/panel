@@ -1226,6 +1226,8 @@ pub mod servers_server_files_copy {
                 #[schema(inline)]
                 pub name: Option<compact_str::CompactString>,
                 #[schema(inline)]
+                pub overwrite: bool,
+                #[schema(inline)]
                 pub foreground: bool,
             }
         }
@@ -1240,6 +1242,8 @@ pub mod servers_server_files_copy {
         }
 
         pub type Response404 = ApiError;
+
+        pub type Response409 = ApiError;
 
         pub type Response417 = ApiError;
 
@@ -1269,6 +1273,8 @@ pub mod servers_server_files_copy_many {
                     pub to: compact_str::CompactString,
                 }>,
                 #[schema(inline)]
+                pub overwrite: bool,
+                #[schema(inline)]
                 pub foreground: bool,
             }
         }
@@ -1277,6 +1283,8 @@ pub mod servers_server_files_copy_many {
             #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response200 {
                 #[schema(inline)]
                 pub copied: u64,
+                #[schema(inline)]
+                pub skipped: Vec<DirectoryEntry>,
             }
         }
 
@@ -1284,6 +1292,8 @@ pub mod servers_server_files_copy_many {
             #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response202 {
                 #[schema(inline)]
                 pub identifier: uuid::Uuid,
+                #[schema(inline)]
+                pub skipped: Vec<DirectoryEntry>,
             }
         }
 

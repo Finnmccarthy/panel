@@ -4304,7 +4304,21 @@
             },
             "copyFile": {
               "title": "Datei kopieren",
-              "createdAs": "Diese Datei wird erstellt als "
+              "createdAs": "Diese Datei wird erstellt als ",
+              "conflict": "Eine Datei mit diesem Namen existiert bereits am Zielort."
+            },
+            "copyConflict": {
+              "title": "Kopierkonflikte auflösen",
+              "description": "Die folgenden {files} existieren bereits am Zielort.",
+              "source": "Quelle",
+              "destination": "Ziel",
+              "skip": "Überspringen",
+              "overwrite": "Überschreiben",
+              "rename": "Umbenennen",
+              "skipAll": "Alle überspringen",
+              "overwriteAll": "Alle überschreiben",
+              "newName": "Neuer Name",
+              "confirm": "{files} kopieren"
             },
             "copyRemote": {
               "title": "Remote kopieren",

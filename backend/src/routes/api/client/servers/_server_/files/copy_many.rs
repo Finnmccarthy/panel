@@ -25,17 +25,21 @@ mod post {
         files: Vec<wings_api::servers_server_files_copy_many::post::RequestBodyFiles>,
 
         #[serde(default)]
+        overwrite: bool,
+        #[serde(default)]
         foreground: bool,
     }
 
     #[derive(ToSchema, Serialize)]
     struct Response {
         copied: u64,
+        skipped: Vec<wings_api::DirectoryEntry>,
     }
 
     #[derive(ToSchema, Serialize)]
     struct ResponseAccepted {
         identifier: uuid::Uuid,
+        skipped: Vec<wings_api::DirectoryEntry>,
     }
 
     #[utoipa::path(post, path = "/", responses(
@@ -70,6 +74,7 @@ mod post {
                 })
                 .collect(),
             root: data.root,
+            overwrite: data.overwrite,
             foreground: data.foreground,
         };
 
@@ -86,12 +91,14 @@ mod post {
                 Ok(wings_api::servers_server_files_copy_many::post::Response::Ok(data)) => {
                     ApiResponse::new_serialized(Response {
                         copied: data.copied,
+                        skipped: data.skipped,
                     })
                     .ok()
                 }
                 Ok(wings_api::servers_server_files_copy_many::post::Response::Accepted(data)) => {
                     ApiResponse::new_serialized(ResponseAccepted {
                         identifier: data.identifier,
+                        skipped: data.skipped,
                     })
                     .with_status(StatusCode::ACCEPTED)
                     .ok()

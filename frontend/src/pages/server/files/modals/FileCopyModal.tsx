@@ -1,8 +1,13 @@
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ModalProps } from '@mantine/core';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { join } from 'pathe';
+import { useState } from 'react';
 import { z } from 'zod';
+import { httpErrorToHuman } from '@/api/axios.ts';
 import copyFile from '@/api/server/files/copyFile.ts';
+import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import Code from '@/elements/Code.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
@@ -26,18 +31,49 @@ export default function FileCopyModal({ file, ...props }: Props) {
   const browsingDirectory = useFileManager((state) => state.browsingDirectory);
   const browsingEntries = useFileManager((state) => state.browsingEntries);
 
+  const [conflict, setConflict] = useState(false);
+  const [overwriting, setOverwriting] = useState(false);
+
   const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<z.infer<typeof serverFilesCopySchema>>({
     initialValues: {
       name: '',
     },
     validate: zod4Resolver(serverFilesCopySchema),
-    onClose: props.onClose,
+    onClose: () => {
+      setConflict(false);
+      props.onClose();
+    },
     onSubmit: async (values) => {
       if (!file) return;
       await copyFile(server.uuid, join(browsingDirectory, file.name), values.name || null);
       addToast(t('pages.server.files.toast.fileCopyingStarted', {}), 'success');
     },
+    onError: (err) => {
+      const status =
+        err && typeof err === 'object' && 'response' in err && (err as { response?: { status?: number } }).response
+          ? (err as { response: { status: number } }).response.status
+          : null;
+
+      if (status === 409) {
+        setConflict(true);
+      } else {
+        addToast(httpErrorToHuman(err), 'error');
+      }
+    },
   });
+
+  const doOverwrite = () => {
+    if (!file) return;
+
+    setOverwriting(true);
+    copyFile(server.uuid, join(browsingDirectory, file.name), form.getValues().name || null, true)
+      .then(() => {
+        addToast(t('pages.server.files.toast.fileCopyingStarted', {}), 'success');
+        handleClose();
+      })
+      .catch((err) => addToast(httpErrorToHuman(err), 'error'))
+      .finally(() => setOverwriting(false));
+  };
 
   const generateNewName = () => {
     if (!file) return '';
@@ -91,7 +127,15 @@ export default function FileCopyModal({ file, ...props }: Props) {
       onClose={handleClose}
       onSubmit={handleSubmit}
     >
-      <TextInput label={t('common.form.fileName', {})} data-autofocus {...form.getInputProps('name')} />
+      <TextInput
+        label={t('common.form.fileName', {})}
+        data-autofocus
+        {...form.getInputProps('name')}
+        onChange={(e) => {
+          setConflict(false);
+          form.getInputProps('name').onChange(e);
+        }}
+      />
 
       <p className='mt-2 text-sm md:text-base break-all'>
         <span>{t('pages.server.files.modal.copyFile.createdAs', {})}</span>
@@ -103,10 +147,22 @@ export default function FileCopyModal({ file, ...props }: Props) {
         </Code>
       </p>
 
+      {conflict && (
+        <Alert color='yellow' icon={<FontAwesomeIcon icon={faTriangleExclamation} />} className='mt-3'>
+          {t('pages.server.files.modal.copyFile.conflict', {})}
+        </Alert>
+      )}
+
       <ModalFooter>
-        <Button type='submit' loading={loading}>
-          {t('pages.server.files.button.copy', {})}
-        </Button>
+        {conflict ? (
+          <Button color='red' loading={overwriting} onClick={doOverwrite}>
+            {t('pages.server.files.modal.copyConflict.overwrite', {})}
+          </Button>
+        ) : (
+          <Button type='submit' loading={loading}>
+            {t('pages.server.files.button.copy', {})}
+          </Button>
+        )}
         <Button variant='default' onClick={handleClose}>
           {t('common.button.close', {})}
         </Button>

@@ -4336,6 +4336,20 @@ const baseTranslations = defineTranslations({
             copyFile: {
               title: 'Copy File',
               createdAs: 'This file will be created as ',
+              conflict: 'A file with that name already exists at the destination.',
+            },
+            copyConflict: {
+              title: 'Resolve Copy Conflicts',
+              description: 'The following {files} already exist at the destination.',
+              source: 'Source',
+              destination: 'Destination',
+              skip: 'Skip',
+              overwrite: 'Overwrite',
+              rename: 'Rename',
+              skipAll: 'Skip all',
+              overwriteAll: 'Overwrite all',
+              newName: 'New name',
+              confirm: 'Copy {files}',
             },
             copyRemote: {
               title: 'Remote Copy Files',

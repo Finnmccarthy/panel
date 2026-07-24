@@ -21,6 +21,10 @@ import ActionBar from '@/elements/ActionBar.tsx';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import FileCopyConflictModal, {
+  ConflictResolutions,
+  FileConflict,
+} from '@/pages/server/files/modals/FileCopyConflictModal.tsx';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -60,26 +64,68 @@ function FileActionBar() {
   );
 
   const [loading, setLoading] = useState(false);
+  const [conflicts, setConflicts] = useState<FileConflict[] | null>(null);
+  const [conflictLoading, setConflictLoading] = useState(false);
 
   const doCopy = () => {
     setLoading(true);
 
+    const files = actingFiles.values().map((f) => ({
+      from: join(actingFilesSource!, f.name),
+      to: join(browsingDirectory, f.name),
+      source: f,
+    }));
+
     copyFiles({
       uuid: server.uuid,
       root: '/',
-      files: actingFiles.values().map((f) => ({
-        from: join(actingFilesSource!, f.name),
-        to: join(browsingDirectory, f.name),
-      })),
+      files: files.map(({ from, to }) => ({ from, to })),
     })
-      .then(() => {
-        addToast(t('pages.server.files.toast.copyingStarted', { files: tItem('file', actingFiles.size) }), 'success');
+      .then(({ skipped }) => {
         clearActingFiles();
+
+        if (skipped.length === 0) {
+          addToast(t('pages.server.files.toast.copyingStarted', { files: tItem('file', files.length) }), 'success');
+          return;
+        }
+
+        setConflicts(
+          skipped
+            .map((destination) => {
+              const match = files.find((f) => f.to === destination.name);
+              if (!match) return null;
+
+              return { from: match.from, to: match.to, source: match.source, destination };
+            })
+            .filter((c): c is FileConflict => c !== null),
+        );
       })
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');
       })
       .finally(() => setLoading(false));
+  };
+
+  const doResolveConflicts = ({ overwrite, rename }: ConflictResolutions) => {
+    setConflictLoading(true);
+
+    Promise.all([
+      overwrite.length > 0
+        ? copyFiles({ uuid: server.uuid, root: '/', files: overwrite, overwrite: true })
+        : Promise.resolve(),
+      rename.length > 0 ? copyFiles({ uuid: server.uuid, root: '/', files: rename }) : Promise.resolve(),
+    ])
+      .then(() => {
+        addToast(
+          t('pages.server.files.toast.copyingStarted', { files: tItem('file', overwrite.length + rename.length) }),
+          'success',
+        );
+        setConflicts(null);
+      })
+      .catch((msg) => {
+        addToast(httpErrorToHuman(msg), 'error');
+      })
+      .finally(() => setConflictLoading(false));
   };
 
   const doMove = () => {
@@ -163,7 +209,7 @@ function FileActionBar() {
             actingFiles.size > 0 &&
             !loading &&
             browsingWritableDirectory &&
-            browsingDirectory !== actingFilesSource
+            (actingMode === 'copy' || browsingDirectory !== actingFilesSource)
           ) {
             if (actingMode === 'copy') {
               doCopy();
@@ -194,116 +240,122 @@ function FileActionBar() {
   });
 
   return (
-    <ActionBar opened={actingFiles.size > 0 || selectedFiles.size > 0}>
-      {window.extensionContext.extensionRegistry.pages.server.files.fileActionBar.prependedComponents.map(
-        (Component, i) => (
-          <Component key={`files-actionBar-prepended-${i}`} />
-        ),
-      )}
+    <>
+      <FileCopyConflictModal
+        opened={conflicts !== null}
+        onClose={() => setConflicts(null)}
+        conflicts={conflicts ?? []}
+        loading={conflictLoading}
+        onResolve={doResolveConflicts}
+      />
 
-      {actingFiles.size > 0 ? (
-        <>
-          {actingMode === 'copy' ? (
-            <Tooltip label={t('pages.server.files.actionBar.copyHere', { files: tItem('file', actingFiles.size) })}>
-              <Button
-                onClick={doCopy}
-                loading={loading}
-                disabled={!browsingWritableDirectory || browsingDirectory === actingFilesSource}
-              >
-                <FontAwesomeIcon icon={faAnglesDown} />
-              </Button>
-            </Tooltip>
-          ) : (
-            <Tooltip label={t('pages.server.files.actionBar.moveHere', { files: tItem('file', actingFiles.size) })}>
-              <Button
-                onClick={doMove}
-                loading={loading}
-                disabled={!browsingWritableDirectory || browsingDirectory === actingFilesSource}
-              >
-                <FontAwesomeIcon icon={faAnglesDown} />
-              </Button>
-            </Tooltip>
-          )}
-          <Tooltip label={t('common.button.cancel', {})}>
-            <Button variant='default' onClick={clearActingFiles}>
-              <FontAwesomeIcon icon={faBan} />
-            </Button>
-          </Tooltip>
-        </>
-      ) : (
-        <>
-          <ServerCan action='files.read-content'>
-            <Tooltip label={t('common.button.download', {})}>
-              <Button onClick={doDownload} loading={loading}>
-                <FontAwesomeIcon icon={faFileDownload} />
-              </Button>
-            </Tooltip>
-          </ServerCan>
-          <ServerCan action='files.read'>
-            <Tooltip label={t('pages.server.files.button.remoteCopy', {})}>
-              <Button onClick={() => doOpenModal('copy-remote', selectedFiles.values())}>
-                <FontAwesomeIcon icon={faClone} />
-              </Button>
-            </Tooltip>
-          </ServerCan>
-          <ServerCan action='files.create'>
-            <Tooltip label={t('pages.server.files.button.copy', {})}>
-              <Button
-                onClick={() => {
-                  doActFiles('copy', selectedFiles.values());
-                  doSelectFiles([]);
-                }}
-              >
-                <FontAwesomeIcon icon={faCopy} />
-              </Button>
-            </Tooltip>
-          </ServerCan>
-          {browsingWritableDirectory && (
-            <>
-              <ServerCan action='files.archive'>
-                <Tooltip label={t('pages.server.files.button.archive', {})}>
-                  <Button onClick={() => doOpenModal('archive', selectedFiles.values())}>
-                    <FontAwesomeIcon icon={faArchive} />
-                  </Button>
-                </Tooltip>
-              </ServerCan>
-              <ServerCan action='files.update'>
-                <Tooltip label={t('pages.server.files.button.rename', {})}>
-                  <Button onClick={() => doOpenModal('mass-rename', selectedFiles.values())}>
-                    <FontAwesomeIcon icon={faPen} />
-                  </Button>
-                </Tooltip>
-              </ServerCan>
-              <ServerCan action='files.update'>
-                <Tooltip label={t('common.button.move', {})}>
-                  <Button
-                    onClick={() => {
-                      doActFiles('move', selectedFiles.values());
-                      doSelectFiles([]);
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faAnglesUp} />
-                  </Button>
-                </Tooltip>
-              </ServerCan>
-              <ServerCan action='files.delete'>
-                <Tooltip label={t('common.button.delete', {})}>
-                  <Button color='red' onClick={() => doOpenModal('delete', selectedFiles.values())}>
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
-                </Tooltip>
-              </ServerCan>
-            </>
-          )}
-        </>
-      )}
+      <ActionBar opened={actingFiles.size > 0 || selectedFiles.size > 0}>
+        {window.extensionContext.extensionRegistry.pages.server.files.fileActionBar.prependedComponents.map(
+          (Component, i) => (
+            <Component key={`files-actionBar-prepended-${i}`} />
+          ),
+        )}
 
-      {window.extensionContext.extensionRegistry.pages.server.files.fileActionBar.appendedComponents.map(
-        (Component, i) => (
-          <Component key={`files-actionBar-appended-${i}`} />
-        ),
-      )}
-    </ActionBar>
+        {actingFiles.size > 0 ? (
+          <>
+            {actingMode === 'copy' ? (
+              <Tooltip label={t('pages.server.files.actionBar.copyHere', { files: tItem('file', actingFiles.size) })}>
+                <Button onClick={doCopy} loading={loading} disabled={!browsingWritableDirectory}>
+                  <FontAwesomeIcon icon={faAnglesDown} />
+                </Button>
+              </Tooltip>
+            ) : (
+              <Tooltip label={t('pages.server.files.actionBar.moveHere', { files: tItem('file', actingFiles.size) })}>
+                <Button
+                  onClick={doMove}
+                  loading={loading}
+                  disabled={!browsingWritableDirectory || browsingDirectory === actingFilesSource}
+                >
+                  <FontAwesomeIcon icon={faAnglesDown} />
+                </Button>
+              </Tooltip>
+            )}
+            <Tooltip label={t('common.button.cancel', {})}>
+              <Button variant='default' onClick={clearActingFiles}>
+                <FontAwesomeIcon icon={faBan} />
+              </Button>
+            </Tooltip>
+          </>
+        ) : (
+          <>
+            <ServerCan action='files.read-content'>
+              <Tooltip label={t('common.button.download', {})}>
+                <Button onClick={doDownload} loading={loading}>
+                  <FontAwesomeIcon icon={faFileDownload} />
+                </Button>
+              </Tooltip>
+            </ServerCan>
+            <ServerCan action='files.read'>
+              <Tooltip label={t('pages.server.files.button.remoteCopy', {})}>
+                <Button onClick={() => doOpenModal('copy-remote', selectedFiles.values())}>
+                  <FontAwesomeIcon icon={faClone} />
+                </Button>
+              </Tooltip>
+            </ServerCan>
+            <ServerCan action='files.create'>
+              <Tooltip label={t('pages.server.files.button.copy', {})}>
+                <Button
+                  onClick={() => {
+                    doActFiles('copy', selectedFiles.values());
+                    doSelectFiles([]);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faCopy} />
+                </Button>
+              </Tooltip>
+            </ServerCan>
+            {browsingWritableDirectory && (
+              <>
+                <ServerCan action='files.archive'>
+                  <Tooltip label={t('pages.server.files.button.archive', {})}>
+                    <Button onClick={() => doOpenModal('archive', selectedFiles.values())}>
+                      <FontAwesomeIcon icon={faArchive} />
+                    </Button>
+                  </Tooltip>
+                </ServerCan>
+                <ServerCan action='files.update'>
+                  <Tooltip label={t('pages.server.files.button.rename', {})}>
+                    <Button onClick={() => doOpenModal('mass-rename', selectedFiles.values())}>
+                      <FontAwesomeIcon icon={faPen} />
+                    </Button>
+                  </Tooltip>
+                </ServerCan>
+                <ServerCan action='files.update'>
+                  <Tooltip label={t('common.button.move', {})}>
+                    <Button
+                      onClick={() => {
+                        doActFiles('move', selectedFiles.values());
+                        doSelectFiles([]);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faAnglesUp} />
+                    </Button>
+                  </Tooltip>
+                </ServerCan>
+                <ServerCan action='files.delete'>
+                  <Tooltip label={t('common.button.delete', {})}>
+                    <Button color='red' onClick={() => doOpenModal('delete', selectedFiles.values())}>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  </Tooltip>
+                </ServerCan>
+              </>
+            )}
+          </>
+        )}
+
+        {window.extensionContext.extensionRegistry.pages.server.files.fileActionBar.appendedComponents.map(
+          (Component, i) => (
+            <Component key={`files-actionBar-appended-${i}`} />
+          ),
+        )}
+      </ActionBar>
+    </>
   );
 }
 

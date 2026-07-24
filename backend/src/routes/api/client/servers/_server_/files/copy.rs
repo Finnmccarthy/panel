@@ -20,6 +20,8 @@ mod post {
         destination: Option<compact_str::CompactString>,
 
         #[serde(default)]
+        overwrite: bool,
+        #[serde(default)]
         foreground: bool,
     }
 
@@ -38,6 +40,7 @@ mod post {
         (status = ACCEPTED, body = inline(ResponseAccepted)),
         (status = UNAUTHORIZED, body = ApiError),
         (status = NOT_FOUND, body = ApiError),
+        (status = CONFLICT, body = ApiError),
         (status = EXPECTATION_FAILED, body = ApiError),
     ), params(
         (
@@ -72,6 +75,7 @@ mod post {
         let request_body = wings_api::servers_server_files_copy::post::RequestBody {
             path: data.path,
             name: data.destination,
+            overwrite: data.overwrite,
             foreground: data.foreground,
         };
 
@@ -98,6 +102,11 @@ mod post {
                 Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
                     return ApiResponse::new_serialized(ApiError::new_wings_value(err))
                         .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::CONFLICT)
                         .ok();
                 }
                 Err(wings_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {

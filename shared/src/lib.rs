@@ -305,8 +305,12 @@ pub static FRONTEND_LANGUAGES: LazyLock<Vec<compact_str::CompactString>> = LazyL
         let Some(file_name) = translation.path().file_name() else {
             continue;
         };
+        let file_name = file_name.to_string_lossy();
+        let Some(lang) = file_name.strip_suffix(".json") else {
+            continue;
+        };
 
-        languages.push(file_name.to_string_lossy().trim_end_matches(".json").into());
+        languages.push(lang.into());
     }
 
     languages
