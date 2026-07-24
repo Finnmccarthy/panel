@@ -16,6 +16,11 @@ export const serverFilesCopySchema = z.object({
   name: z.preprocess(nullableString, z.string().min(1).max(255).nullable()),
 });
 
+export const serverFilesCopyToDirectorySchema = z.object({
+  destination: z.string().min(1).max(255),
+  name: z.string().min(1).max(255),
+});
+
 export const serverFilesCopyRemoteSchema = z.object({
   destination: z.string().max(255),
   destinationServer: z.uuid(),

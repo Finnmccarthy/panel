@@ -129,7 +129,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
           type: 'action',
           icon: faCopy,
           label: t('pages.server.files.button.copy', {}),
-          hidden: !browsingWritableDirectory || (!file.file && !file.directory),
+          hidden: !file.file && !file.directory,
           onClick: () => store.getState().doOpenModal('copy', [file]),
           color: 'gray',
           canAccess: canCreate,

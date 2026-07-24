@@ -3,18 +3,25 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ModalProps } from '@mantine/core';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { join } from 'pathe';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import copyFile from '@/api/server/files/copyFile.ts';
 import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import Code from '@/elements/Code.tsx';
+import DirectoryBrowser from '@/elements/DirectoryBrowser.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
-import { serverDirectoryEntrySchema, serverFilesCopySchema } from '@/lib/schemas/server/files.ts';
+import Stack from '@/elements/Stack.tsx';
+import {
+  serverDirectoryEntrySchema,
+  serverFilesCopySchema,
+  serverFilesCopyToDirectorySchema,
+} from '@/lib/schemas/server/files.ts';
 import { useModalForm } from '@/plugins/useModalForm.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -24,28 +31,41 @@ type Props = ModalProps & {
   file: z.infer<typeof serverDirectoryEntrySchema> | null;
 };
 
+type CopyValues = {
+  name: string;
+  destination: string;
+};
+
 export default function FileCopyModal({ file, ...props }: Props) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const server = useServerStore((state) => state.server);
   const browsingDirectory = useFileManager((state) => state.browsingDirectory);
   const browsingEntries = useFileManager((state) => state.browsingEntries);
+  const browsingWritableDirectory = useFileManager((state) => state.browsingWritableDirectory);
+  const canCreate = useServerCan('files.create');
+
+  const readOnly = !browsingWritableDirectory;
 
   const [conflict, setConflict] = useState(false);
   const [overwriting, setOverwriting] = useState(false);
 
-  const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<z.infer<typeof serverFilesCopySchema>>({
+  const buildDestination = (values: CopyValues): string | null =>
+    readOnly ? join(values.destination, values.name) : values.name || null;
+
+  const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<CopyValues>({
     initialValues: {
       name: '',
+      destination: '/',
     },
-    validate: zod4Resolver(serverFilesCopySchema),
+    validate: zod4Resolver(readOnly ? serverFilesCopyToDirectorySchema : serverFilesCopySchema),
     onClose: () => {
       setConflict(false);
       props.onClose();
     },
     onSubmit: async (values) => {
       if (!file) return;
-      await copyFile(server.uuid, join(browsingDirectory, file.name), values.name || null);
+      await copyFile(server.uuid, join(browsingDirectory, file.name), buildDestination(values));
       addToast(t('pages.server.files.toast.fileCopyingStarted', {}), 'success');
     },
     onError: (err) => {
@@ -62,11 +82,19 @@ export default function FileCopyModal({ file, ...props }: Props) {
     },
   });
 
+  useEffect(() => {
+    if (props.opened && readOnly) {
+      form.setValues({ name: file?.name ?? '', destination: '/' });
+      form.resetDirty();
+      setConflict(false);
+    }
+  }, [props.opened, readOnly, file?.name]);
+
   const doOverwrite = () => {
     if (!file) return;
 
     setOverwriting(true);
-    copyFile(server.uuid, join(browsingDirectory, file.name), form.getValues().name || null, true)
+    copyFile(server.uuid, join(browsingDirectory, file.name), buildDestination(form.getValues()), true)
       .then(() => {
         addToast(t('pages.server.files.toast.fileCopyingStarted', {}), 'success');
         handleClose();
@@ -118,32 +146,59 @@ export default function FileCopyModal({ file, ...props }: Props) {
     return baseName.concat(suffix, extension);
   };
 
+  const previewPath = readOnly
+    ? join(form.getValues().destination, form.getValues().name)
+    : join(browsingDirectory, form.getValues().name || generateNewName());
+
   return (
     <FormModal
       title={t('pages.server.files.modal.copyFile.title', {})}
       isDirty={isDirty}
       loading={loading}
+      size={readOnly ? 'lg' : undefined}
       {...props}
       onClose={handleClose}
       onSubmit={handleSubmit}
     >
-      <TextInput
-        label={t('common.form.fileName', {})}
-        data-autofocus
-        {...form.getInputProps('name')}
-        onChange={(e) => {
-          setConflict(false);
-          form.getInputProps('name').onChange(e);
-        }}
-      />
+      {readOnly ? (
+        <Stack>
+          <DirectoryBrowser
+            serverUuid={server.uuid}
+            path={form.values.destination}
+            onNavigate={(path) => {
+              setConflict(false);
+              form.setFieldValue('destination', path);
+            }}
+            withCreateDirectory={canCreate}
+          />
+
+          <TextInput
+            label={t('common.form.fileName', {})}
+            data-autofocus
+            {...form.getInputProps('name')}
+            onChange={(e) => {
+              setConflict(false);
+              form.getInputProps('name').onChange(e);
+            }}
+          />
+        </Stack>
+      ) : (
+        <TextInput
+          label={t('common.form.fileName', {})}
+          data-autofocus
+          {...form.getInputProps('name')}
+          onChange={(e) => {
+            setConflict(false);
+            form.getInputProps('name').onChange(e);
+          }}
+        />
+      )}
 
       <p className='mt-2 text-sm md:text-base break-all'>
         <span>{t('pages.server.files.modal.copyFile.createdAs', {})}</span>
         <Code>
           /home/container/
-          <span className='text-cyan-200'>
-            {join(browsingDirectory, form.getValues().name || generateNewName()).replace(/^(\.\.\/|\/)+/, '')}
-          </span>
+          <span className='text-cyan-200'>{previewPath.replace(/^(\.\.\/|\/)+/, '')}</span>
         </Code>
       </p>
 
