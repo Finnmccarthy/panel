@@ -20,6 +20,7 @@ import { isAdmin } from '@/lib/permissions.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { getAccessibleRoutePaths, to } from '@/lib/routes.ts';
 import { isConflictingState } from '@/lib/server.ts';
+import ServerStatusPoller from '@/pages/server/ServerStatusPoller.tsx';
 import WebsocketHandler from '@/pages/server/WebsocketHandler.tsx';
 import WebsocketListener from '@/pages/server/WebsocketListener.tsx';
 import WebsocketStatusBanner from '@/pages/server/WebsocketStatusBanner.tsx';
@@ -262,6 +263,7 @@ export default function ServerRouter({ isNormal }: { isNormal: boolean }) {
             <>
               <WebsocketHandler />
               <WebsocketListener />
+              <ServerStatusPoller />
               {window.extensionContext.extensionRegistry.pages.server.prependedComponents.map((Component, i) => (
                 <Component key={`server-prepended-component-${i}`} />
               ))}
