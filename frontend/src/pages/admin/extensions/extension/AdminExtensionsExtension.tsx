@@ -23,7 +23,7 @@ export default function AdminExtensionsExtension() {
 
   return (
     <AdminContentContainer title={t('pages.admin.extensions.configure.title', { packageName: extension.packageName })}>
-      <Link to='/admin/extensions' className='text-sm text-blue-400 hover:underline'>
+      <Link to='/admin/extensions' className='inline-block mb-4 text-sm text-blue-400 hover:underline'>
         <FontAwesomeIcon icon={faArrowLeft} /> {t('pages.admin.extensions.button.back', {})}
       </Link>
 

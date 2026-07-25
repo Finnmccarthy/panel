@@ -208,6 +208,18 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
   }, [language]);
 
   const contextValue = useMemo(() => {
+    let numberFormat: Intl.NumberFormat | null = null;
+
+    const formatValue = (value: unknown): string => {
+      if (typeof value !== 'number') {
+        return String(value);
+      }
+
+      numberFormat ??= new Intl.NumberFormat(language, { maximumFractionDigits: 20 });
+
+      return numberFormat.format(value);
+    };
+
     const t = (key: string, values: Record<string, string | number>): string => {
       if (!languageData?.translations[key] && !baseTranslations.mapping[key as never]) {
         throw new Error(`Language key ${key} not found.`);
@@ -217,7 +229,7 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
 
       if (values) {
         Object.keys(values).forEach((placeholder) => {
-          translation = translation.replaceAll(`{${placeholder}}`, String(values[placeholder]));
+          translation = translation.replaceAll(`{${placeholder}}`, formatValue(values[placeholder]));
         });
       }
 
@@ -236,7 +248,7 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
         Object.keys(values).forEach((placeholder) => {
           const value = values[placeholder];
           if (typeof value === 'string' || typeof value === 'number') {
-            translation = translation.replaceAll(`{${placeholder}}`, String(value));
+            translation = translation.replaceAll(`{${placeholder}}`, formatValue(value));
           } else {
             reactNodeKeys.push(placeholder);
             translation = translation.replaceAll(`{${placeholder}}`, `%%${placeholder}%%`);
@@ -317,7 +329,7 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
       const translationItem = languageData?.items[key] || baseTranslations.items[key as never];
       const rules = new Intl.PluralRules(language);
 
-      return translationItem[rules.select(count)].replaceAll('{count}', count.toString());
+      return translationItem[rules.select(count)].replaceAll('{count}', formatValue(count));
     };
 
     return { language, setLanguage, t, tReact, tItem };
