@@ -10,6 +10,10 @@ members = [
 	"schema-extension/*",
 	"backend-extensions/*"
 ]
+# `backend-extensions/node_modules` is the compat symlink to the panel's
+# `frontend/node_modules` that lets extension frontends resolve the panel's own
+# dependencies. It is not a crate, so keep the glob above off it.
+exclude = ["backend-extensions/node_modules"]
 default-members = ["bins/base", "bins/all-in-one"]
 package.rust-version = "1.97.0"
 package.license = "MIT"

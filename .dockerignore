@@ -2,6 +2,7 @@ target/
 database/node_modules/
 database/lib/
 frontend/node_modules/
+backend-extensions/*/frontend/node_modules/
 frontend/dist/
 .env
 logs/

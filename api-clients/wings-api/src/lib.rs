@@ -2274,6 +2274,8 @@ pub mod system_config {
                         #[schema(inline)]
                         pub enabled: bool,
                         #[schema(inline)]
+                        pub ktls_enabled: bool,
+                        #[schema(inline)]
                         pub cert: compact_str::CompactString,
                         #[schema(inline)]
                         pub key: compact_str::CompactString,

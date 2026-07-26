@@ -767,8 +767,9 @@ impl ExtensionDistrFileBuilder {
         // to make editors resolve the panel's TypeScript config.
         let mut ignore_builder = GitignoreBuilder::new(path.as_ref());
         ignore_builder.add(path.as_ref().join(".gitignore"));
-        // `node_modules` is matched without a trailing slash so the symlink
-        // created on install (reported as a non-directory) is excluded too.
+        // `node_modules` is matched without a trailing slash so a leftover
+        // symlink from an older install (reported as a non-directory) is
+        // excluded too, not just the directory pnpm creates.
         ignore_builder
             .add_line(None, ".git/")?
             .add_line(None, "node_modules")?

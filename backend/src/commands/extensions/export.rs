@@ -161,7 +161,17 @@ impl shared::extensions::commands::CliCommand<ExportArgs> for ExportCommand {
                 let migrations_path =
                     Path::new("database/extension-migrations").join(&package_identifier);
                 let has_migrations = match tokio::fs::read_dir(&migrations_path).await {
-                    Ok(mut entries) => entries.next_entry().await?.is_some(),
+                    Ok(mut entries) => {
+                        let mut has_migrations = false;
+                        while let Some(entry) = entries.next_entry().await? {
+                            if entry.file_type().await?.is_dir() {
+                                has_migrations = true;
+                                break;
+                            }
+                        }
+
+                        has_migrations
+                    }
                     Err(_) => false,
                 };
 

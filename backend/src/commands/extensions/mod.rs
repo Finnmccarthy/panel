@@ -108,6 +108,7 @@ async fn prepare_migrations_dir(identifier: &str) -> std::io::Result<PathBuf> {
         remove_dir_or_symlink(&migrations_dir).await?;
     }
     tokio::fs::create_dir_all(&migrations_dir).await?;
+    tokio::fs::write(migrations_dir.join(".gitkeep"), "").await?;
 
     Ok(migrations_dir)
 }
@@ -151,15 +152,29 @@ async fn create_compat_links(identifier: &str) -> Result<(), anyhow::Error> {
     )?;
     symlink_dir(&migrations_target, &migrations_link)?;
 
-    let node_modules_link = Path::new("backend-extensions")
+    // `backend-extensions/<id>/frontend` is a pnpm workspace importer, so pnpm
+    // owns its `node_modules` and it has to be a real directory. Installs used
+    // to symlink it to the panel's `node_modules`; pnpm then resolved dependency
+    // links relative to the extension but wrote them through the symlink into
+    // `frontend/node_modules`, where they dangle on a cold install.
+    let legacy_node_modules_link = Path::new("backend-extensions")
         .join(identifier)
         .join("frontend")
         .join("node_modules");
+    if tokio::fs::symlink_metadata(&legacy_node_modules_link)
+        .await
+        .is_ok_and(|metadata| metadata.file_type().is_symlink())
+    {
+        remove_dir_or_symlink(&legacy_node_modules_link).await?;
+    }
+
+    // Extensions still need the panel's dependencies, which they import without
+    // declaring, so resolution walking up from `backend-extensions/<id>/frontend`
+    // has to reach them. pnpm has no importer at `backend-extensions`, so it
+    // never writes there and this link survives an install.
+    let node_modules_link = Path::new("backend-extensions").join("node_modules");
     remove_dir_or_symlink(&node_modules_link).await?;
-    symlink_dir(
-        Path::new("../../../frontend/node_modules"),
-        &node_modules_link,
-    )?;
+    symlink_dir(Path::new("../frontend/node_modules"), &node_modules_link)?;
 
     Ok(())
 }

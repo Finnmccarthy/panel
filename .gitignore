@@ -1,4 +1,5 @@
 target/
+backend-extensions/*/frontend/node_modules
 .env
 /logs/
 **/.idea
