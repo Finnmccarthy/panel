@@ -4263,6 +4263,7 @@ const baseTranslations = defineTranslations({
           },
           tooltip: {
             fileHistory: 'File History',
+            revertToDisk: 'Discard changes and load the file from disk',
             collabEditing: '{user} is editing this file',
             largestDirectories: 'Analyze directory sizes',
             dragToMove: 'Drag to move',
@@ -4306,7 +4307,7 @@ const baseTranslations = defineTranslations({
             collabConflictDiff: {
               title: 'File Changed on Disk',
             },
-            collabConflictLoadDisk: {
+            revertToDisk: {
               title: 'Load Disk Version',
               content:
                 'This will replace the editor contents with the file currently on disk. Unsaved changes will be lost.',

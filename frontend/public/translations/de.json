@@ -4235,6 +4235,7 @@
           },
           "tooltip": {
             "fileHistory": "Dateiverlauf",
+            "revertToDisk": "Änderungen verwerfen und Datei von der Festplatte laden",
             "collabEditing": "{user} bearbeitet diese Datei",
             "largestDirectories": "Verzeichnisgrößen analysieren",
             "dragToMove": "Zum Verschieben ziehen",
@@ -4277,7 +4278,7 @@
             "collabConflictDiff": {
               "title": "Datei auf Festplatte geändert"
             },
-            "collabConflictLoadDisk": {
+            "revertToDisk": {
               "title": "Festplattenversion laden",
               "content": "Dies ersetzt den Editor-Inhalt durch die aktuell auf der Festplatte gespeicherte Datei. Ungespeicherte Änderungen gehen verloren.",
               "contentMultiple": "Dies ersetzt den Editor-Inhalt für alle {participants} Personen in dieser Sitzung durch die aktuell auf der Festplatte gespeicherte Datei. Ungespeicherte Änderungen gehen verloren."

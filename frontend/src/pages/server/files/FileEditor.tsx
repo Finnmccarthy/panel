@@ -1,4 +1,4 @@
-import { faClockRotateLeft, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faClockRotateLeft, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Audio } from '@gfazioli/mantine-audio';
 import { AvatarGroup } from '@mantine/core';
@@ -138,7 +138,7 @@ function FileEditorComponent() {
   const [blobContent, setBlobContent] = useState(new Blob());
   const [pendingDraft, setPendingDraft] = useState<{ content: string; hashMismatch: boolean } | null>(null);
   const [conflictDiffOpen, setConflictDiffOpen] = useState(false);
-  const [conflictLoadConfirm, setConflictLoadConfirm] = useState(false);
+  const [revertConfirm, setRevertConfirm] = useState(false);
   const [conflictDiskContent, setConflictDiskContent] = useState<string | null>(null);
 
   const editorRef = useRef<Parameters<OnMount>[0]>(null);
@@ -165,6 +165,12 @@ function FileEditorComponent() {
     onActivated: (dirty) => {
       collabActiveRef.current = true;
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+      if (collabSaveTimerRef.current) clearTimeout(collabSaveTimerRef.current);
+
+      if (collabSavingRef.current) {
+        collabSavingRef.current = false;
+        setSaving(false);
+      }
 
       if (dirty) {
         setPendingDraft(null);
@@ -201,8 +207,9 @@ function FileEditorComponent() {
       if (collabSavingRef.current) {
         collabSavingRef.current = false;
         setSaving(false);
-        addToast(message, 'error');
       }
+
+      addToast(message, 'error');
     },
   });
 
@@ -303,7 +310,6 @@ function FileEditorComponent() {
   useEffect(() => {
     if (!collab.conflict) {
       setConflictDiffOpen(false);
-      setConflictLoadConfirm(false);
     }
   }, [collab.conflict]);
 
@@ -386,6 +392,32 @@ function FileEditorComponent() {
         }
       }, 15000);
     }
+  };
+
+  const revertToDisk = async () => {
+    const path = join(browsingDirectory, fileName);
+
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    localStorage.removeItem(draftKey(server.uuid, path));
+    setPendingDraft(null);
+
+    if (collabActiveRef.current && collab.reload()) {
+      return;
+    }
+
+    if (!editorRef.current) return;
+
+    await getFileContent(server.uuid, path)
+      .then((content) => content.text())
+      .then((text) => {
+        if (draftPathRef.current !== path || !editorRef.current) return;
+
+        savedContentRef.current = text;
+        originalHashRef.current = hashContent(text);
+        editorRef.current.setValue(text);
+        setDirty(false);
+      })
+      .catch((msg) => addToast(httpErrorToHuman(msg), 'error'));
   };
 
   const openConflictDiff = () => {
@@ -510,6 +542,19 @@ function FileEditorComponent() {
                 ))}
               </AvatarGroup>
             )}
+            <ServerCan action={collab.active ? 'files.update' : 'files.read-content'}>
+              {dirty &&
+                params.action === 'edit' &&
+                fileName &&
+                browsingWritableDirectory &&
+                !collab.conflict?.deleted && (
+                  <Tooltip label={t('pages.server.files.tooltip.revertToDisk', {})}>
+                    <ActionIcon size='sm' variant='subtle' color='gray' onClick={() => setRevertConfirm(true)}>
+                      <FontAwesomeIcon icon={faArrowsRotate} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+            </ServerCan>
             <ServerCan action='files.read-content'>
               {params.action === 'edit' && fileName && browsingPrimaryFilesystem && (
                 <Tooltip label={t('pages.server.files.tooltip.fileHistory', {})}>
@@ -635,7 +680,7 @@ function FileEditorComponent() {
               variant='default'
               onClick={() => {
                 setConflictDiffOpen(false);
-                setConflictLoadConfirm(true);
+                setRevertConfirm(true);
               }}
             >
               {t('pages.server.files.button.loadDisk', {})}
@@ -645,20 +690,20 @@ function FileEditorComponent() {
       </Modal>
 
       <ConfirmationModal
-        title={t('pages.server.files.modal.collabConflictLoadDisk.title', {})}
-        opened={conflictLoadConfirm}
-        onClose={() => setConflictLoadConfirm(false)}
-        onConfirmed={() => {
-          setConflictLoadConfirm(false);
-          collab.reload();
+        title={t('pages.server.files.modal.revertToDisk.title', {})}
+        opened={revertConfirm}
+        onClose={() => setRevertConfirm(false)}
+        onConfirmed={async () => {
+          await revertToDisk();
+          setRevertConfirm(false);
         }}
         confirm={t('pages.server.files.button.loadDisk', {})}
       >
         {collab.participants.length > 1
-          ? t('pages.server.files.modal.collabConflictLoadDisk.contentMultiple', {
+          ? t('pages.server.files.modal.revertToDisk.contentMultiple', {
               participants: collab.participants.length,
             })
-          : t('pages.server.files.modal.collabConflictLoadDisk.content', {})}
+          : t('pages.server.files.modal.revertToDisk.content', {})}
       </ConfirmationModal>
 
       <ConfirmationModal
@@ -722,7 +767,7 @@ function FileEditorComponent() {
                   )}
                   <ServerCan action='files.update'>
                     {!collab.conflict.deleted && (
-                      <Button size='xs' variant='default' onClick={() => setConflictLoadConfirm(true)}>
+                      <Button size='xs' variant='default' onClick={() => setRevertConfirm(true)}>
                         {t('pages.server.files.button.loadDisk', {})}
                       </Button>
                     )}
