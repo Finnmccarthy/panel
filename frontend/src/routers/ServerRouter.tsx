@@ -101,7 +101,11 @@ export default function ServerRouter({ isNormal }: { isNormal: boolean }) {
 
         if (item.type === 'redirect') {
           const name = (language !== 'en' && item.nameTranslations[language]) || item.name;
-          return { type: 'redirect' as const, name, destination: item.destination };
+          return {
+            type: 'redirect' as const,
+            name,
+            destination: item.destination,
+          };
         }
 
         return null;
@@ -156,12 +160,7 @@ export default function ServerRouter({ isNormal }: { isNormal: boolean }) {
               <NavLink to='/' className='w-full'>
                 <AppIcon />
               </NavLink>
-              {!user?.suspended && (
-                <>
-                  <ServerStatusIndicator />
-                  <Sidebar.Divider />
-                </>
-              )}
+              {!user?.suspended && <ServerStatusIndicator />}
             </>
           }
           footer={

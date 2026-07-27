@@ -130,7 +130,7 @@ export default function ServerStatusIndicator() {
 
   return (
     <>
-      <Card p='xs' className='min-h-fit mt-2'>
+      <Card p='xs' className='min-h-fit my-2'>
         <div className='h-5 flex items-center min-w-0'>
           <span className='text-sm font-medium truncate' title={server.name}>
             {server.name}
