@@ -1,36 +1,109 @@
-import { faPlay, faRefresh, faSkull, faStop, faTowerBroadcast } from '@fortawesome/free-solid-svg-icons';
+import {
+  faBan,
+  faPlay,
+  faRotateRight,
+  faSkull,
+  faStop,
+  faTowerBroadcast,
+  faTriangleExclamation,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Group } from '@mantine/core';
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { z } from 'zod';
 import { useShallow } from 'zustand/react/shallow';
-import ActionIcon from '@/elements/ActionIcon.tsx';
-import { ServerCan } from '@/elements/Can.tsx';
+import Button from '@/elements/Button.tsx';
+import Card from '@/elements/Card.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
+import Spinner from '@/elements/Spinner.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { serverPowerAction } from '@/lib/schemas/server/server.ts';
 import { statusToColor } from '@/lib/server.ts';
+import { formatMilliseconds } from '@/lib/time.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { SocketRequest } from '@/plugins/useWebsocketEvent.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
-import Divider from './Divider.tsx';
 
 export default function ServerStatusIndicator() {
   const { t } = useTranslations();
   const params = useParams<'id'>();
   const [open, setOpen] = useState(false);
-  const { server, state, socketInstance, socketConnected } = useServerStore(
+  const { server, state, stats, socketInstance, socketConnected } = useServerStore(
     useShallow((state) => ({
       server: state.server,
       state: state.state,
+      stats: state.stats,
       socketInstance: state.socketInstance,
       socketConnected: state.socketConnected,
     })),
   );
 
+  const canPower = useServerCan(['control.start', 'control.stop']);
+  const canRestart = useServerCan('control.restart');
+
   const killable = state === 'stopping';
+  const isOffline = state === 'offline';
+
+  const powerBlocked =
+    !socketConnected || !!server.status || server.isSuspended || server.isTransferring || server.nodeMaintenanceEnabled;
+
+  const { indicator, label } = useMemo((): { indicator: ReactNode; label: string } => {
+    const dot = (pulse: boolean) => (
+      <span className={classNames('rounded-full size-2', statusToColor(state), pulse && 'animate-pulse')} />
+    );
+    const icon = (definition: typeof faBan, className?: string) => (
+      <FontAwesomeIcon icon={definition} className={classNames('size-3', className)} />
+    );
+    const spinner = <Spinner size={12} />;
+
+    if (!socketConnected) {
+      return {
+        indicator: icon(faTowerBroadcast, 'text-(--mantine-color-dimmed)'),
+        label: t('common.enum.connectionStatus.offline', {}),
+      };
+    }
+    if (server.isSuspended) {
+      return { indicator: icon(faBan, 'text-server-status-offline'), label: t('common.server.state.suspended', {}) };
+    }
+    if (server.isTransferring) {
+      return { indicator: spinner, label: t('common.server.state.transferring', {}) };
+    }
+    if (server.nodeMaintenanceEnabled) {
+      return {
+        indicator: icon(faBan, 'text-server-status-offline'),
+        label: t('common.server.state.nodeMaintenance', {}),
+      };
+    }
+    if (server.status === 'installing') {
+      return { indicator: spinner, label: t('common.server.state.installing', {}) };
+    }
+    if (server.status === 'restoring_backup') {
+      return { indicator: spinner, label: t('common.server.state.restoringBackup', {}) };
+    }
+    if (server.status === 'install_failed') {
+      return {
+        indicator: icon(faTriangleExclamation, 'text-server-status-starting'),
+        label: t('common.server.state.installFailed', {}),
+      };
+    }
+
+    return {
+      indicator: dot(state === 'starting' || state === 'stopping'),
+      label: t(`common.enum.serverState.${state ?? 'unknown'}`, {}),
+    };
+  }, [
+    socketConnected,
+    server.isSuspended,
+    server.isTransferring,
+    server.nodeMaintenanceEnabled,
+    server.status,
+    state,
+    t,
+  ]);
+
+  const uptime = state === 'running' && stats?.uptime ? formatMilliseconds(stats.uptime, true, false) : null;
 
   const onPowerAction = (action: z.infer<typeof serverPowerAction> | 'kill-confirmed') => {
     if (action === 'kill') {
@@ -53,74 +126,59 @@ export default function ServerStatusIndicator() {
     return null;
   }
 
-  const isOffline = state === 'offline';
-
   const buttonAction = isOffline ? 'start' : killable ? 'kill' : 'stop';
-  const buttonColor = isOffline ? 'green' : 'red';
-  const buttonIcon = isOffline ? faPlay : killable ? faSkull : faStop;
 
   return (
-    <div className='flex flex-col gap-2'>
-      <Divider my={2} />
-      <div className='flex justify-start items-center gap-3 pl-2.5'>
-        <Group gap='xs'>
-          <ServerCan action={['control.start', 'control.stop']} matchAny>
-            <Tooltip label={t(`common.enum.serverPowerAction.${buttonAction}`, {})}>
-              <ActionIcon
-                size='lg'
-                radius='md'
-                color={buttonColor}
-                disabled={!socketConnected || !!server.status || server.isSuspended || server.isTransferring}
-                onClick={() => onPowerAction(buttonAction)}
-              >
-                <FontAwesomeIcon icon={buttonIcon} size='sm' />
-              </ActionIcon>
-            </Tooltip>
-          </ServerCan>
-          <ServerCan action='control.restart'>
-            <Tooltip label={t('common.enum.serverPowerAction.restart', {})}>
-              <ActionIcon
-                size='lg'
-                radius='md'
-                color='gray'
-                disabled={
-                  !socketConnected ||
-                  state === 'offline' ||
-                  !!server.status ||
-                  server.isSuspended ||
-                  server.isTransferring
-                }
-                onClick={() => onPowerAction('restart')}
-              >
-                <FontAwesomeIcon icon={faRefresh} size='sm' />
-              </ActionIcon>
-            </Tooltip>
-          </ServerCan>
-        </Group>
+    <>
+      <Card p='xs' className='min-h-fit mt-2'>
+        <div className='h-5 flex items-center min-w-0'>
+          <span className='text-sm font-medium truncate' title={server.name}>
+            {server.name}
+          </span>
+        </div>
 
-        <div className='flex items-center gap-1.5 text-xs'>
-          {socketConnected ? (
-            <>
-              <span className={classNames('rounded-full size-4 animate-pulse', statusToColor(state))} />
-              <span className='font-medium leading-none'>{t(`common.enum.serverState.${state}`, {})}</span>
-            </>
-          ) : (
-            <>
-              <FontAwesomeIcon
-                icon={faTowerBroadcast}
-                className={`${socketConnected ? 'animate-pulse text-green-500' : ''} w-4`}
-              />
-              <span className='font-medium leading-none'>
-                {socketConnected
-                  ? t('common.enum.connectionStatus.connected', {})
-                  : t('common.enum.connectionStatus.offline', {})}
-              </span>
-            </>
+        <div className='h-4 flex items-center gap-2 min-w-0'>
+          <span className='size-3 shrink-0 flex items-center justify-center'>{indicator}</span>
+          <span className='text-xs leading-none truncate text-(--mantine-color-dimmed)'>{label}</span>
+          {uptime && (
+            <span className='text-xs leading-none ml-auto shrink-0 text-(--mantine-color-dimmed)'>{uptime}</span>
           )}
         </div>
 
-        <div className='flex items-center gap-1.5 text-xs'></div>
-      </div>
+        {(canPower || canRestart) && (
+          <div className='flex gap-2 mt-2'>
+            {canPower && (
+              <Button
+                size='xs'
+                color={isOffline ? 'green' : 'red'}
+                disabled={powerBlocked}
+                onClick={() => onPowerAction(buttonAction)}
+                className='flex-1 min-w-0'
+                leftSection={<FontAwesomeIcon icon={isOffline ? faPlay : killable ? faSkull : faStop} size='xs' />}
+              >
+                {t(`common.enum.serverPowerAction.${buttonAction}`, {})}
+              </Button>
+            )}
+            {canRestart && (
+              <Tooltip
+                label={t('common.enum.serverPowerAction.restart', {})}
+                className={canPower ? undefined : 'flex-1'}
+              >
+                <Button
+                  size='xs'
+                  color='gray'
+                  disabled={powerBlocked || isOffline}
+                  onClick={() => onPowerAction('restart')}
+                  fullWidth={!canPower}
+                  className={canPower ? 'px-2.5!' : undefined}
+                >
+                  <FontAwesomeIcon icon={faRotateRight} size='xs' />
+                </Button>
+              </Tooltip>
+            )}
+          </div>
+        )}
+      </Card>
 
       <ConfirmationModal
         opened={open}
@@ -131,6 +189,6 @@ export default function ServerStatusIndicator() {
       >
         {t('pages.server.console.power.modal.forceStop.content', {})}
       </ConfirmationModal>
-    </div>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 import { getTranslations } from '@/providers/TranslationProvider.tsx';
 
-export function formatMilliseconds(uptime: number, short = true) {
+export function formatMilliseconds(uptime: number, short = true, withSeconds = true) {
   const uptimeSeconds = Math.floor(uptime / 1000);
 
   const days = Math.floor(uptimeSeconds / 86400);
@@ -10,10 +10,11 @@ export function formatMilliseconds(uptime: number, short = true) {
 
   const formatter = new Intl.DurationFormat(getTranslations().language, {
     style: short ? 'narrow' : 'long',
-    secondsDisplay: 'always',
+    secondsDisplay: withSeconds ? 'always' : 'auto',
+    minutesDisplay: withSeconds ? 'auto' : 'always',
   });
 
-  return formatter.format({ days, hours, minutes, seconds });
+  return formatter.format(withSeconds ? { days, hours, minutes, seconds } : { days, hours, minutes });
 }
 
 export function formatDateTime(timestamp: string | number | Date, precise?: boolean, short = true) {

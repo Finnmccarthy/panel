@@ -23,17 +23,25 @@ function Progress({
         </span>
       )}
 
-      <MantineProgress.Root size='xl' className='grow' {...rest}>
+      <MantineProgress.Root size='xl' radius='xl' className='grow' {...rest}>
         {isIndeterminate ? (
           <MantineProgress.Section
             value={40}
             color={color}
             withAria={false}
-            className='rounded-full animate-progress-indeterminate'
+            className='animate-progress-indeterminate'
+            style={{ borderRadius: 'var(--progress-radius)' }}
           />
         ) : (
           <>
-            <MantineProgress.Section value={clamped} color={color} />
+            <MantineProgress.Section
+              value={clamped}
+              color={color}
+              style={{
+                borderRadius: 'var(--progress-radius)',
+                minWidth: clamped > 0 ? 'var(--progress-size)' : undefined,
+              }}
+            />
             <span className='absolute inset-0 flex items-center justify-center pointer-events-none text-[11px] leading-none font-semibold tabular-nums text-(--mantine-color-text)'>
               {label}
             </span>

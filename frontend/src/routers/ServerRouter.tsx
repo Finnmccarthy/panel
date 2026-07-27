@@ -158,9 +158,7 @@ export default function ServerRouter({ isNormal }: { isNormal: boolean }) {
               </NavLink>
               {!user?.suspended && (
                 <>
-                  <div className='flex flex-col gap-2 mt-2 mb-1'>
-                    <ServerStatusIndicator />
-                  </div>
+                  <ServerStatusIndicator />
                   <Sidebar.Divider />
                 </>
               )}
