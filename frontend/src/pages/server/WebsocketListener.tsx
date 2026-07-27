@@ -233,6 +233,22 @@ export default function WebsocketListener() {
           })
           .catch((e) => console.error(e));
       }, 5000);
+    } else if (s === 'failure') {
+      if (transferTimeoutRef.current !== null) {
+        clearTimeout(transferTimeoutRef.current);
+        transferTimeoutRef.current = null;
+      }
+
+      updateServer({ isTransferring: false });
+      setTransferProgress(0, 0, 0, 0);
+      addToast(t('elements.serverWebsocket.listener.toast.transferFailed', {}), 'error');
+
+      getServer(serverStoreApi.getState().server.uuid)
+        .then((data) => {
+          updateServer(data);
+          updateServer({ isTransferring: false });
+        })
+        .catch((e) => console.error(e));
     }
   });
 

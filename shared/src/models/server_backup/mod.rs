@@ -34,6 +34,20 @@ pub enum BackupDisk {
 
 impl BackupDisk {
     #[inline]
+    pub fn from_wings_adapter(adapter: wings_api::BackupAdapter) -> Self {
+        match adapter {
+            wings_api::BackupAdapter::Wings => BackupDisk::Local,
+            wings_api::BackupAdapter::S3 => BackupDisk::S3,
+            wings_api::BackupAdapter::DdupBak => BackupDisk::DdupBak,
+            wings_api::BackupAdapter::Btrfs => BackupDisk::Btrfs,
+            wings_api::BackupAdapter::Zfs => BackupDisk::Zfs,
+            wings_api::BackupAdapter::Restic => BackupDisk::Restic,
+            wings_api::BackupAdapter::ProxmoxBackupServer => BackupDisk::ProxmoxBackupServer,
+            wings_api::BackupAdapter::Kopia => BackupDisk::Kopia,
+        }
+    }
+
+    #[inline]
     pub fn to_wings_adapter(self) -> wings_api::BackupAdapter {
         match self {
             BackupDisk::Local => wings_api::BackupAdapter::Wings,

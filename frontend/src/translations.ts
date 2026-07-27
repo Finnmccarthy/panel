@@ -532,6 +532,7 @@ const baseTranslations = defineTranslations({
             backupRestoreCompleted: 'Backup restore completed successfully.',
             installCompleted: 'Server Installation completed successfully.',
             installFailed: 'Server Installation failed.',
+            transferFailed: 'Server transfer failed, the server remains on this node.',
             operations: {
               compressing: {
                 completed: 'Compressed {files} to `{path}` in {time}.',

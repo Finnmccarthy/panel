@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE server_backups\n                SET checksum = v.checksum, browsable = v.browsable, streaming = v.streaming,\n                    disk = COALESCE(v.disk, server_backups.disk)\n                FROM UNNEST($2::uuid[], $3::text[], $4::boolean[], $5::boolean[], $6::backup_disk[]) AS v(uuid, checksum, browsable, streaming, disk)\n                WHERE server_backups.server_uuid = $1 AND server_backups.uuid = v.uuid",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "TextArray",
+        "BoolArray",
+        "BoolArray",
+        {
+          "Custom": {
+            "name": "backup_disk[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "backup_disk",
+                  "kind": {
+                    "Enum": [
+                      "LOCAL",
+                      "S3",
+                      "DDUP_BAK",
+                      "BTRFS",
+                      "ZFS",
+                      "RESTIC",
+                      "PROXMOX_BACKUP_SERVER",
+                      "KOPIA"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "87d6a2dfdda4883b94202e77d6fff8c8dfdc3539cc421644baf53943013a7bde"
+}

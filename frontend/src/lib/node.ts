@@ -6,6 +6,8 @@ import { getUrlConnectPort, getUrlPortOr } from '@/lib/url.ts';
 export const NODE_AIO_UUID = '7dbbbb63-1734-48c4-e1de-d1a65f62cada';
 export const WINGS_DEFAULT_PORT = 8080;
 
+export const MAX_TRANSFER_MULTIPLEX_CHANNELS = 16;
+
 export const isNodeAIO = (node: z.infer<typeof adminNodeSchema>) => {
   return node.uuid === NODE_AIO_UUID;
 };

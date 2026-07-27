@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO server_allocations (server_uuid, allocation_uuid)\n                    VALUES ($1, $2)\n                    ON CONFLICT DO NOTHING\n                    RETURNING uuid",
+  "query": "INSERT INTO server_allocations (server_uuid, allocation_uuid)\n                VALUES ($1, $2)\n                ON CONFLICT DO NOTHING\n                RETURNING uuid",
   "describe": {
     "columns": [
       {
@@ -25,5 +25,5 @@
       false
     ]
   },
-  "hash": "bcdd34777134ffcdbbe1fcf4087f160ee3b516008f29e1a57169f275a41b38f6"
+  "hash": "a359be5493ea2923438749f0ae9f9e0a261d3635d2f66ed03692cac3784e9920"
 }

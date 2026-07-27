@@ -6,7 +6,7 @@ mod post {
     use serde::{Deserialize, Serialize};
     use shared::{
         ApiError, GetState,
-        models::{EventEmittingModel, node::GetNode, server::GetServer},
+        models::{EventEmittingModel, node::GetNode, server::GetServer, server_backup::BackupDisk},
         response::{ApiResponse, ApiResponseResult},
     };
     use std::collections::BTreeMap;
@@ -18,6 +18,8 @@ mod post {
         pub checksum_type: compact_str::CompactString,
         pub browsable: bool,
         pub streaming: bool,
+        #[serde(default)]
+        pub adapter: Option<wings_api::BackupAdapter>,
     }
 
     #[derive(ToSchema, Deserialize)]
@@ -102,6 +104,7 @@ mod post {
             let mut backup_migration_checksum = Vec::new();
             let mut backup_migration_browsable = Vec::new();
             let mut backup_migration_streaming = Vec::new();
+            let mut backup_migration_disk = Vec::new();
 
             for (backup_uuid, backup_migration) in data.backup_migrations {
                 backup_migration_uuid.push(backup_uuid);
@@ -111,17 +114,21 @@ mod post {
                 ));
                 backup_migration_browsable.push(backup_migration.browsable);
                 backup_migration_streaming.push(backup_migration.streaming);
+                backup_migration_disk
+                    .push(backup_migration.adapter.map(BackupDisk::from_wings_adapter));
             }
             sqlx::query!(
                 "UPDATE server_backups
-                SET checksum = v.checksum, browsable = v.browsable, streaming = v.streaming
-                FROM UNNEST($2::uuid[], $3::text[], $4::boolean[], $5::boolean[]) AS v(uuid, checksum, browsable, streaming)
+                SET checksum = v.checksum, browsable = v.browsable, streaming = v.streaming,
+                    disk = COALESCE(v.disk, server_backups.disk)
+                FROM UNNEST($2::uuid[], $3::text[], $4::boolean[], $5::boolean[], $6::backup_disk[]) AS v(uuid, checksum, browsable, streaming, disk)
                 WHERE server_backups.server_uuid = $1 AND server_backups.uuid = v.uuid",
                 server.uuid,
                 &backup_migration_uuid,
                 &backup_migration_checksum,
                 &backup_migration_browsable,
-                &backup_migration_streaming
+                &backup_migration_streaming,
+                &backup_migration_disk as &[Option<BackupDisk>]
             )
             .execute(&mut *transaction)
             .await?;

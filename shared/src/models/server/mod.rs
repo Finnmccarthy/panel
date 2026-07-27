@@ -103,6 +103,8 @@ impl From<ServerAutoStartBehavior> for wings_api::ServerAutoStartBehavior {
     }
 }
 
+pub const MAX_TRANSFER_MULTIPLEX_CHANNELS: u64 = 16;
+
 pub struct ServerTransferOptions {
     pub destination_node: super::node::Node,
 
@@ -1165,7 +1167,7 @@ impl Server {
     }
 
     /// Triggers a transfer of the server to another node.
-    /// This will only work if the server is in a state that allows transferring. (None status)
+    /// This will only work if the server is not currently installing or restoring a backup.
     /// If this is not the case, a `DisplayError` will be returned.
     pub async fn transfer(
         self,
@@ -1176,6 +1178,17 @@ impl Server {
             return Err(DisplayError::new("server is already being transferred")
                 .with_status(axum::http::StatusCode::CONFLICT)
                 .into());
+        }
+
+        if matches!(
+            self.status,
+            Some(ServerStatus::Installing) | Some(ServerStatus::RestoringBackup)
+        ) {
+            return Err(DisplayError::new(
+                "server is installing or restoring a backup and cannot be transferred",
+            )
+            .with_status(axum::http::StatusCode::CONFLICT)
+            .into());
         }
 
         if self.node.uuid == options.destination_node.uuid {
@@ -1192,22 +1205,63 @@ impl Server {
                 .into());
         }
 
+        if options.multiplex_channels > MAX_TRANSFER_MULTIPLEX_CHANNELS {
+            return Err(DisplayError::new(format!(
+                "multiplex channels cannot exceed {MAX_TRANSFER_MULTIPLEX_CHANNELS}"
+            ))
+            .with_status(axum::http::StatusCode::BAD_REQUEST)
+            .into());
+        }
+
+        let mut requested_allocations = options.allocation_uuids.clone();
+        requested_allocations.extend(options.allocation_uuid);
+        requested_allocations.sort_unstable();
+        requested_allocations.dedup();
+
+        if !requested_allocations.is_empty() {
+            let owned = sqlx::query!(
+                "SELECT COUNT(*) AS count FROM node_allocations
+                WHERE node_allocations.uuid = ANY($1) AND node_allocations.node_uuid = $2",
+                &requested_allocations,
+                options.destination_node.uuid
+            )
+            .fetch_one(state.database.read())
+            .await?
+            .count
+            .unwrap_or(0);
+
+            if owned != requested_allocations.len() as i64 {
+                return Err(DisplayError::new(
+                    "all allocations must belong to the destination node",
+                )
+                .with_status(axum::http::StatusCode::BAD_REQUEST)
+                .into());
+            }
+        }
+
         let mut transaction = state.database.write().begin().await?;
 
         let destination_allocation_uuid = if let Some(allocation_uuid) = options.allocation_uuid {
-            Some(
-                sqlx::query!(
-                    "INSERT INTO server_allocations (server_uuid, allocation_uuid)
-                    VALUES ($1, $2)
-                    ON CONFLICT DO NOTHING
-                    RETURNING uuid",
-                    self.uuid,
-                    allocation_uuid
-                )
-                .fetch_one(&mut *transaction)
-                .await?
-                .uuid,
+            match sqlx::query!(
+                "INSERT INTO server_allocations (server_uuid, allocation_uuid)
+                VALUES ($1, $2)
+                ON CONFLICT DO NOTHING
+                RETURNING uuid",
+                self.uuid,
+                allocation_uuid
             )
+            .fetch_optional(&mut *transaction)
+            .await?
+            {
+                Some(row) => Some(row.uuid),
+                None => {
+                    return Err(DisplayError::new(
+                        "the primary allocation is already assigned to a server",
+                    )
+                    .with_status(axum::http::StatusCode::CONFLICT)
+                    .into());
+                }
+            }
         } else {
             None
         };
@@ -1250,11 +1304,12 @@ impl Server {
             },
         )?;
 
-        transaction.commit().await?;
-
         let url = options.destination_node.url("/api/transfers");
 
-        self.node
+        // the transfer state is only committed once the source node has accepted the job,
+        // otherwise a failing node leaves the server permanently marked as transferring.
+        match self
+            .node
             .fetch_cached(&state.database)
             .await?
             .api_client(&state.database)
@@ -1271,7 +1326,17 @@ impl Server {
                     multiplex_streams: options.multiplex_channels,
                 },
             )
-            .await?;
+            .await
+        {
+            Ok(_) => {}
+            Err(err) => {
+                transaction.rollback().await?;
+
+                return Err(err.into());
+            }
+        }
+
+        transaction.commit().await?;
 
         Server::get_event_emitter().emit(
             state.clone(),

@@ -13,6 +13,7 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
 import { compressionLevelLabelMapping, transferArchiveFormatLabelMapping } from '@/lib/enums.ts';
+import { MAX_TRANSFER_MULTIPLEX_CHANNELS } from '@/lib/node.ts';
 import { ObjectSet } from '@/lib/objectSet.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
@@ -220,8 +221,9 @@ export default function ServersTransferModal({
             label={t('common.form.multiplexChannels', {})}
             description={t('common.form.multiplexChannelsDescription', {})}
             min={0}
+            max={MAX_TRANSFER_MULTIPLEX_CHANNELS}
             value={multiplexChannels}
-            onChange={(value) => setMultiplexChannels(Number(value) || 0)}
+            onChange={(value) => setMultiplexChannels(Math.min(Number(value) || 0, MAX_TRANSFER_MULTIPLEX_CHANNELS))}
           />
         </Stack>
 
