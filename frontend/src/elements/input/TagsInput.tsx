@@ -1,6 +1,14 @@
-import { faCheck, faGripVertical, faPencil, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCheck,
+  faClipboard,
+  faGripVertical,
+  faPaste,
+  faPencil,
+  faTrash,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Group, Input, Stack, StyleProp, Text } from '@mantine/core';
+import { Group, Input, Menu, Stack, StyleProp, Text } from '@mantine/core';
 import { ComponentProps, ReactNode, startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import { makeComponentHookable } from 'shared';
 import ActionIcon from '@/elements/ActionIcon.tsx';
@@ -8,8 +16,18 @@ import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
 import { DndContainer, DndItem, SortableItem } from '@/elements/DragAndDrop.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import { handleRawCopyToClipboard } from '@/lib/copy.ts';
 import { restrictToVerticalAxis } from '@/lib/dragAndDrop.ts';
+import { handleRawPasteFromClipboard } from '@/lib/paste.ts';
+import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+
+function splitTagLines(text: string): string[] {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
 
 interface TagsInputProps {
   label?: ReactNode;
@@ -34,7 +52,7 @@ function TagsInput({
   description,
   withAsterisk,
   allowReordering = true,
-  value = [],
+  value,
   defaultValue = [],
   onChange,
   placeholder = 'Add tag...',
@@ -42,17 +60,20 @@ function TagsInput({
   flex,
 }: TagsInputProps) {
   const { t } = useTranslations();
+  const { addToast } = useToast();
 
-  const [selectedTags, setSelectedTags] = useState<string[]>(defaultValue);
+  const [selectedTags, setSelectedTags] = useState<string[]>(value ?? defaultValue);
   const [newTag, setNewTag] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (value.length) {
-      setSelectedTags(value);
-    }
+    if (!value) return;
+
+    setSelectedTags((current) =>
+      current.length === value.length && current.every((tag, i) => tag === value[i]) ? current : value,
+    );
   }, [value]);
 
   const emitChange = (arr: string[]) => {
@@ -65,17 +86,46 @@ function TagsInput({
     emitChange(next);
   };
 
-  const handleAdd = () => {
-    const trimmed = newTag.trim();
-    if (!trimmed) return;
-    if (!allowDuplicates && selectedTags.includes(trimmed)) return;
+  const appendTags = (tags: string[]) => {
+    const next = [...selectedTags];
+    for (const tag of tags) {
+      if (!allowDuplicates && next.includes(tag)) continue;
+      next.push(tag);
+    }
+
+    if (next.length === selectedTags.length) {
+      setNewTag('');
+      return;
+    }
 
     startTransition(() => {
-      const next = [...selectedTags, trimmed];
       setSelectedTags(next);
       emitChange(next);
       setNewTag('');
       inputRef.current?.focus();
+    });
+  };
+
+  const handleAdd = () => {
+    appendTags(splitTagLines(newTag));
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const text = e.clipboardData.getData('text');
+    if (!text.includes('\n')) return;
+
+    e.preventDefault();
+    appendTags(splitTagLines(text));
+  };
+
+  const handleReplaceFromClipboard = (text: string) => {
+    const pasted = splitTagLines(text);
+    const next = allowDuplicates ? pasted : Array.from(new Set(pasted));
+
+    startTransition(() => {
+      setSelectedTags(next);
+      emitChange(next);
+      setEditingIndex(null);
     });
   };
 
@@ -189,6 +239,7 @@ function TagsInput({
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
             placeholder={placeholder}
             size='sm'
             className='flex-1'
@@ -196,6 +247,28 @@ function TagsInput({
           <Button onClick={handleAdd} size='sm' disabled={!newTag.trim()}>
             {t('common.button.add', {})}
           </Button>
+          <Menu shadow='md' width={200} position='bottom-end'>
+            <Menu.Target>
+              <ActionIcon size='input-sm' variant='default'>
+                <FontAwesomeIcon icon={faClipboard} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<FontAwesomeIcon icon={faClipboard} />}
+                disabled={selectedTags.length === 0}
+                onClick={() => handleRawCopyToClipboard(selectedTags.join('\n'), addToast)}
+              >
+                {t('common.elements.tagsInput.copyAll', {})}
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<FontAwesomeIcon icon={faPaste} />}
+                onClick={() => handleRawPasteFromClipboard(handleReplaceFromClipboard, addToast)}
+              >
+                {t('common.elements.tagsInput.pasteReplace', {})}
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </Group>
       </Stack>
 

@@ -189,6 +189,7 @@ const server = (serverUuid: string) => ({
     all: () => ['server', serverUuid, 'files'] as const,
     directory: (path: string) => ['server', serverUuid, 'files', 'directory', path] as const,
     fileRevisions: (path: string) => ['server', serverUuid, 'files', 'revisions', path] as const,
+    ignoreMatches: (pattern: string) => ['server', serverUuid, 'files', 'ignore-matches', pattern] as const,
   },
   mounts: {
     all: () => ['server', serverUuid, 'mounts'] as const,

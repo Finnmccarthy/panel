@@ -7,10 +7,10 @@ import getRoles from '@/api/admin/roles/getRoles.ts';
 import getServers from '@/api/admin/servers/getServers.ts';
 import Button from '@/elements/Button.tsx';
 import Divider from '@/elements/Divider.tsx';
+import IgnoredFilesInput from '@/elements/input/IgnoredFilesInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import ServerSelect from '@/elements/input/ServerSelect.tsx';
 import Switch from '@/elements/input/Switch.tsx';
-import TagsInput from '@/elements/input/TagsInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import PermissionSelector from '@/elements/PermissionSelector.tsx';
@@ -189,7 +189,11 @@ export default function OAuthProviderMappingModal({
               setSelectedPermissions={(permissions) => form.setFieldValue('permissions', permissions)}
             />
 
-            <TagsInput label={t('common.form.ignoredFiles', {})} {...form.getInputProps('ignoredFiles')} />
+            <IgnoredFilesInput
+              label={t('common.form.ignoredFiles', {})}
+              value={form.values.ignoredFiles}
+              onChange={(value) => form.setFieldValue('ignoredFiles', value)}
+            />
           </>
         )}
 

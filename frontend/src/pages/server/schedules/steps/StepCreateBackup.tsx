@@ -3,9 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import getBackupGroups from '@/api/server/backups/groups/getBackupGroups.ts';
 import Group from '@/elements/Group.tsx';
+import IgnoredFilesInput from '@/elements/input/IgnoredFilesInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import Switch from '@/elements/input/Switch.tsx';
-import TagsInput from '@/elements/input/TagsInput.tsx';
 import Stack from '@/elements/Stack.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { serverScheduleStepUpdateSchema } from '@/lib/schemas/server/schedules.ts';
@@ -61,10 +61,11 @@ export default function StepCreateBackup({
           {...form.getInputProps('action.ignoreFailure', { type: 'checkbox' })}
         />
       </Group>
-      <TagsInput
+      <IgnoredFilesInput
+        serverUuid={server.uuid}
         label={t('common.form.ignoredFiles', {})}
-        placeholder={t('common.form.ignoredFiles', {})}
-        {...form.getInputProps('action.ignoredFiles')}
+        value={form.getInputProps('action.ignoredFiles').value ?? []}
+        onChange={(value) => form.setFieldValue('action.ignoredFiles', value)}
       />
     </Stack>
   );

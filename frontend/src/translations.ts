@@ -103,6 +103,18 @@ const baseTranslations = defineTranslations({
           jsonMode: 'JSON',
           invalidJson: 'Invalid JSON',
         },
+        tagsInput: {
+          copyAll: 'Copy All',
+          pasteReplace: 'Paste (Replace)',
+        },
+        ignoredFilesInput: {
+          onePatternPerLine: 'One pattern per line.',
+          countMatches: 'Count Matches',
+          matches: '{count} matched',
+          noMatches: 'No matches',
+          exception: 'Exception',
+          tooManyPatterns: 'Matching is not counted automatically for more than {max} patterns.',
+        },
       },
       modal: {
         duplicate: {
