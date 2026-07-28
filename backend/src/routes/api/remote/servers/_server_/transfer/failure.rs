@@ -69,6 +69,8 @@ mod post {
         .execute(&mut *transaction)
         .await?;
 
+        transaction.commit().await?;
+
         if let Err(err) = destination_node
             .api_client(&state.database)
             .await?
@@ -77,8 +79,6 @@ mod post {
         {
             tracing::error!("failed to delete server on destination node: {:?}", err);
         }
-
-        transaction.commit().await?;
 
         shared::models::server::Server::get_event_emitter().emit(
             state.0,
