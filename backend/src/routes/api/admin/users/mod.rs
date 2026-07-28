@@ -79,7 +79,7 @@ mod post {
     use shared::{
         ApiError, GetState,
         models::{
-            CreatableModel,
+            CreatableModel, IntoAdminApiObject,
             admin_activity::GetAdminActivityLogger,
             user::{CreateUserOptions, GetPermissionManager, GetUser, User},
         },
@@ -89,7 +89,7 @@ mod post {
 
     #[derive(ToSchema, Serialize)]
     struct Response {
-        user: shared::models::user::ApiFullUser,
+        user: shared::models::user::AdminApiUser,
     }
 
     #[utoipa::path(post, path = "/", responses(
@@ -147,7 +147,7 @@ mod post {
 
         ApiResponse::new_serialized(Response {
             user: user
-                .into_api_full_object(&state, &state.storage.retrieve_urls().await?)
+                .into_admin_api_object(&state, &state.storage.retrieve_urls().await?)
                 .await?,
         })
         .ok()

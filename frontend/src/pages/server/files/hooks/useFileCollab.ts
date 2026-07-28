@@ -83,6 +83,8 @@ function updateCursorStyles(styleEl: HTMLStyleElement, awareness: Awareness): vo
   styleEl.textContent = rules.join('\n');
 }
 
+let editorSequence = 0;
+
 export default function useFileCollab({
   enabled,
   filePath,
@@ -135,6 +137,7 @@ export default function useFileCollab({
 
     const socket = socketInstance;
     const path = filePath;
+    const editorId = String(++editorSequence);
 
     const sendUpdate = (update: Uint8Array) => {
       const encoded = toBase64(update);
@@ -144,6 +147,7 @@ export default function useFileCollab({
           path,
           finished ? '1' : '0',
           encoded.slice(i, i + UPDATE_CHUNK_SIZE),
+          editorId,
         ]);
       }
     };
@@ -264,7 +268,7 @@ export default function useFileCollab({
       destroySession();
 
       if (message === 'resync' || wasActive) {
-        socket.send(SocketRequest.FILE_COLLAB_SUBSCRIBE, path);
+        socket.send(SocketRequest.FILE_COLLAB_SUBSCRIBE, [path, editorId]);
         if (message !== 'resync') {
           callbacksRef.current.onError(message);
         }
@@ -283,7 +287,7 @@ export default function useFileCollab({
     socket.addListener(SocketEvent.FILE_COLLAB_ERROR, onErrorEvent);
 
     subscribedRef.current = true;
-    socket.send(SocketRequest.FILE_COLLAB_SUBSCRIBE, path);
+    socket.send(SocketRequest.FILE_COLLAB_SUBSCRIBE, [path, editorId]);
 
     return () => {
       socket.removeListener(SocketEvent.FILE_COLLAB_SYNC, onSync);
@@ -294,11 +298,12 @@ export default function useFileCollab({
       socket.removeListener(SocketEvent.FILE_COLLAB_CONFLICT, onConflictEvent);
       socket.removeListener(SocketEvent.FILE_COLLAB_ERROR, onErrorEvent);
 
+      destroySession();
+
       if (subscribedRef.current) {
-        socket.send(SocketRequest.FILE_COLLAB_UNSUBSCRIBE, path);
+        socket.send(SocketRequest.FILE_COLLAB_UNSUBSCRIBE, [path, editorId]);
         subscribedRef.current = false;
       }
-      destroySession();
     };
   }, [enabled, socketConnected, socketInstance, editor, filePath]);
 
