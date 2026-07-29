@@ -21,6 +21,7 @@ import ActionBar from '@/elements/ActionBar.tsx';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { openUrl } from '@/lib/url.ts';
 import FileCopyConflictModal, {
   ConflictResolutions,
   FileConflict,
@@ -167,7 +168,7 @@ function FileActionBar() {
     )
       .then(({ url }) => {
         addToast(t('pages.server.files.toast.downloadStarted', {}), 'success');
-        window.open(url);
+        openUrl(url);
       })
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');

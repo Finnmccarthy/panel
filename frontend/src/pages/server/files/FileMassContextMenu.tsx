@@ -14,6 +14,7 @@ import downloadFiles from '@/api/server/files/downloadFiles.ts';
 import ContextMenu, { ContextMenuItem } from '@/elements/ContextMenu.tsx';
 import { streamingArchiveFormatLabelMapping } from '@/lib/enums.ts';
 import { streamingArchiveFormat } from '@/lib/schemas/generic.ts';
+import { openUrl } from '@/lib/url.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -51,7 +52,7 @@ export default function FileMassContextMenu({ children }: FileMassContextMenuPro
     )
       .then(({ url }) => {
         addToast(t('pages.server.files.toast.downloadStarted', {}), 'success');
-        window.open(url);
+        openUrl(url);
       })
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import ContextMenu from '@/elements/ContextMenu.tsx';
+import { openUrl } from '@/lib/url.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -38,7 +39,7 @@ export default function FileConnectButton({ file }: { file?: string }) {
               label: t('pages.server.files.button.connectSftp', {}),
               onClick: (e) => {
                 if (e.shiftKey) {
-                  window.open(sftpUrl);
+                  openUrl(sftpUrl);
                 } else {
                   setSftpDetailsOpen(true);
                 }
@@ -49,7 +50,7 @@ export default function FileConnectButton({ file }: { file?: string }) {
               type: 'action',
               icon: faCode,
               label: t('pages.server.files.button.connectVscode', {}),
-              onClick: () => window.open(vscodeUrl),
+              onClick: () => openUrl(vscodeUrl),
               color: 'gray',
             },
           ]}

@@ -33,6 +33,7 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { streamingArchiveFormat } from '@/lib/schemas/generic.ts';
 import { serverBackupSchema } from '@/lib/schemas/server/backups.ts';
 import { bytesProgressString, bytesToString } from '@/lib/size.ts';
+import { openUrl } from '@/lib/url.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { SocketEvent } from '@/plugins/useWebsocketEvent.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -61,7 +62,7 @@ export default function BackupRow({ backup }: { backup: z.infer<typeof serverBac
     downloadBackup(server.uuid, backup.uuid, archiveFormat)
       .then(({ url }) => {
         addToast(t('pages.server.backups.toast.downloadStarted', {}), 'success');
-        window.open(url, '_blank');
+        openUrl(url);
       })
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');

@@ -24,6 +24,7 @@ import { streamingArchiveFormatLabelMapping } from '@/lib/enums.ts';
 import { isArchiveType } from '@/lib/files.ts';
 import { streamingArchiveFormat } from '@/lib/schemas/generic.ts';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
+import { openUrl } from '@/lib/url.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/contexts/toastContext.ts';
 import { useWindows } from '@/providers/contexts/windowContext.ts';
@@ -57,7 +58,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
     downloadFiles(server.uuid, store.getState().browsingDirectory, [file.name], file.directory, archiveFormat)
       .then(({ url }) => {
         addToast(t('pages.server.files.toast.downloadStarted', {}), 'success');
-        window.open(url);
+        openUrl(url);
       })
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');
