@@ -988,7 +988,8 @@
             "addServerToGroup": "Server zur Gruppe hinzufügen",
             "groupActions": "Gruppen-Aktionen",
             "noGroups": "Keine Gruppen zum Hinzufügen verfügbar",
-            "noGroup": "Dieser Server ist noch in keiner Gruppe"
+            "noGroup": "Dieser Server ist noch in keiner Gruppe",
+            "foreign": "Dieser Server gehört einem anderen Benutzer, du hast als Unterbenutzer oder Administrator Zugriff darauf"
           },
           "badge": {
             "foreign": "Fremd"

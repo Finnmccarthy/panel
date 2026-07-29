@@ -194,9 +194,11 @@ export default function ServerItem({
                       <span className='text-xl font-medium flex items-center gap-2 min-w-0 flex-1' title={server.name}>
                         <span className='truncate flex-1'>{server.name}</span>
                         {showForeignServerBadge && !server.isOwner && (
-                          <Badge color='yellow' variant='light' className='shrink-0'>
-                            {t('pages.account.home.badge.foreign', {})}
-                          </Badge>
+                          <Tooltip label={t('pages.account.home.tooltip.foreign', {})} className='shrink-0'>
+                            <Badge color='yellow' variant='light'>
+                              {t('pages.account.home.badge.foreign', {})}
+                            </Badge>
+                          </Tooltip>
                         )}
                         {!serverListShowOthers && serverGroups.every((g) => !g.serverOrder.includes(server.uuid)) && (
                           <Tooltip label={t('pages.account.home.tooltip.noGroup', {})}>
