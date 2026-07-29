@@ -1773,6 +1773,14 @@ pub mod servers_server_files_revisions_revision {
         pub type Response404 = ApiError;
 
         pub type Response = Response200;
+
+        #[derive(Debug, Clone, Default)]
+        #[allow(clippy::manual_non_exhaustive)]
+        pub struct Query {
+            pub file: Option<compact_str::CompactString>,
+            #[doc(hidden)]
+            pub __priv: (),
+        }
     }
 }
 pub mod servers_server_files_search {

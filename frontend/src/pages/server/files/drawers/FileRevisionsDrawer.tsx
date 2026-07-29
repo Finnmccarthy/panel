@@ -52,7 +52,7 @@ function RevisionRow({
 
   const handleRestore = () => {
     setLoading(true);
-    getFileRevisionContent(server.uuid, revision.id)
+    getFileRevisionContent(server.uuid, revision.id, filePath)
       .then((content) => {
         onRestore(content);
         addToast(t('pages.server.files.drawer.revisions.restored', {}), 'success');

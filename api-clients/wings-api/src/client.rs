@@ -858,11 +858,21 @@ impl WingsClient {
         &self,
         server: uuid::Uuid,
         revision: i64,
+        query: &super::servers_server_files_revisions_revision::get::Query,
     ) -> Result<super::servers_server_files_revisions_revision::get::Response, ApiHttpError> {
+        let mut query_parts: Vec<compact_str::CompactString> = Vec::new();
+        if let Some(value) = &query.file {
+            query_parts.push(format!("file={}", urlencoding::encode(value)).into());
+        }
+        let query = if query_parts.is_empty() {
+            String::new()
+        } else {
+            format!("?{}", query_parts.join("&"))
+        };
         request_impl(
             self,
             Method::GET,
-            format!("/api/servers/{server}/files/revisions/{revision}"),
+            format!("/api/servers/{server}/files/revisions/{revision}{query}"),
             None::<&()>,
             None,
         )

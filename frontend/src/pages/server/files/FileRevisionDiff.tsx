@@ -50,9 +50,12 @@ function FileRevisionDiffComponent() {
     const passedContent: string | undefined = (location.state as { currentContent?: string } | null)?.currentContent;
 
     const fetches: [Promise<string>, Promise<string>] = previousRevisionId
-      ? [getFileRevisionContent(server.uuid, previousRevisionId), getFileRevisionContent(server.uuid, revisionId)]
+      ? [
+          getFileRevisionContent(server.uuid, previousRevisionId, filePath),
+          getFileRevisionContent(server.uuid, revisionId, filePath),
+        ]
       : [
-          getFileRevisionContent(server.uuid, revisionId),
+          getFileRevisionContent(server.uuid, revisionId, filePath),
           passedContent !== undefined
             ? Promise.resolve(passedContent)
             : getFileContent(server.uuid, filePath).then((blob) => blob.text()),

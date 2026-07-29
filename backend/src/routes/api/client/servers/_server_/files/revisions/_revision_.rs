@@ -2,12 +2,22 @@ use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod get {
-    use axum::{extract::Path, http::StatusCode};
+    use axum::{
+        extract::{Path, Query},
+        http::StatusCode,
+    };
+    use serde::Deserialize;
     use shared::{
         ApiError, GetState,
         models::{server::GetServer, user::GetPermissionManager},
         response::{ApiResponse, ApiResponseResult},
     };
+    use utoipa::ToSchema;
+
+    #[derive(ToSchema, Deserialize)]
+    pub struct Params {
+        file: compact_str::CompactString,
+    }
 
     #[utoipa::path(get, path = "/", responses(
         (status = OK, body = String),
@@ -25,14 +35,26 @@ mod get {
             description = "The revision ID",
             example = "1",
         ),
+        (
+            "file" = String, Query,
+            description = "The file the revision belongs to",
+            example = "/path/to/file.txt",
+        ),
     ))]
     pub async fn route(
         state: GetState,
         permissions: GetPermissionManager,
-        server: GetServer,
+        mut server: GetServer,
         Path((_server, revision)): Path<(String, i64)>,
+        Query(params): Query<Params>,
     ) -> ApiResponseResult {
         permissions.has_server_permission("files.read-content")?;
+
+        if server.is_ignored(&params.file, false) {
+            return ApiResponse::error("revision not found")
+                .with_status(StatusCode::NOT_FOUND)
+                .ok();
+        }
 
         let contents = match server
             .node
@@ -40,7 +62,14 @@ mod get {
             .await?
             .api_client(&state.database)
             .await?
-            .get_servers_server_files_revisions_revision(server.uuid, revision)
+            .get_servers_server_files_revisions_revision(
+                server.uuid,
+                revision,
+                &wings_api::servers_server_files_revisions_revision::get::Query {
+                    file: Some(params.file.clone()),
+                    ..Default::default()
+                },
+            )
             .await
         {
             Ok(data) => data,
