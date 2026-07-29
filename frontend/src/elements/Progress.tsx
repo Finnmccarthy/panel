@@ -9,8 +9,15 @@ function Progress({
   indeterminate = false,
   className,
   hourglass = true,
+  withLabel = true,
   ...rest
-}: ProgressRootProps & { value?: number; color?: MantineColor; indeterminate?: boolean; hourglass?: boolean }) {
+}: ProgressRootProps & {
+  value?: number;
+  color?: MantineColor;
+  indeterminate?: boolean;
+  hourglass?: boolean;
+  withLabel?: boolean;
+}) {
   const isIndeterminate = indeterminate || !Number.isFinite(value);
   const clamped = isIndeterminate ? 0 : Math.min(100, Math.max(0, value));
   const label = clamped >= 100 ? '100%' : `${clamped.toFixed(1)}%`;
@@ -42,18 +49,22 @@ function Progress({
                 minWidth: clamped > 0 ? 'var(--progress-size)' : undefined,
               }}
             />
-            <span className='absolute inset-0 flex items-center justify-center pointer-events-none text-[11px] leading-none font-semibold tabular-nums text-(--mantine-color-text)'>
-              {label}
-            </span>
-            <span
-              className='absolute inset-0 flex items-center justify-center pointer-events-none text-[11px] leading-none font-semibold tabular-nums text-white'
-              style={{
-                clipPath: `inset(0 ${100 - clamped}% 0 0)`,
-                transition: 'clip-path var(--progress-transition-duration, 100ms) ease',
-              }}
-            >
-              {label}
-            </span>
+            {withLabel && (
+              <>
+                <span className='absolute inset-0 flex items-center justify-center pointer-events-none text-[11px] leading-none font-semibold tabular-nums text-(--mantine-color-text)'>
+                  {label}
+                </span>
+                <span
+                  className='absolute inset-0 flex items-center justify-center pointer-events-none text-[11px] leading-none font-semibold tabular-nums text-white'
+                  style={{
+                    clipPath: `inset(0 ${100 - clamped}% 0 0)`,
+                    transition: 'clip-path var(--progress-transition-duration, 100ms) ease',
+                  }}
+                >
+                  {label}
+                </span>
+              </>
+            )}
           </>
         )}
       </MantineProgress.Root>

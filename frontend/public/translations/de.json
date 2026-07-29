@@ -645,6 +645,10 @@
                 "completedTo": "{files} zum Remote-Server kopiert in {time}.",
                 "failedFrom": "Kopieren von {files} vom Remote-Server fehlgeschlagen:\n{error}",
                 "failedTo": "Kopieren von {files} zum Remote-Server fehlgeschlagen:\n{error}"
+              },
+              "exportingBackup": {
+                "completed": "Backup nach `{destination}` exportiert in {time}.",
+                "failed": "Exportieren des Backups nach `{destination}` fehlgeschlagen:\n{error}"
               }
             }
           }

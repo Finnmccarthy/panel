@@ -40,6 +40,7 @@ export default function WebsocketListener() {
     setRunningScheduleStep,
     setScheduleSteps,
     setFileOperation,
+    failFileOperation,
     removeFileOperation,
   } = useServerStore(
     useShallow((state) => ({
@@ -60,6 +61,7 @@ export default function WebsocketListener() {
       setRunningScheduleStep: state.setRunningScheduleStep,
       setScheduleSteps: state.setScheduleSteps,
       setFileOperation: state.setFileOperation,
+      failFileOperation: state.failFileOperation,
       removeFileOperation: state.removeFileOperation,
     })),
   );
@@ -411,7 +413,18 @@ export default function WebsocketListener() {
         }
 
         break;
+      case 'export_backup':
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.exportingBackup.completed', {
+            destination: fileOperation.destinationPath,
+            time: totalTime,
+          }).md(),
+          'success',
+        );
+
+        break;
       default:
+        fileOperation satisfies never;
         break;
     }
 
@@ -498,11 +511,22 @@ export default function WebsocketListener() {
         }
 
         break;
+      case 'export_backup':
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.exportingBackup.failed', {
+            destination: fileOperation.destinationPath,
+            error,
+          }).md(),
+          'error',
+        );
+
+        break;
       default:
+        fileOperation satisfies never;
         break;
     }
 
-    removeFileOperation(uuid);
+    failFileOperation(uuid);
   });
 
   return null;

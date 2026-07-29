@@ -1,6 +1,6 @@
 import { faPause, faPlay, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import cancelOperation from '@/api/server/files/cancelOperation.ts';
@@ -20,14 +20,44 @@ import { useToast } from '@/providers/contexts/toastContext.ts';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
+import { FAILED_OPERATION_LINGER_MS } from '@/stores/slices/server/files.ts';
+
+function FailedOperationProgress({ failedAt }: { failedAt: number }) {
+  const [remaining] = useState(() => Math.max(0, FAILED_OPERATION_LINGER_MS - (Date.now() - failedAt)));
+  const [drained, setDrained] = useState(false);
+
+  useEffect(() => {
+    let inner: number;
+    const frame = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => setDrained(true));
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(inner);
+    };
+  }, []);
+
+  return (
+    <Progress
+      value={drained ? 0 : (remaining / FAILED_OPERATION_LINGER_MS) * 100}
+      color='red'
+      hourglass={false}
+      withLabel={false}
+      transitionDuration={remaining}
+      styles={{ section: { transitionTimingFunction: 'linear' } }}
+    />
+  );
+}
 
 function FileOperationsProgress() {
   const { t, tItem } = useTranslations();
   const { addToast } = useToast();
-  const { server, fileOperations, removeFileOperation } = useServerStore(
+  const { server, fileOperations, failedFileOperations, removeFileOperation } = useServerStore(
     useShallow((state) => ({
       server: state.server,
       fileOperations: state.fileOperations,
+      failedFileOperations: state.failedFileOperations,
       removeFileOperation: state.removeFileOperation,
     })),
   );
@@ -71,12 +101,13 @@ function FileOperationsProgress() {
   const cancelAllOperations = useCallback(() => {
     const cancellations: Promise<unknown>[] = [];
     fileOperations.forEach((_, uuid) => {
+      const failed = failedFileOperations.has(uuid);
       removeFileOperation(uuid);
-      cancellations.push(cancelOperation(server.uuid, uuid).catch(console.error));
+      if (!failed) cancellations.push(cancelOperation(server.uuid, uuid).catch(console.error));
     });
     Promise.allSettled(cancellations).then(() => invalidateFilemanager());
     addToast(t('pages.server.files.toast.allOperationsCancelled', {}), 'success');
-  }, [fileOperations, server.uuid, removeFileOperation, invalidateFilemanager, addToast, t]);
+  }, [fileOperations, failedFileOperations, server.uuid, removeFileOperation, invalidateFilemanager, addToast, t]);
 
   const doCancelOperation = (uuid: string) => {
     removeFileOperation(uuid);
@@ -92,6 +123,7 @@ function FileOperationsProgress() {
   };
 
   const hasOperations = fileOperations.size > 0 || uploadingFiles.size > 0;
+  const hasErrors = hasUploadErrors || failedFileOperations.size > 0;
 
   const averageOperationProgress = useMemo(() => {
     if (fileOperations.size === 0 && uploadingFiles.size === 0) {
@@ -126,14 +158,14 @@ function FileOperationsProgress() {
             sections={[
               {
                 value: averageOperationProgress,
-                color: hasUploadErrors ? 'red' : isRateLimited ? 'orange' : uploadingFiles.size > 0 ? 'green' : 'blue',
+                color: hasErrors ? 'red' : isRateLimited ? 'orange' : uploadingFiles.size > 0 ? 'green' : 'blue',
               },
             ]}
             roundCaps
             thickness={4}
             label={
               <Text
-                c={hasUploadErrors ? 'red' : isRateLimited ? 'orange' : uploadingFiles.size > 0 ? 'green' : 'blue'}
+                c={hasErrors ? 'red' : isRateLimited ? 'orange' : uploadingFiles.size > 0 ? 'green' : 'blue'}
                 fw={700}
                 ta='center'
                 size='xs'
@@ -338,6 +370,7 @@ function FileOperationsProgress() {
         })}
 
         {Array.from(fileOperations).map(([uuid, operation]) => {
+          const failedAt = failedFileOperations.get(uuid);
           const progress = (operation.bytesProcessed / operation.bytesTotal) * 100;
 
           return (
@@ -376,23 +409,32 @@ function FileOperationsProgress() {
                                   })
                                 : null}
                 </p>
-                <Tooltip
-                  label={`${bytesProgressString(operation.bytesProcessed, operation.bytesTotal)}${
-                    operation.type === 'compress' ||
-                    operation.type === 'decompress' ||
-                    operation.type === 'copy' ||
-                    operation.type === 'copy_remote' ||
-                    operation.type === 'copy_many'
-                      ? ` · ${tItem('file', operation.filesProcessed)}`
-                      : ''
-                  }`}
-                  innerClassName='w-full'
-                >
-                  <Progress indeterminate={!operation.bytesTotal} value={progress} />
-                </Tooltip>
+                {failedAt === undefined ? (
+                  <Tooltip
+                    label={`${bytesProgressString(operation.bytesProcessed, operation.bytesTotal)}${
+                      operation.type === 'compress' ||
+                      operation.type === 'decompress' ||
+                      operation.type === 'copy' ||
+                      operation.type === 'copy_remote' ||
+                      operation.type === 'copy_many'
+                        ? ` · ${tItem('file', operation.filesProcessed)}`
+                        : ''
+                    }`}
+                    innerClassName='w-full'
+                  >
+                    <Progress indeterminate={!operation.bytesTotal} value={progress} />
+                  </Tooltip>
+                ) : (
+                  <FailedOperationProgress failedAt={failedAt} />
+                )}
               </div>
-              <Tooltip label={t('common.button.cancel', {})}>
-                <ActionIcon variant='light' color='red' className='ml-3' onClick={() => doCancelOperation(uuid)}>
+              <Tooltip label={failedAt === undefined ? t('common.button.cancel', {}) : t('common.button.close', {})}>
+                <ActionIcon
+                  variant='light'
+                  color='red'
+                  className='ml-3'
+                  onClick={() => (failedAt === undefined ? doCancelOperation(uuid) : removeFileOperation(uuid))}
+                >
                   <FontAwesomeIcon icon={faXmark} size='sm' />
                 </ActionIcon>
               </Tooltip>

@@ -573,6 +573,10 @@ const baseTranslations = defineTranslations({
                 failedFrom: 'Failed to copy {files} from remote server:\n{error}',
                 failedTo: 'Failed to copy {files} to remote server:\n{error}',
               },
+              exportingBackup: {
+                completed: 'Exported backup to `{destination}` in {time}.',
+                failed: 'Failed to export backup to `{destination}`:\n{error}',
+              },
             },
           },
         },
