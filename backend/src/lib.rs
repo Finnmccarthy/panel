@@ -18,6 +18,7 @@ use shared::{
     response::ApiResponse,
 };
 use std::{
+    borrow::Cow,
     net::SocketAddr,
     sync::{Arc, OnceLock},
 };
@@ -285,12 +286,14 @@ pub async fn handle_startup() -> Result<
 
     let _guard = sentry::init((
         env.sentry_url.clone(),
-        sentry::ClientOptions {
-            server_name: env.server_name.clone().map(|s| s.into()),
-            release: Some(shared::full_version().into()),
-            traces_sample_rate: 1.0,
-            ..Default::default()
-        },
+        sentry::ClientOptions::default()
+            .server_name(
+                env.server_name
+                    .clone()
+                    .map_or(Cow::Borrowed("calagopus"), |s| s.into()),
+            )
+            .traces_sample_rate(env.sentry_tracing_sample_rate)
+            .release(shared::full_version()),
     ));
 
     let jwt = Arc::new(shared::jwt::Jwt::new(&env));

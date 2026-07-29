@@ -61,6 +61,8 @@ pub struct Env {
     pub redis_mode: RedisMode,
 
     pub sentry_url: Option<String>,
+    pub sentry_tracing_sample_rate: f32,
+
     pub database_migrate: bool,
     pub database_url: String,
     pub database_url_primary: Option<String>,
@@ -205,6 +207,12 @@ impl Env {
             sentry_url: std::env::var("SENTRY_URL")
                 .ok()
                 .map(|s| s.trim_matches('"').to_string()),
+            sentry_tracing_sample_rate: std::env::var("SENTRY_TRACING_SAMPLE_RATE")
+                .unwrap_or("1.0".to_string())
+                .trim_matches('"')
+                .parse()
+                .context("Invalid SENTRY_TRACING_SAMPLE_RATE value")?,
+
             database_migrate: std::env::var("DATABASE_MIGRATE")
                 .unwrap_or("false".to_string())
                 .trim_matches('"')
