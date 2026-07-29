@@ -26,6 +26,7 @@ import CloseButton from '@/elements/CloseButton.tsx';
 import MantineDivider from '@/elements/Divider.tsx';
 import Drawer from '@/elements/Drawer.tsx';
 import { isAdmin } from '@/lib/permissions.ts';
+import { openUrl } from '@/lib/url.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useWindows } from '@/providers/WindowProvider.tsx';
@@ -138,7 +139,7 @@ function Link({ to, end, icon, name, title = name, className, activeMatches }: L
           type: 'action',
           icon: faWindowRestore,
           label: t('elements.sidebar.button.openInNewTab', {}),
-          onClick: () => window.open(to, '_blank'),
+          onClick: () => openUrl(to),
           color: 'gray',
         },
       ]}

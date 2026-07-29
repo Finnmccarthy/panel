@@ -1,3 +1,13 @@
+export const openUrl = (url: string, target = '_blank') => {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.target = target;
+  anchor.rel = 'noopener noreferrer';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+};
+
 export const urlIsMissingPort = (url: string) => {
   try {
     const parsed = new URL(url);
