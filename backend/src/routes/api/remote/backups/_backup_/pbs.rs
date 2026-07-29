@@ -19,7 +19,7 @@ mod get {
         namespace: Option<compact_str::CompactString>,
         token_id: compact_str::CompactString,
         token_secret: compact_str::CompactString,
-        fingerprint: compact_str::CompactString,
+        fingerprint: Option<compact_str::CompactString>,
         backup_id_prefix: Option<compact_str::CompactString>,
 
         server_uuid: Option<uuid::Uuid>,

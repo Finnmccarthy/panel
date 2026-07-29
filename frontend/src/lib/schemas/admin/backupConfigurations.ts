@@ -2,6 +2,17 @@ import { z } from 'zod';
 import { nullableString } from '@/lib/transformers.ts';
 import { compressionType } from '../generic.ts';
 
+const optionalFingerprint = z.preprocess(
+  nullableString,
+  z
+    .string()
+    .regex(
+      /^(?:[0-9a-fA-F]{2}:){31}[0-9a-fA-F]{2}$|^[0-9a-fA-F]{64}$/,
+      'Must be a SHA-256 fingerprint (64 hex characters, colons optional)',
+    )
+    .nullable(),
+);
+
 export const adminBackupConfigurationResticPruneJobSchema = z.object({
   cron: z.string().min(1),
   nodes: z.array(z.string()),
@@ -38,12 +49,7 @@ export const adminBackupConfigurationPbsSchema = z.object({
       'Must be a Proxmox API token ID in the form user@realm!token-name',
     ),
   tokenSecret: z.string(),
-  fingerprint: z
-    .string()
-    .regex(
-      /^(?:[0-9a-fA-F]{2}:){31}[0-9a-fA-F]{2}$|^[0-9a-fA-F]{64}$/,
-      'Must be a SHA-256 fingerprint (64 hex characters, colons optional)',
-    ),
+  fingerprint: optionalFingerprint,
   backupIdPrefix: z.preprocess(nullableString, z.string().max(255).nullable()),
 });
 
@@ -55,12 +61,7 @@ export const adminBackupConfigurationKopiaSchema = z.object({
     .max(255)
     .regex(/^[a-z0-9][a-z0-9._-]*@[a-z0-9][a-z0-9._-]*$/, 'Must be in the form user@host'),
   password: z.string().min(1).max(255),
-  fingerprint: z
-    .string()
-    .regex(
-      /^(?:[0-9a-fA-F]{2}:){31}[0-9a-fA-F]{2}$|^[0-9a-fA-F]{64}$/,
-      'Must be a SHA-256 fingerprint (64 hex characters, colons optional)',
-    ),
+  fingerprint: optionalFingerprint,
   tags: z.record(z.string().min(1).max(255), z.string().min(1).max(255)),
 });
 

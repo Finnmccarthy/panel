@@ -177,12 +177,14 @@ export default function BackupConfigurationCreateOrUpdate({
         backupConfigPbsForm.setValues({
           ...contextBackupConfiguration.backupConfigs.pbs,
           namespace: contextBackupConfiguration.backupConfigs.pbs.namespace ?? '',
+          fingerprint: contextBackupConfiguration.backupConfigs.pbs.fingerprint ?? '',
           backupIdPrefix: contextBackupConfiguration.backupConfigs.pbs.backupIdPrefix ?? '',
         });
       }
       if (contextBackupConfiguration.backupConfigs?.kopia) {
         backupConfigKopiaForm.setValues({
           ...contextBackupConfiguration.backupConfigs.kopia,
+          fingerprint: contextBackupConfiguration.backupConfigs.kopia.fingerprint ?? '',
           tags: contextBackupConfiguration.backupConfigs.kopia.tags ?? {},
         });
       }

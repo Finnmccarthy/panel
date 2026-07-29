@@ -18,7 +18,7 @@ mod get {
         url: compact_str::CompactString,
         username: compact_str::CompactString,
         password: compact_str::CompactString,
-        fingerprint: compact_str::CompactString,
+        fingerprint: Option<compact_str::CompactString>,
         tags: IndexMap<compact_str::CompactString, compact_str::CompactString>,
     }
 

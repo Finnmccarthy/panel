@@ -14,6 +14,7 @@ mod post {
         },
         response::{ApiResponse, ApiResponseResult},
     };
+    use std::path::Path;
     use utoipa::ToSchema;
 
     #[derive(ToSchema, Deserialize)]
@@ -56,14 +57,14 @@ mod post {
     pub async fn route(
         state: GetState,
         permissions: GetPermissionManager,
-        server: GetServer,
+        mut server: GetServer,
         user: GetUser,
         mut activity_logger: GetServerActivityLogger,
         shared::Payload(data): shared::Payload<Payload>,
     ) -> ApiResponseResult {
-        permissions.has_server_permission("files.read")?;
+        permissions.has_server_permission("files.read-content")?;
 
-        let destination_server =
+        let mut destination_server =
             match Server::by_user_identifier(&state.database, &user, &data.destination_server)
                 .await?
             {
@@ -84,9 +85,31 @@ mod post {
         let permissions = permissions
             .0
             .set_user_server_owner(user.uuid == destination_server.owner.uuid)
-            .add_subuser_permissions(destination_server.subuser_permissions);
+            .add_subuser_permissions(destination_server.subuser_permissions.clone());
 
         permissions.has_server_permission("files.create")?;
+
+        if server.is_ignored(&data.root, true) {
+            return ApiResponse::error("root directory not found")
+                .with_status(StatusCode::NOT_FOUND)
+                .ok();
+        }
+
+        if destination_server.is_ignored(&data.destination, true) {
+            return ApiResponse::error("destination directory not found")
+                .with_status(StatusCode::NOT_FOUND)
+                .ok();
+        }
+
+        for file in &data.files {
+            if server.is_ignored(Path::new(&data.root).join(&file.from), false)
+                || destination_server.is_ignored(Path::new(&data.destination).join(&file.to), false)
+            {
+                return ApiResponse::error("file not found")
+                    .with_status(StatusCode::NOT_FOUND)
+                    .ok();
+            }
+        }
 
         #[derive(Serialize)]
         struct FileTransferUploadJwt {

@@ -42,7 +42,7 @@ export default function BackupPBS({ form }: { form: UseFormReturnType<PbsFormVal
       type: 'text',
       name: 'fingerprint',
       label: t('pages.admin.backupConfigurations.tabs.general.page.pbs.form.fingerprint', {}),
-      required: true,
+      description: t('pages.admin.backupConfigurations.tabs.general.page.pbs.form.fingerprintDescription', {}),
     },
     {
       type: 'text',

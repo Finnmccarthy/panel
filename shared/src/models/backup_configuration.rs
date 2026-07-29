@@ -173,9 +173,17 @@ impl BackupConfigsRestic {
 }
 
 fn validate_fingerprint(
-    fingerprint: &compact_str::CompactString,
+    fingerprint: &Option<compact_str::CompactString>,
     _context: &(),
 ) -> Result<(), garde::Error> {
+    let Some(fingerprint) = fingerprint else {
+        return Ok(());
+    };
+
+    if fingerprint.trim().is_empty() {
+        return Ok(());
+    }
+
     let normalized = normalize_pbs_fingerprint(fingerprint);
 
     if normalized.len() != 64 || !normalized.bytes().all(|b| b.is_ascii_hexdigit()) {
@@ -231,7 +239,8 @@ pub struct BackupConfigsPbs {
     pub token_secret: compact_str::CompactString,
     #[garde(custom(validate_fingerprint))]
     #[schema(min_length = 64, max_length = 95)]
-    pub fingerprint: compact_str::CompactString,
+    #[serde(default)]
+    pub fingerprint: Option<compact_str::CompactString>,
     #[garde(inner(length(chars, min = 1, max = 255)))]
     #[schema(min_length = 1, max_length = 255)]
     pub backup_id_prefix: Option<compact_str::CompactString>,
@@ -320,7 +329,8 @@ pub struct BackupConfigKopia {
     pub password: compact_str::CompactString,
     #[garde(custom(validate_fingerprint))]
     #[schema(min_length = 64, max_length = 95)]
-    pub fingerprint: compact_str::CompactString,
+    #[serde(default)]
+    pub fingerprint: Option<compact_str::CompactString>,
     #[garde(custom(validate_kopia_tags))]
     pub tags: IndexMap<compact_str::CompactString, compact_str::CompactString>,
 }

@@ -48,7 +48,6 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
   const store = useFileManagerApi();
   const browsingWritableDirectory = useFileManagerStore((state) => state.browsingWritableDirectory);
   const canReadContent = useServerCan('files.read-content');
-  const canRead = useServerCan('files.read');
   const canCreate = useServerCan('files.create');
   const canUpdate = useServerCan('files.update');
   const canArchive = useServerCan('files.archive');
@@ -141,7 +140,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
           hidden: !file.file && !file.directory,
           onClick: () => store.getState().doOpenModal('copy-remote', [file]),
           color: 'gray',
-          canAccess: canRead,
+          canAccess: canReadContent,
         },
         {
           type: 'action',

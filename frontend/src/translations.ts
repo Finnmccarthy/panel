@@ -3856,6 +3856,8 @@ const baseTranslations = defineTranslations({
                     tokenId: 'Token ID',
                     tokenSecret: 'Token Secret',
                     fingerprint: 'TLS Certificate Fingerprint',
+                    fingerprintDescription:
+                      'Pins the connection to this certificate. Leave empty to validate the certificate against the system trust store instead.',
                     backupIdPrefix: 'Backup ID Prefix',
                   },
                 },
@@ -3864,6 +3866,8 @@ const baseTranslations = defineTranslations({
                   form: {
                     url: 'Kopia Server URL',
                     fingerprint: 'TLS Certificate Fingerprint',
+                    fingerprintDescription:
+                      'Pins the connection to this certificate. Leave empty to validate the certificate against the system trust store instead.',
                     tags: 'Backup Tags',
                   },
                 },

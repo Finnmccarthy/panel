@@ -68,8 +68,25 @@ mod put {
         },
         response::{ApiResponse, ApiResponseResult},
     };
-    use std::collections::HashMap;
+    use std::collections::{HashMap, HashSet};
     use utoipa::ToSchema;
+
+    fn validate_unique_variables(
+        variables: &[PayloadVariable],
+        _context: &(),
+    ) -> Result<(), garde::Error> {
+        let mut seen_variables = HashSet::new();
+        for variable in variables {
+            if !seen_variables.insert(&variable.env_variable) {
+                return Err(garde::Error::new(compact_str::format_compact!(
+                    "duplicate environment variable: {}",
+                    variable.env_variable
+                )));
+            }
+        }
+
+        Ok(())
+    }
 
     #[derive(ToSchema, Validate, Serialize, Deserialize)]
     pub struct PayloadVariable {
@@ -83,8 +100,8 @@ mod put {
 
     #[derive(ToSchema, Validate, Deserialize)]
     pub struct Payload {
-        #[garde(dive)]
-        #[schema(inline)]
+        #[garde(length(max = 1024), dive, custom(validate_unique_variables))]
+        #[schema(inline, max_items = 1024)]
         variables: Vec<PayloadVariable>,
     }
 

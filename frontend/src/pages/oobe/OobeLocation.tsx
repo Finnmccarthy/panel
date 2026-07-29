@@ -83,6 +83,7 @@ export default function OobeLocation({ onNext, onBack, canGoBack, skipFrom, data
       ? {
           ...existingBackupConfig.backupConfigs.pbs,
           namespace: existingBackupConfig.backupConfigs.pbs.namespace ?? '',
+          fingerprint: existingBackupConfig.backupConfigs.pbs.fingerprint ?? '',
           backupIdPrefix: existingBackupConfig.backupConfigs.pbs.backupIdPrefix ?? '',
         }
       : {
@@ -102,6 +103,7 @@ export default function OobeLocation({ onNext, onBack, canGoBack, skipFrom, data
     initialValues: existingBackupConfig?.backupConfigs?.kopia
       ? {
           ...existingBackupConfig.backupConfigs.kopia,
+          fingerprint: existingBackupConfig.backupConfigs.kopia.fingerprint ?? '',
           tags: existingBackupConfig.backupConfigs.kopia.tags ?? {},
         }
       : {

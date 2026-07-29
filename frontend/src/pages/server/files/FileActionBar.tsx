@@ -290,7 +290,7 @@ function FileActionBar() {
                 </Button>
               </Tooltip>
             </ServerCan>
-            <ServerCan action='files.read'>
+            <ServerCan action='files.read-content'>
               <Tooltip label={t('pages.server.files.button.remoteCopy', {})}>
                 <Button onClick={() => doOpenModal('copy-remote', selectedFiles.values())}>
                   <FontAwesomeIcon icon={faClone} />

@@ -34,7 +34,6 @@ export default function FileMassContextMenu({ children }: FileMassContextMenuPro
   const actingMode = useFileManagerStore((state) => state.actingMode);
   const browsingWritableDirectory = useFileManagerStore((state) => state.browsingWritableDirectory);
   const canReadContent = useServerCan('files.read-content');
-  const canRead = useServerCan('files.read');
   const canCreate = useServerCan('files.create');
   const canArchive = useServerCan('files.archive');
   const canUpdate = useServerCan('files.update');
@@ -86,7 +85,7 @@ export default function FileMassContextMenu({ children }: FileMassContextMenuPro
           store.getState().doOpenModal('copy-remote', state.selectedFiles.values());
         },
         color: 'gray',
-        canAccess: canRead,
+        canAccess: canReadContent,
       },
       {
         type: 'action',
@@ -151,7 +150,7 @@ export default function FileMassContextMenu({ children }: FileMassContextMenuPro
         canAccess: canDelete,
       },
     ],
-    [t, actingMode, browsingWritableDirectory, canReadContent, canRead, canCreate, canArchive, canUpdate, canDelete],
+    [t, actingMode, browsingWritableDirectory, canReadContent, canCreate, canArchive, canUpdate, canDelete],
   );
 
   return (

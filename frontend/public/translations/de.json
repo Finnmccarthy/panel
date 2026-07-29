@@ -3830,6 +3830,7 @@
                     "tokenId": "Token-ID",
                     "tokenSecret": "Token-Geheimnis",
                     "fingerprint": "TLS-Zertifikat-Fingerabdruck",
+                    "fingerprintDescription": "Bindet die Verbindung an dieses Zertifikat. Leer lassen, um das Zertifikat stattdessen gegen den System-Zertifikatsspeicher zu prüfen.",
                     "backupIdPrefix": "Backup-ID-Präfix"
                   }
                 },
@@ -3838,6 +3839,7 @@
                   "form": {
                     "url": "Kopia-Server-URL",
                     "fingerprint": "TLS-Zertifikat-Fingerabdruck",
+                    "fingerprintDescription": "Bindet die Verbindung an dieses Zertifikat. Leer lassen, um das Zertifikat stattdessen gegen den System-Zertifikatsspeicher zu prüfen.",
                     "tags": "Backup-Tags"
                   }
                 }

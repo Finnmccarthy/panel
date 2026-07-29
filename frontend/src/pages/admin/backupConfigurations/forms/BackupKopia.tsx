@@ -24,7 +24,7 @@ export default function BackupKopia({ form }: { form: UseFormReturnType<KopiaFor
       type: 'text',
       name: 'fingerprint',
       label: t('pages.admin.backupConfigurations.tabs.general.page.kopia.form.fingerprint', {}),
-      required: true,
+      description: t('pages.admin.backupConfigurations.tabs.general.page.kopia.form.fingerprintDescription', {}),
       props: { placeholder: '48537cce...398d40f7' },
     },
     { type: 'text', name: 'username', label: t('common.form.username', {}), required: true },
