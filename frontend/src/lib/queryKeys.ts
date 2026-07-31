@@ -212,6 +212,7 @@ const user = {
   },
   apiKeys: {
     all: () => ['user', 'api-keys'] as const,
+    detail: (identifier: string) => ['user', 'api-keys', { identifier }] as const,
   },
   commandSnippets: {
     all: () => ['user', 'command-snippets'] as const,

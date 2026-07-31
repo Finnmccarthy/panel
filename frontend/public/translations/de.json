@@ -1433,6 +1433,21 @@
             "button": {
               "goToApiKeys": "Zu den API-Schlüsseln"
             }
+          },
+          "update": {
+            "title": "API-Schlüssel aktualisieren",
+            "subtitle": "Eine Anwendung fordert Änderungen an den Berechtigungen eines deiner API-Schlüssel an.",
+            "alert": {
+              "replaceMode": "Diese Anfrage **ersetzt** die Berechtigungen dieses API-Schlüssels. Als entfernt markierte Berechtigungen werden entzogen.",
+              "callbackUrl": "Nach der Aktualisierung wirst du zurück zu **{url}** geleitet."
+            },
+            "badge": {
+              "added": "Hinzugefügt",
+              "existing": "Erteilt",
+              "removed": "Entfernt"
+            },
+            "noChanges": "Diese Anfrage ändert die Berechtigungen dieses API-Schlüssels nicht.",
+            "keyUpdated": "Die Berechtigungen deines API-Schlüssels wurden aktualisiert."
           }
         },
         "activity": {

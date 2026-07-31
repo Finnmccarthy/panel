@@ -142,6 +142,27 @@ impl UserApiKey {
         row.try_map(|row| Self::map(None, &row))
     }
 
+    pub async fn by_user_uuid_key_start(
+        database: &crate::database::Database,
+        user_uuid: uuid::Uuid,
+        key_start: &str,
+    ) -> Result<Option<Self>, crate::database::DatabaseError> {
+        let row = sqlx::query(sqlx::AssertSqlSafe(format!(
+            r#"
+            SELECT {}
+            FROM user_api_keys
+            WHERE user_api_keys.user_uuid = $1 AND user_api_keys.key_start = $2 AND (user_api_keys.expires IS NULL OR user_api_keys.expires > NOW())
+            "#,
+            Self::columns_sql(None)
+        )))
+        .bind(user_uuid)
+        .bind(key_start)
+        .fetch_optional(database.read())
+        .await?;
+
+        row.try_map(|row| Self::map(None, &row))
+    }
+
     pub async fn by_user_uuid_with_pagination(
         database: &crate::database::Database,
         user_uuid: uuid::Uuid,

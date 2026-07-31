@@ -4,7 +4,6 @@ import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import getPermissions from '@/api/getPermissions.ts';
 import createApiKey from '@/api/me/api-keys/createApiKey.ts';
@@ -19,30 +18,13 @@ import TextInput from '@/elements/input/TextInput.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
-import Title from '@/elements/Title.tsx';
-import { permissionMapSchema } from '@/lib/schemas/generic.ts';
 import { userApiKeySchema } from '@/lib/schemas/user/apiKeys.ts';
+import RequestedPermissions from '@/pages/dashboard/api-keys/RequestedPermissions.tsx';
+import { parseCallbackUrl, parseRequestedPermissions } from '@/pages/dashboard/api-keys/redirectParams.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
-
-function RequestedPermissions({ label, permissions }: { label: string; permissions: string[] }) {
-  return (
-    <Card>
-      <Title order={5} className='pb-2'>
-        {label}
-      </Title>
-      <div className='space-y-1'>
-        {permissions.map((permission) => (
-          <Card key={permission} className='border border-(--mantine-color-default-border)' padding='xs'>
-            <span className='text-sm font-mono'>{permission}</span>
-          </Card>
-        ))}
-      </div>
-    </Card>
-  );
-}
 
 export default function DashboardApiKeysCreate() {
   const { t } = useTranslations();
@@ -76,40 +58,12 @@ export default function DashboardApiKeysCreate() {
       });
   }, []);
 
-  const callbackUrl = useMemo(() => {
-    const raw = searchParams.get('callback_url');
-    if (!raw) return null;
+  const callbackUrl = useMemo(() => parseCallbackUrl(searchParams), [searchParams]);
 
-    try {
-      return new URL(raw);
-    } catch {
-      return null;
-    }
-  }, [searchParams]);
-
-  const requestedPermissions = useMemo(() => {
-    const parseParam = (param: string, available: z.infer<typeof permissionMapSchema>) => {
-      const availableKeys = new Set(
-        Object.entries(available).flatMap(([category, { permissions: perms }]) =>
-          Object.keys(perms).map((perm) => `${category}.${perm}`),
-        ),
-      );
-
-      return Array.from(
-        new Set(
-          (searchParams.get(param)?.split(',') ?? [])
-            .map((perm) => perm.trim())
-            .filter((perm) => availableKeys.has(perm)),
-        ),
-      ).sort();
-    };
-
-    return {
-      userPermissions: parseParam('user_permissions', availablePermissions.userPermissions),
-      serverPermissions: parseParam('server_permissions', availablePermissions.serverPermissions),
-      adminPermissions: user!.admin ? parseParam('admin_permissions', availablePermissions.adminPermissions) : [],
-    };
-  }, [searchParams, availablePermissions, user]);
+  const requestedPermissions = useMemo(
+    () => parseRequestedPermissions(searchParams, availablePermissions, !!user?.admin),
+    [searchParams, availablePermissions, user],
+  );
 
   const doCreate = () => {
     setLoading(true);

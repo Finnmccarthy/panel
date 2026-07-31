@@ -1445,6 +1445,21 @@
             "button": {
               "goToApiKeys": "Go to API Keys"
             }
+          },
+          "update": {
+            "title": "Update API Key",
+            "subtitle": "An application is requesting changes to the permissions of one of your API keys.",
+            "alert": {
+              "replaceMode": "This request **replaces** the permissions of this API key. Permissions marked as removed will be revoked.",
+              "callbackUrl": "After updating, you will be returned to **{url}**."
+            },
+            "badge": {
+              "added": "Added",
+              "existing": "Granted",
+              "removed": "Removed"
+            },
+            "noChanges": "This request does not change the permissions of this API key.",
+            "keyUpdated": "The permissions of your API key have been updated."
           }
         },
         "activity": {

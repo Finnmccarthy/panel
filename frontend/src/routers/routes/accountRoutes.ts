@@ -14,6 +14,7 @@ import DashboardAccount from '@/pages/dashboard/account/DashboardAccount.tsx';
 import DashboardActivity from '@/pages/dashboard/activity/DashboardActivity.tsx';
 import DashboardApiKeys from '@/pages/dashboard/api-keys/DashboardApiKeys.tsx';
 import DashboardApiKeysCreate from '@/pages/dashboard/api-keys/DashboardApiKeysCreate.tsx';
+import DashboardApiKeysUpdate from '@/pages/dashboard/api-keys/DashboardApiKeysUpdate.tsx';
 import DashboardCommandSnippets from '@/pages/dashboard/command-snippets/DashboardCommandSnippets.tsx';
 import DashboardOAuthLinks from '@/pages/dashboard/oauth-links/DashboardOAuthLinks.tsx';
 import DashboardSecurityKeys from '@/pages/dashboard/security-keys/DashboardSecurityKeys.tsx';
@@ -46,6 +47,11 @@ const routes: RouteDefinition[] = [
     name: undefined,
     path: '/api-keys/create',
     element: DashboardApiKeysCreate,
+  },
+  {
+    name: undefined,
+    path: '/api-keys/update',
+    element: DashboardApiKeysUpdate,
   },
   {
     name: () => getTranslations().t('pages.account.sshKeys.title', {}),
