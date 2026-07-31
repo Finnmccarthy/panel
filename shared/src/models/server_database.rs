@@ -605,13 +605,6 @@ impl IntoApiObject for ServerDatabase {
     ) -> Result<Self::ApiObject, crate::database::DatabaseError> {
         let api_object = ApiServerDatabase::init_hooks(&self, state).await?;
 
-        let mut username = self.username;
-        let space_idx = username.find(' ');
-
-        if let Some(space_idx) = space_idx {
-            username.truncate(space_idx);
-        }
-
         let details = self
             .database_host
             .credentials
@@ -629,7 +622,7 @@ impl IntoApiObject for ServerDatabase {
                     .unwrap_or(details.port as i32),
                 name: self.name,
                 is_locked: self.locked,
-                username,
+                username: self.username,
                 password: if show_password {
                     Some(state.database.decrypt(self.password).await?)
                 } else {
@@ -966,7 +959,7 @@ impl DeletableModel for ServerDatabase {
             .get_connection(&state.database)
             .await?;
         let database_name = self.name.clone();
-        let database_username = self.username.trim_end().to_string();
+        let database_username = self.username.clone();
         let self_clone = self.clone();
         let state_clone = state.clone();
 
@@ -1004,8 +997,10 @@ impl DeletableModel for ServerDatabase {
                     crate::models::database_host::DatabasePool::Mongodb(client) => {
                         let db = client.database(&database_name);
 
-                        db.run_command(mongodb::bson::doc! { "dropUser": &database_username })
-                            .await?;
+                        db.run_command(
+                            mongodb::bson::doc! { "dropUser": database_username.as_str() },
+                        )
+                        .await?;
 
                         db.drop().await?;
                     }

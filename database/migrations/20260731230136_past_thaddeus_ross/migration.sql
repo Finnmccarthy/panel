@@ -1,0 +1,1 @@
+ALTER TABLE "server_databases" ALTER COLUMN "username" SET DATA TYPE varchar(20) USING rtrim("username")::varchar(20);

@@ -1017,7 +1017,7 @@ export const serverDatabasesTable = pgTable(
       .notNull(),
     name: varchar({ length: 31 * UTF8_MAX_SCALAR_SIZE }).notNull(),
     locked: boolean().default(false).notNull(),
-    username: char({ length: 20 }).notNull(),
+    username: varchar({ length: 20 }).notNull(),
     password: bytea().notNull(),
     created: timestamp().defaultNow().notNull(),
   },
