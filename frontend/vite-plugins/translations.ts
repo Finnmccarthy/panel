@@ -61,6 +61,11 @@ function discoverTranslationDirs(): string[] {
     }
   }
 
+  const extraDir = process.env.PANEL_EXTRA_TRANSLATIONS_DIR;
+  if (extraDir && fs.existsSync(extraDir) && fs.statSync(extraDir).isDirectory()) {
+    dirs.push(path.resolve(extraDir));
+  }
+
   return dirs;
 }
 

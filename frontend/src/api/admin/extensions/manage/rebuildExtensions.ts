@@ -1,5 +1,14 @@
+import { z } from 'zod';
 import { axiosInstance } from '@/api/axios.ts';
+import { parseFromApi } from '@/lib/api-transform.ts';
 
-export default async (): Promise<void> => {
-  await axiosInstance.post('/api/admin/extensions/manage/rebuild');
+const extensionRebuildSchema = z.object({
+  buildId: z.number(),
+});
+
+export default async (force: boolean): Promise<z.infer<typeof extensionRebuildSchema>> => {
+  const { data } = await axiosInstance.post('/api/admin/extensions/manage/rebuild', undefined, {
+    params: { force },
+  });
+  return parseFromApi(extensionRebuildSchema, data);
 };

@@ -11,7 +11,7 @@ members = [
 	"backend-extensions/*"
 ]
 exclude = ["backend-extensions/node_modules"]
-default-members = ["bins/base", "bins/all-in-one"]
+default-members = ["bins/base", "bins/all-in-one", "bins/heavy-supervisor"]
 package.rust-version = "1.97.0"
 package.license = "MIT"
 package.version = "1.1.2"
@@ -88,6 +88,7 @@ zstd = "0.13.3"
 parking_lot = "0.12.5"
 tokio-tungstenite = { version = "0.30.0", features = ["rustls-tls-webpki-roots"] }
 croner = { version = "3.0.1", features = ["serde"] }
+rustix = { version = "1.1.4", features = ["process"] }
 
 # dev (for development)
 [profile.dev.package."*"]

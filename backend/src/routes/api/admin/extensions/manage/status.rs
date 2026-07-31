@@ -15,6 +15,7 @@ mod get {
     #[derive(ToSchema, Serialize)]
     struct Response {
         is_building: bool,
+        supervisor: Option<shared::heavy::Status>,
         pending_extensions: Vec<shared::extensions::PendingExtension>,
         removed_extensions: Vec<shared::extensions::PendingExtension>,
     }
@@ -32,6 +33,22 @@ mod get {
         }
 
         permissions.has_admin_permission("extensions.manage")?;
+
+        let supervisor = match shared::heavy::ask(&shared::heavy::Request::GetStatus).await {
+            Ok(shared::heavy::Response::Status(status)) => Some(status),
+            Ok(answer) => {
+                tracing::error!(
+                    "the extension supervisor answered a status request with {answer:?}"
+                );
+
+                None
+            }
+            Err(err) => {
+                tracing::error!("the extension supervisor could not be reached: {err}");
+
+                None
+            }
+        };
 
         let local_extensions = shared::heavy::list_extensions().await?;
         let applied_extensions = state.extensions.extensions().await;
@@ -90,7 +107,12 @@ mod get {
         }
 
         ApiResponse::new_serialized(Response {
-            is_building: shared::heavy::is_locked().await,
+            is_building: matches!(
+                supervisor.as_ref().map(|status| status.state),
+                Some(shared::heavy::SupervisorState::Queued)
+                    | Some(shared::heavy::SupervisorState::Building { .. })
+            ),
+            supervisor,
             pending_extensions,
             removed_extensions,
         })

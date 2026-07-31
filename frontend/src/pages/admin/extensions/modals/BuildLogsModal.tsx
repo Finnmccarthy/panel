@@ -1,4 +1,5 @@
 import { ModalProps } from '@mantine/core';
+import { AxiosError } from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import getExtensionBuildLogs from '@/api/admin/extensions/manage/getExtensionBuildLogs.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
@@ -9,44 +10,76 @@ import Stack from '@/elements/Stack.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
-export default function BuildLogsModal({ ...props }: ModalProps) {
+const POLL_INTERVAL_MS = 2000;
+
+const FAILURES_BEFORE_TOAST = 5;
+
+interface Props extends ModalProps {
+  buildId: number | null;
+}
+
+export default function BuildLogsModal({ buildId, ...props }: Props) {
   const { t } = useTranslations();
   const { addToast } = useToast();
 
   const [logs, setLogs] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const wasAtBottomRef = useRef(true);
-  const errorCount = useRef(0);
 
   useEffect(() => {
     if (!props.opened) return;
 
-    errorCount.current = 0;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let offset = 0;
+    let failures = 0;
 
-    const fetchLogs = () => {
-      getExtensionBuildLogs()
-        .then((data) => setLogs(data))
-        .catch((msg) => {
-          if (errorCount.current < 5) {
-            errorCount.current += 1;
-            return;
-          }
+    setLogs('');
 
-          addToast(httpErrorToHuman(msg), 'error');
+    const drain = async () => {
+      let buffered = '';
+
+      try {
+        for (;;) {
+          const chunk = await getExtensionBuildLogs(buildId, offset);
+          if (stopped) return;
+
+          offset = chunk.offset;
+          buffered += chunk.data;
+          if (chunk.eof) return;
+        }
+      } finally {
+        if (buffered && !stopped) setLogs((prev) => prev + buffered);
+      }
+    };
+
+    const poll = () => {
+      drain()
+        .then(() => {
+          failures = 0;
+        })
+        .catch((err) => {
+          if (err instanceof AxiosError && err.response?.status === 404) return;
+
+          failures += 1;
+          if (failures === FAILURES_BEFORE_TOAST) addToast(httpErrorToHuman(err), 'error');
+        })
+        .finally(() => {
+          if (!stopped) timer = setTimeout(poll, POLL_INTERVAL_MS);
         });
     };
 
-    fetchLogs();
-    const interval = setInterval(fetchLogs, 2000);
+    poll();
 
-    return () => clearInterval(interval);
-  }, [props.opened]);
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+    };
+  }, [props.opened, buildId]);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-
-    errorCount.current = 0;
 
     if (wasAtBottomRef.current) {
       el.scrollTop = el.scrollHeight;

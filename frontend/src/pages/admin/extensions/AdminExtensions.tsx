@@ -1,16 +1,22 @@
-import { faFileText, faRefresh, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faBan, faExclamationTriangle, faFileText, faRefresh, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import getAdminExtensions from '@/api/admin/extensions/getAdminExtensions.ts';
 import addExtension from '@/api/admin/extensions/manage/addExtension.ts';
-import getExtensionStatus, { ExtensionStatus } from '@/api/admin/extensions/manage/getExtensionStatus.ts';
+import cancelExtensionRebuild from '@/api/admin/extensions/manage/cancelExtensionRebuild.ts';
+import getExtensionStatus, {
+  ExtensionStatus,
+  ExtensionSupervisorState,
+} from '@/api/admin/extensions/manage/getExtensionStatus.ts';
 import rebuildExtensions from '@/api/admin/extensions/manage/rebuildExtensions.ts';
 import removeExtension from '@/api/admin/extensions/manage/removeExtension.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
+import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
+import Code from '@/elements/Code.tsx';
 import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
@@ -38,13 +44,13 @@ export default function AdminExtensions() {
     queryKey: queryKeys.admin.extensions.all(),
     queryFn: getAdminExtensions,
   });
-  const { data: extensionStatus } = usePollingResource({
+  const { data: extensionStatus, refetch: refetchStatus } = usePollingResource({
     queryKey: queryKeys.admin.extensions.status(),
     queryFn: getExtensionStatus,
     interval: 5000,
     pollInBackground: true,
     silent: true,
-    stopWhen: (status) => !status.isBuilding,
+    retryOnError: 60,
   });
 
   const [removalExtension, setRemovalExtension] = useState<z.infer<typeof adminBackendExtensionSchema> | null>(null);
@@ -53,35 +59,101 @@ export default function AdminExtensions() {
     extension: Awaited<ReturnType<typeof addExtension>>['extension'];
   } | null>(null);
   const [openModal, setOpenModal] = useState<'logs' | null>(null);
+  const [cancellingBuild, setCancellingBuild] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const wasBuildingRef = useRef(false);
+  const watchedBuildRef = useRef<number | null>(null);
+
+  const supervisor = extensionStatus?.supervisor ?? null;
+  const supervisorState = supervisor?.state ?? null;
+  const buildId = supervisor?.buildId ?? null;
+  const buildFailed = supervisorState?.type === 'failed';
+  const failureReason = supervisor?.failureReason ?? null;
+  const isBuilding = extensionStatus?.isBuilding ?? false;
 
   const setExtensionStatus = (updater: (prev: ExtensionStatus | undefined) => ExtensionStatus | undefined) => {
     queryClient.setQueryData<ExtensionStatus>(queryKeys.admin.extensions.status(), (prev) => updater(prev));
   };
 
-  useEffect(() => {
-    const isBuilding = extensionStatus?.isBuilding;
-    if (isBuilding === undefined) return;
+  const buildPhase = (state: ExtensionSupervisorState): string | null => {
+    if (state.type === 'queued') return t('pages.admin.extensions.phase.queued', {});
+    if (state.type !== 'building') return null;
 
-    if (wasBuildingRef.current && !isBuilding) {
-      refetchExtensions();
-      addToast(t('pages.admin.extensions.toast.buildCompleted', {}), 'success');
-      setOpenModal(null);
+    switch (state.phase.type) {
+      case 'preparing':
+        return t('pages.admin.extensions.phase.preparing', {});
+      case 'clearing':
+        return t('pages.admin.extensions.phase.clearing', {});
+      case 'adding':
+        return t('pages.admin.extensions.phase.adding', { done: state.phase.done, total: state.phase.total });
+      case 'resync':
+        return t('pages.admin.extensions.phase.resync', {});
+      case 'staging_translations':
+        return t('pages.admin.extensions.phase.stagingTranslations', {});
+      case 'building':
+        return t('pages.admin.extensions.phase.compiling', {});
+      case 'verifying':
+        return t('pages.admin.extensions.phase.verifying', {});
+      case 'installing':
+        return t('pages.admin.extensions.phase.installing', {});
+      case 'restarting':
+        return t('pages.admin.extensions.phase.restarting', {});
     }
-    wasBuildingRef.current = isBuilding;
-  }, [extensionStatus?.isBuilding]);
+  };
 
-  const handleRebuild = () => {
-    rebuildExtensions()
-      .then(() => {
+  const phase = supervisorState ? buildPhase(supervisorState) : null;
+
+  useEffect(() => {
+    if (!supervisorState) return;
+
+    if (supervisorState.type === 'queued' || supervisorState.type === 'building') {
+      watchedBuildRef.current = buildId;
+      return;
+    }
+
+    setCancellingBuild(null);
+
+    if (watchedBuildRef.current === null || watchedBuildRef.current !== buildId) return;
+    watchedBuildRef.current = null;
+
+    if (supervisorState.type === 'failed') {
+      addToast(
+        failureReason
+          ? t('pages.admin.extensions.toast.buildFailed', { reason: failureReason })
+          : t('pages.admin.extensions.alert.buildFailed.title', {}),
+        'error',
+      );
+      return;
+    }
+
+    refetchExtensions();
+    addToast(t('pages.admin.extensions.toast.buildCompleted', {}), 'success');
+    setOpenModal(null);
+  }, [supervisorState?.type, buildId]);
+
+  const handleRebuild = (force: boolean) => {
+    rebuildExtensions(force)
+      .then((rebuild) => {
+        watchedBuildRef.current = rebuild.buildId;
         addToast(t('pages.admin.extensions.toast.buildStarted', {}), 'success');
         setExtensionStatus((prev) => prev && { ...prev, isBuilding: true });
+        refetchStatus();
 
         setOpenModal('logs');
       })
       .catch((err) => {
         addToast(httpErrorToHuman(err), 'error');
+      });
+  };
+
+  const handleCancelBuild = () => {
+    cancelExtensionRebuild(buildId)
+      .then((cancel) => {
+        setCancellingBuild(cancel.buildId);
+        addToast(t('pages.admin.extensions.toast.cancelRequested', {}), 'success');
+      })
+      .catch((err) => {
+        addToast(httpErrorToHuman(err), 'error');
+        refetchStatus();
       });
   };
 
@@ -198,15 +270,12 @@ export default function AdminExtensions() {
             >
               {t('pages.admin.extensions.button.viewBuildLogs', {})}
             </Button>
-            <ConditionalTooltip
-              enabled={extensionStatus?.isBuilding || false}
-              label={t('pages.admin.extensions.tooltip.building', {})}
-            >
+            <ConditionalTooltip enabled={isBuilding} label={t('pages.admin.extensions.tooltip.building', {})}>
               <Button
                 color='blue'
                 leftSection={<FontAwesomeIcon icon={faUpload} />}
                 onClick={() => fileInputRef.current?.click()}
-                disabled={extensionStatus?.isBuilding}
+                disabled={isBuilding}
               >
                 {t('pages.admin.extensions.button.install', {})}
               </Button>
@@ -217,7 +286,7 @@ export default function AdminExtensions() {
         </AdminCan>
       }
     >
-      <BuildLogsModal opened={openModal === 'logs'} onClose={() => setOpenModal(null)} />
+      <BuildLogsModal opened={openModal === 'logs'} buildId={buildId} onClose={() => setOpenModal(null)} />
       <LicenseModal
         opened={!!pendingLicense}
         packageName={pendingLicense?.extension.metadataToml.packageName}
@@ -233,6 +302,31 @@ export default function AdminExtensions() {
       />
 
       <ExtensionInstallOverlay visible={isDragging} />
+
+      {extensionStatus && !supervisor && (
+        <Alert
+          color='red'
+          icon={<FontAwesomeIcon icon={faExclamationTriangle} />}
+          title={t('pages.admin.extensions.alert.supervisorUnreachable.title', {})}
+          mb='md'
+        >
+          {t('pages.admin.extensions.alert.supervisorUnreachable.content', {})}
+        </Alert>
+      )}
+
+      {buildFailed && (
+        <Alert
+          color='red'
+          icon={<FontAwesomeIcon icon={faExclamationTriangle} />}
+          title={t('pages.admin.extensions.alert.buildFailed.title', {})}
+          mb='md'
+        >
+          <div className='flex flex-col items-start gap-2'>
+            {failureReason && <Code>{failureReason}</Code>}
+            <span>{t('pages.admin.extensions.alert.buildFailed.content', {})}</span>
+          </div>
+        </Alert>
+      )}
 
       {!backendExtensions ? (
         <Spinner.Centered />
@@ -295,26 +389,50 @@ export default function AdminExtensions() {
             </Title>
 
             <AdminCan action='extensions.manage'>
-              <ConditionalTooltip
-                enabled={
-                  (!extensionStatus.pendingExtensions.length && !extensionStatus.removedExtensions.length) ||
-                  extensionStatus.isBuilding
-                }
-                label={
-                  extensionStatus.isBuilding
-                    ? t('pages.admin.extensions.tooltip.building', {})
-                    : t('pages.admin.extensions.tooltip.noPendingBuild', {})
-                }
-              >
-                <Button
-                  color='red'
-                  leftSection={<FontAwesomeIcon icon={faRefresh} />}
-                  loading={extensionStatus.isBuilding}
-                  onClick={handleRebuild}
+              <Group gap='xs'>
+                {phase && <span className='text-sm text-zinc-400'>{phase}</span>}
+
+                {isBuilding && (
+                  <ConditionalTooltip
+                    enabled={cancellingBuild !== null}
+                    label={t('pages.admin.extensions.tooltip.cancelling', {})}
+                  >
+                    <Button
+                      variant='default'
+                      leftSection={<FontAwesomeIcon icon={faBan} />}
+                      disabled={cancellingBuild !== null}
+                      onClick={handleCancelBuild}
+                    >
+                      {t('pages.admin.extensions.button.cancelBuild', {})}
+                    </Button>
+                  </ConditionalTooltip>
+                )}
+
+                <ConditionalTooltip
+                  enabled={
+                    (!extensionStatus.pendingExtensions.length &&
+                      !extensionStatus.removedExtensions.length &&
+                      !buildFailed) ||
+                    isBuilding
+                  }
+                  label={
+                    isBuilding
+                      ? t('pages.admin.extensions.tooltip.building', {})
+                      : t('pages.admin.extensions.tooltip.noPendingBuild', {})
+                  }
                 >
-                  {t('pages.admin.extensions.button.rebuild', {})}
-                </Button>
-              </ConditionalTooltip>
+                  <Button
+                    color='red'
+                    leftSection={<FontAwesomeIcon icon={faRefresh} />}
+                    loading={isBuilding}
+                    onClick={() => handleRebuild(buildFailed)}
+                  >
+                    {buildFailed
+                      ? t('pages.admin.extensions.button.retryBuild', {})
+                      : t('pages.admin.extensions.button.rebuild', {})}
+                  </Button>
+                </ConditionalTooltip>
+              </Group>
             </AdminCan>
           </div>
 

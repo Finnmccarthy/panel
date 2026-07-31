@@ -1,7 +1,9 @@
 use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
-mod get {
+mod cancel;
+
+mod post {
     use axum::{extract::Query, http::StatusCode};
     use serde::{Deserialize, Serialize};
     use shared::{
@@ -13,30 +15,22 @@ mod get {
 
     #[derive(Deserialize)]
     pub struct Params {
-        build_id: Option<u64>,
         #[serde(default)]
-        from_offset: u64,
+        force: bool,
     }
 
     #[derive(ToSchema, Serialize)]
     struct Response {
-        offset: u64,
-        data: String,
-        eof: bool,
+        build_id: u64,
     }
 
-    #[utoipa::path(get, path = "/", responses(
+    #[utoipa::path(post, path = "/", responses(
         (status = OK, body = inline(Response)),
     ), params(
         (
-            "build_id" = Option<u64>, Query,
-            description = "The build to read the log of, defaulting to the current or most recent one",
-            example = "3",
-        ),
-        (
-            "from_offset" = u64, Query,
-            description = "The byte offset to resume from, taken from the previous response",
-            example = "65536",
+            "force" = bool, Query,
+            description = "Whether to build even when the current extension set has already been built or has already failed",
+            example = "true",
         ),
     ))]
     pub async fn route(
@@ -54,20 +48,23 @@ mod get {
 
         permissions.has_admin_permission("extensions.manage")?;
 
-        match shared::heavy::ask(&shared::heavy::Request::StreamLog {
-            build_id: params.build_id,
-            from_offset: params.from_offset,
+        match shared::heavy::ask(&shared::heavy::Request::RequestRebuild {
+            force: params.force,
         })
         .await
         {
-            Ok(shared::heavy::Response::LogChunk { offset, data, eof }) => {
-                ApiResponse::new_serialized(Response { offset, data, eof }).ok()
+            Ok(shared::heavy::Response::RebuildAccepted { build_id }) => {
+                ApiResponse::new_serialized(Response { build_id }).ok()
             }
-            Ok(shared::heavy::Response::Error { message }) => ApiResponse::error(message)
-                .with_status(StatusCode::NOT_FOUND)
-                .ok(),
+            Ok(shared::heavy::Response::RebuildAlreadyRunning { build_id }) => {
+                ApiResponse::error(format!("extension build {build_id} is already in progress"))
+                    .with_status(StatusCode::CONFLICT)
+                    .ok()
+            }
             Ok(answer) => {
-                tracing::error!("the extension supervisor answered a log request with {answer:?}");
+                tracing::error!(
+                    "the extension supervisor answered a rebuild request with {answer:?}"
+                );
 
                 ApiResponse::error("the extension supervisor gave an unexpected answer")
                     .with_status(StatusCode::INTERNAL_SERVER_ERROR)
@@ -86,6 +83,7 @@ mod get {
 
 pub fn router(state: &State) -> OpenApiRouter<State> {
     OpenApiRouter::new()
-        .routes(routes!(get::route))
+        .routes(routes!(post::route))
+        .nest("/cancel", cancel::router(state))
         .with_state(state.clone())
 }

@@ -1952,12 +1952,22 @@
           "unknownExtension": "Unbekannte Erweiterung",
           "alert": {
             "noExtensions": "Keine Erweiterungen installiert.",
-            "heavyImageMissing": "Du scheinst nicht das Heavy-Image zu verwenden, das zum Installieren von Erweiterungen benötigt wird. Siehe [hier]({docsUrl}), wie du dazu wechselst."
+            "heavyImageMissing": "Du scheinst nicht das Heavy-Image zu verwenden, das zum Installieren von Erweiterungen benötigt wird. Siehe [hier]({docsUrl}), wie du dazu wechselst.",
+            "supervisorUnreachable": {
+              "title": "Der Erweiterungs-Supervisor antwortet nicht",
+              "content": "Erweiterungen können nicht erstellt werden, bis er das tut, und das Panel führt weiterhin die Binary aus, mit der es gestartet ist. Prüfe die Container-Logs."
+            },
+            "buildFailed": {
+              "title": "Der letzte Erweiterungs-Build ist fehlgeschlagen",
+              "content": "Diese Erweiterungen werden erst wieder erstellt, wenn sie sich ändern oder du den Build ausdrücklich erneut startest."
+            }
           },
           "button": {
             "viewBuildLogs": "Build-Logs anzeigen",
             "install": "Erweiterung installieren",
             "rebuild": "Erweiterungen neu erstellen",
+            "retryBuild": "Build wiederholen",
+            "cancelBuild": "Build abbrechen",
             "configure": "Konfigurieren",
             "back": "Zurück zu Erweiterungen",
             "accept": "Akzeptieren",
@@ -1966,9 +1976,22 @@
           "tooltip": {
             "building": "Das Panel erstellt gerade Erweiterungs-Code. Bitte warte.",
             "noPendingBuild": "Keine ausstehenden Erweiterungen zum Erstellen.",
+            "cancelling": "Der Build stoppt, sobald der aktuelle Schritt beendet ist.",
             "noBackend": "Eine Backend-Erweiterung ist erforderlich, um diese Erweiterung zu konfigurieren.",
             "noConfigurationPage": "Diese Erweiterung hat keine Konfigurationsseite definiert.",
             "removeExtension": "Erweiterung entfernen"
+          },
+          "phase": {
+            "queued": "In der Warteschlange…",
+            "preparing": "Wird vorbereitet…",
+            "clearing": "Erweiterungen werden entfernt…",
+            "adding": "Erweiterungen werden hinzugefügt ({done}/{total})…",
+            "resync": "Abhängigkeiten werden aufgelöst…",
+            "stagingTranslations": "Übersetzungen werden vorbereitet…",
+            "compiling": "Wird kompiliert…",
+            "verifying": "Wird überprüft…",
+            "installing": "Wird installiert…",
+            "restarting": "Panel wird neu gestartet…"
           },
           "badge": {
             "frontendMissing": "Frontend fehlt",
@@ -1991,6 +2014,8 @@
           "toast": {
             "buildStarted": "Erweiterungs-Build erfolgreich gestartet.",
             "buildCompleted": "Erweiterungs-Build abgeschlossen. Möglicherweise musst du die Seite neu laden.",
+            "buildFailed": "Erweiterungs-Build fehlgeschlagen: {reason}",
+            "cancelRequested": "Abbruch angefordert. Der Build stoppt, sobald der aktuelle Schritt beendet ist.",
             "added": "Erweiterung `{packageName}` erfolgreich hinzugefügt.",
             "removed": "Erweiterung `{packageName}` erfolgreich entfernt."
           },

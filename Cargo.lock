@@ -4257,6 +4257,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "heavy-supervisor"
+version = "1.1.2"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "hex",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "shared",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "heck"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

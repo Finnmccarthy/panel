@@ -1,8 +1,18 @@
+import { z } from 'zod';
 import { axiosInstance } from '@/api/axios.ts';
+import { parseFromApi } from '@/lib/api-transform.ts';
 
-export default async (): Promise<string> => {
+const extensionBuildLogChunkSchema = z.object({
+  offset: z.number(),
+  data: z.string(),
+  eof: z.boolean(),
+});
+
+export type ExtensionBuildLogChunk = z.infer<typeof extensionBuildLogChunkSchema>;
+
+export default async (buildId: number | null, fromOffset: number): Promise<ExtensionBuildLogChunk> => {
   const { data } = await axiosInstance.get('/api/admin/extensions/manage/logs', {
-    responseType: 'text',
+    params: { build_id: buildId ?? undefined, from_offset: fromOffset },
   });
-  return data;
+  return parseFromApi(extensionBuildLogChunkSchema, data);
 };

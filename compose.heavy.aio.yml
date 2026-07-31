@@ -1,7 +1,7 @@
 services:
   web:
-    # image: ghcr.io/calagopus/panel:nightly-heavy # if you want to live on the edge
-    image: ghcr.io/calagopus/panel:heavy
+    # image: ghcr.io/calagopus/panel:nightly-heavy-aio # if you want to live on the edge
+    image: ghcr.io/calagopus/panel:heavy-aio
     restart: unless-stopped
     stop_grace_period: 40s # the panel's shutdown handlers need longer than docker's 10s default
     environment:
@@ -10,6 +10,7 @@ services:
       - DATABASE_URL=postgresql://panel:panel@db/panel
       - DATABASE_MIGRATE=true
       - PORT=8000
+      - AIO_BASE_WINGS_CONFIGURATION=/wings-config.yml
       - APP_DEBUG=false
       - APP_LOG_DIRECTORY=/var/log/calagopus
       - APP_PRIMARY=true # sets whether this panel instance is responsible for running background tasks (e.g. cleanup)
@@ -21,14 +22,34 @@ services:
       - 1.1.1.1
       - 1.0.0.1
     volumes:
+      # --- panel
       - ./data:/var/lib/calagopus
       - ./logs:/var/log/calagopus
+
+      # --- extensions
       - ./build/binaries:/app/binaries
       - ./build/translations:/app/translations
       - ./build/extensions:/app/extensions
       - ./build/extension-migrations:/app/repo/database/extension-migrations
+
+      # --- wings
+      - ./wings-config.yml:/wings-config.yml
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/lib/docker/containers/:/var/lib/docker/containers/"
+      # this is exclusively for the main wings configuration file, called config.yml
+      - "/etc/calagopus-wings/:/etc/calagopus-wings/"
+      # if you split /var/lib/calagopus-wings up, make sure the following paths are all still covered by a volume:
+      # /var/lib/calagopus-wings/volumes (used for storing server files)
+      # /var/lib/calagopus-wings/diffs (used for storing file history diffs)
+      # /var/lib/calagopus-wings/vmounts (used for storing temporary mountpoints, DO NOT put this on a tmpfs, thats why its separate)
+      # /var/lib/calagopus-wings/archives (unused for wings-rs currently, may get a future use)
+      # /var/lib/calagopus-wings/backups (used for storing local backups of servers)
+      - "/var/lib/calagopus-wings/:/var/lib/calagopus-wings/"
+      - "/var/log/calagopus-wings/:/var/log/calagopus-wings/"
+      - "/tmp/calagopus-wings/:/tmp/calagopus-wings/"
     ports:
       - 8000:8000
+      - 2022:2022 # sftp port for integrated wings
     extra_hosts: # mainly useful when importing from a standalone installation, can be omitted otherwise
       - "host.docker.internal:host-gateway"
     depends_on:

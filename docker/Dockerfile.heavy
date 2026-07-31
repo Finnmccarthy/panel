@@ -12,7 +12,6 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM rust:slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    inotify-tools \
     git \
     perl \
     build-essential \
@@ -33,24 +32,20 @@ WORKDIR /app/repo
 COPY --from=planner /app/repo/recipe.json recipe.json
 RUN mkdir -p .cargo && \
     printf '[target."x86_64-unknown-linux-gnu"]\nlinker = "clang"\nrustflags = ["-C", "link-arg=-fuse-ld=mold"]\n' > .cargo/config.toml
-RUN cargo chef cook --profile heavy-release --recipe-path recipe.json -p panel-rs
+RUN cargo chef cook --profile heavy-release --recipe-path recipe.json -p panel-rs -p heavy-supervisor
 
 COPY . /app/repo
 RUN cd frontend && pnpm install --frozen-lockfile && pnpm build:ci
-RUN cargo build --profile heavy-release -p panel-rs
+RUN cargo build --profile heavy-release -p panel-rs -p heavy-supervisor
 
 RUN cp /app/repo/target/heavy-release/panel-rs /app/panel-rs.stock
+RUN cp /app/repo/target/heavy-release/heavy-supervisor /app/heavy-supervisor
 
 RUN ln -s /app/repo/target/heavy-release/panel-rs /usr/local/bin/panel-rs
 RUN ln -s /app/repo/target/heavy-release/panel-rs /usr/local/bin/calagopus-panel
 
-COPY ./docker/applyJson.js /applyJson.js
-
-COPY ./docker/entrypoint.heavy.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 ENV OCI_CONTAINER=official-heavy
 ENV CARGO_BUILD_PROFILE=balanced
-ENV CARGO_TARGET_PROFILE=heavy-release
+ENV PANEL_BIN_NAME=panel-rs
 
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+ENTRYPOINT ["/app/heavy-supervisor"]

@@ -1,28 +1,126 @@
 use crate::extensions::distr::{ExtensionDistrFile, MetadataToml};
-use std::path::Path;
-use tokio::io::AsyncWriteExt;
+use serde::{Deserialize, Serialize};
+use std::{path::Path, time::Duration};
+use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
+use utoipa::ToSchema;
 
 pub static EXTENSION_DIR: &str = "/app/extensions";
-pub static EXTENSION_ROOT_DIR: &str = "/app/repo";
-pub static EXTENSION_LOG: &str = "/tmp/extension_build.log";
-pub static EXTENSION_BUILD_LOCK: &str = "/tmp/extension_build.lock";
-pub static EXTENSION_REBUILD_TRIGGER: &str = "/tmp/rebuild_trigger";
+pub static SOCKET_PATH: &str = "/tmp/calagopus/supervisor.sock";
 
-pub async fn is_locked() -> bool {
-    tokio::fs::metadata(EXTENSION_BUILD_LOCK).await.is_ok()
+const EXCHANGE_DEADLINE: Duration = Duration::from_secs(15);
+const MAX_RESPONSE: u64 = 1024 * 1024;
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum Request {
+    GetStatus,
+    RequestRebuild {
+        force: bool,
+    },
+    StreamLog {
+        build_id: Option<u64>,
+        from_offset: u64,
+    },
+    Cancel {
+        build_id: Option<u64>,
+    },
 }
 
-pub async fn trigger_rebuild() -> Result<(), std::io::Error> {
-    let mut file = tokio::fs::File::create(EXTENSION_REBUILD_TRIGGER).await?;
-    file.write_all(b"rebuild").await?;
-
-    Ok(())
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum Response {
+    Status(Status),
+    RebuildAccepted {
+        build_id: u64,
+    },
+    RebuildAlreadyRunning {
+        build_id: u64,
+    },
+    LogChunk {
+        offset: u64,
+        data: String,
+        eof: bool,
+    },
+    CancelAccepted {
+        build_id: u64,
+    },
+    CancelNotRunning,
+    Error {
+        message: String,
+    },
 }
 
-pub async fn get_build_logs() -> Box<dyn tokio::io::AsyncRead + Unpin + Send> {
-    match tokio::fs::File::open(EXTENSION_LOG).await {
-        Ok(file) => Box::new(file) as Box<dyn tokio::io::AsyncRead + Unpin + Send>,
-        Err(_) => Box::new(tokio::io::empty()),
+#[derive(Debug, ToSchema, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum BuildPhase {
+    Preparing,
+    Clearing,
+    Adding { done: u32, total: u32 },
+    Resync,
+    StagingTranslations,
+    Building,
+    Verifying,
+    Installing,
+    Restarting,
+}
+
+#[derive(Debug, ToSchema, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SupervisorState {
+    Idle,
+    Queued,
+    Building { phase: BuildPhase },
+    Succeeded,
+    Failed,
+}
+
+#[derive(Debug, ToSchema, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Status {
+    pub state: SupervisorState,
+    pub panel_version: String,
+    pub cache_key: String,
+    pub bin_name: String,
+    pub build_id: Option<u64>,
+    pub started_at: Option<String>,
+    pub finished_at: Option<String>,
+    pub exit_code: Option<i32>,
+    pub failure_reason: Option<String>,
+    pub log_len: u64,
+}
+
+pub async fn ask(request: &Request) -> Result<Response, std::io::Error> {
+    ask_at(Path::new(SOCKET_PATH), request, EXCHANGE_DEADLINE).await
+}
+
+async fn ask_at(
+    socket: &Path,
+    request: &Request,
+    deadline: Duration,
+) -> Result<Response, std::io::Error> {
+    let exchange = async {
+        let stream = tokio::net::UnixStream::connect(socket).await?;
+        let (reader, mut writer) = stream.into_split();
+
+        let mut line = serde_json::to_vec(request).map_err(std::io::Error::other)?;
+        line.push(b'\n');
+        writer.write_all(&line).await?;
+        writer.flush().await?;
+
+        let mut answer = Vec::new();
+        tokio::io::BufReader::new(reader.take(MAX_RESPONSE))
+            .read_until(b'\n', &mut answer)
+            .await?;
+
+        serde_json::from_slice(&answer)
+            .map_err(|err| std::io::Error::new(std::io::ErrorKind::InvalidData, err))
+    };
+
+    match tokio::time::timeout(deadline, exchange).await {
+        Ok(answer) => answer,
+        Err(_) => Err(std::io::Error::new(
+            std::io::ErrorKind::TimedOut,
+            "the supervisor did not answer",
+        )),
     }
 }
 

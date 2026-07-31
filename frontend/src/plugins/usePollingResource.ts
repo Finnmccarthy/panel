@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 
@@ -10,6 +10,7 @@ interface UsePollingResourceOptions<T> {
   enabled?: boolean;
   silent?: boolean;
   pollInBackground?: boolean;
+  retryOnError?: number;
   stopWhen?: (data: T) => boolean;
 }
 
@@ -20,22 +21,30 @@ export function usePollingResource<T>({
   enabled,
   silent = false,
   pollInBackground = false,
+  retryOnError = 0,
   stopWhen,
 }: UsePollingResourceOptions<T>) {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
+  const errorsAtLastSuccess = useRef(0);
 
-  const { data, isFetching, error, refetch } = useQuery({
+  const { data, isFetching, error, refetch, dataUpdatedAt, errorUpdateCount } = useQuery({
     queryKey,
     queryFn,
     enabled,
     refetchInterval: (query) => {
-      if (query.state.status === 'error') return false;
+      if (query.state.status === 'error') {
+        return query.state.errorUpdateCount - errorsAtLastSuccess.current <= retryOnError ? interval : false;
+      }
       if (stopWhen && query.state.data !== undefined && stopWhen(query.state.data)) return false;
       return interval;
     },
     refetchIntervalInBackground: pollInBackground,
   });
+
+  useEffect(() => {
+    errorsAtLastSuccess.current = errorUpdateCount;
+  }, [dataUpdatedAt]);
 
   useEffect(() => {
     if (error && !silent) addToast(httpErrorToHuman(error), 'error');

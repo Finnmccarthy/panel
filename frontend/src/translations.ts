@@ -1918,11 +1918,23 @@ const baseTranslations = defineTranslations({
             noExtensions: 'No extensions installed.',
             heavyImageMissing:
               "You don't seem to be using the heavy image required to install extensions, see [here]({docsUrl}) on how to switch to it.",
+            supervisorUnreachable: {
+              title: 'The extension supervisor is not answering',
+              content:
+                'Extensions cannot be built until it does, and the panel is serving whichever binary it started with. Check the container logs.',
+            },
+            buildFailed: {
+              title: 'The last extension build failed',
+              content:
+                'These extensions are not built again until they change, or until you retry the build explicitly.',
+            },
           },
           button: {
             viewBuildLogs: 'View build logs',
             install: 'Install extension',
             rebuild: 'Rebuild extensions',
+            retryBuild: 'Retry build',
+            cancelBuild: 'Cancel build',
             configure: 'Configure',
             back: 'Back to Extensions',
             accept: 'Accept',
@@ -1931,9 +1943,22 @@ const baseTranslations = defineTranslations({
           tooltip: {
             building: 'The panel is currently building extension code. Please wait.',
             noPendingBuild: 'No pending extensions to build.',
+            cancelling: 'The build stops once its current step ends.',
             noBackend: 'Backend extension is required to configure this extension.',
             noConfigurationPage: 'This extension does not have a configuration page defined.',
             removeExtension: 'Remove extension',
+          },
+          phase: {
+            queued: 'Queued…',
+            preparing: 'Preparing…',
+            clearing: 'Clearing extensions…',
+            adding: 'Adding extensions ({done}/{total})…',
+            resync: 'Resolving dependencies…',
+            stagingTranslations: 'Staging translations…',
+            compiling: 'Compiling…',
+            verifying: 'Verifying…',
+            installing: 'Installing…',
+            restarting: 'Restarting the panel…',
           },
           badge: {
             frontendMissing: 'Frontend missing',
@@ -1956,6 +1981,8 @@ const baseTranslations = defineTranslations({
           toast: {
             buildStarted: 'Extension rebuild started successfully.',
             buildCompleted: 'Extension build completed. You may need to refresh the page.',
+            buildFailed: 'Extension build failed: {reason}',
+            cancelRequested: 'Cancel requested. The build stops once its current step ends.',
             added: 'Extension `{packageName}` added successfully.',
             removed: 'Extension `{packageName}` removed successfully.',
           },
