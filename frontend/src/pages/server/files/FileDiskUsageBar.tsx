@@ -17,10 +17,19 @@ export default function FileDiskUsageBar() {
 
   return (
     <Card mb='sm'>
-      <div className='flex items-center w-full text-sm'>
-        <span>{t('pages.server.files.diskUsage.title', {})}</span>
-        <Progress hourglass={false} value={percentage} color={color} className='flex-1 mx-2' />
-        <span className='text-(--mantine-color-dimmed)'>
+      <div className='flex flex-col sm:flex-row sm:items-center w-full text-sm gap-1 sm:gap-0'>
+        <div className='flex items-center justify-between sm:contents'>
+          <span>{t('pages.server.files.diskUsage.title', {})}</span>
+          <span className='text-(--mantine-color-dimmed) sm:hidden'>
+            {t('pages.server.files.diskUsage.details', {
+              used: bytesToString(diskBytes),
+              total: bytesToString(limitBytes),
+              percentage: percentage.toFixed(1),
+            })}
+          </span>
+        </div>
+        <Progress hourglass={false} value={percentage} color={color} className='flex-1 sm:mx-2' />
+        <span className='hidden sm:inline text-(--mantine-color-dimmed)'>
           {t('pages.server.files.diskUsage.details', {
             used: bytesToString(diskBytes),
             total: bytesToString(limitBytes),

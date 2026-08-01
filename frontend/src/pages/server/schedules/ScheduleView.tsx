@@ -210,7 +210,7 @@ export default function ScheduleView() {
           </ServerCan>
         </Group>
 
-        <div className='flex flex-row space-x-2'>
+        <div className='flex flex-col md:flex-row gap-2'>
           <DetailCard
             icon={<FontAwesomeIcon icon={faClockRotateLeft} />}
             label={t('pages.server.schedules.table.columns.lastRun', {})}
@@ -235,10 +235,8 @@ export default function ScheduleView() {
           </Tabs.List>
 
           <Tabs.Panel value='actions' pt='md'>
-            <Group justify='space-between' align='start'>
-              <Title order={2} mb='md'>
-                {t('pages.server.schedules.view.sections.actions', {})}
-              </Title>
+            <Group justify='space-between' align='start' mb='md'>
+              <Title order={2}>{t('pages.server.schedules.view.sections.actions', {})}</Title>
               <ServerCan action='schedules.update'>
                 <Button
                   onClick={() => setOpenModal(openModal === 'actions' ? null : 'actions')}

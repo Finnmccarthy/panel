@@ -1,4 +1,5 @@
 import { SelectProps } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import classNames from 'classnames';
 import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -54,6 +55,7 @@ export default function ServerSwitcher({ className, isServer }: { className?: st
   const currentServer = useServerStore((state) => state.server);
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const servers = useSearchableResource<z.infer<typeof serverSchema>>({
     queryKey: queryKeys.user.servers.all(),
@@ -97,6 +99,7 @@ export default function ServerSwitcher({ className, isServer }: { className?: st
       onSearchChange={servers.setSearch}
       loading={servers.loading}
       renderOption={renderOption}
+      comboboxProps={{ withinPortal: !isMobile }}
     />
   );
 }

@@ -115,32 +115,34 @@ export default function FileBreadcrumbs({ path, inFileEditor }: { path: string; 
         {items}
       </Breadcrumbs>
 
-      <div className='flex flex-row space-x-2'>
-        <NavLink to={`/server/${server?.uuidShort}/files`} hidden={!isBackupPath || inFileEditor}>
-          <Button variant='light' leftSection={<FontAwesomeIcon icon={faDoorOpen} />}>
-            {t('pages.server.files.button.exitBackup', {})}
-          </Button>
-        </NavLink>
-        <span hidden={inFileEditor} className='flex flex-row space-x-2'>
-          <Tooltip label={t('pages.server.files.tooltip.largestDirectories', {})}>
-            <ActionIcon
-              variant='light'
-              size='input-sm'
-              hidden={!browsingPrimaryFilesystem}
-              onClick={() => doOpenModal('largestDirectories')}
+      {!inFileEditor && (
+        <div className='flex flex-row space-x-2'>
+          <NavLink to={`/server/${server?.uuidShort}/files`} hidden={!isBackupPath}>
+            <Button variant='light' leftSection={<FontAwesomeIcon icon={faDoorOpen} />}>
+              {t('pages.server.files.button.exitBackup', {})}
+            </Button>
+          </NavLink>
+          <span className='flex flex-row space-x-2'>
+            <Tooltip label={t('pages.server.files.tooltip.largestDirectories', {})}>
+              <ActionIcon
+                variant='light'
+                size='input-sm'
+                hidden={!browsingPrimaryFilesystem}
+                onClick={() => doOpenModal('largestDirectories')}
+              >
+                <FontAwesomeIcon icon={faMagnifyingGlassChart} />
+              </ActionIcon>
+            </Tooltip>
+            <Button
+              variant='outline'
+              leftSection={<FontAwesomeIcon icon={faSearch} />}
+              onClick={() => doOpenModal('search')}
             >
-              <FontAwesomeIcon icon={faMagnifyingGlassChart} />
-            </ActionIcon>
-          </Tooltip>
-          <Button
-            variant='outline'
-            leftSection={<FontAwesomeIcon icon={faSearch} />}
-            onClick={() => doOpenModal('search')}
-          >
-            {t('pages.server.files.button.search', {})}
-          </Button>
-        </span>
-      </div>
+              {t('pages.server.files.button.search', {})}
+            </Button>
+          </span>
+        </div>
+      )}
     </div>
   );
 }

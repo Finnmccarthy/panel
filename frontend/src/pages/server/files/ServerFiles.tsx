@@ -281,14 +281,13 @@ function ServerFilesComponent() {
     ];
 
     if (window.innerWidth >= 768) {
-      columns.push(
-        {
-          name: t('pages.server.files.table.columns.modified', {}),
-          rightSection: <ServerFilesColumnRightSection name='modified' />,
-        },
-        { name: '' },
-      );
+      columns.push({
+        name: t('pages.server.files.table.columns.modified', {}),
+        rightSection: <ServerFilesColumnRightSection name='modified' />,
+      });
     }
+
+    columns.push({ name: '' });
 
     return columns;
   }, [t, sortMode, preferPhysicalSize]);

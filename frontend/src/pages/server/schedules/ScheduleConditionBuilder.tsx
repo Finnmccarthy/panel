@@ -104,7 +104,17 @@ export default function ScheduleConditionBuilder({ condition, onChange, depth = 
   };
 
   return (
-    <div style={{ marginLeft: depth * 20 }}>
+    <div
+      style={
+        depth > 0
+          ? {
+              marginLeft: 'clamp(6px, 3vw, 20px)',
+              paddingLeft: 10,
+              borderLeft: '2px solid var(--mantine-color-default-border)',
+            }
+          : undefined
+      }
+    >
       <Stack>
         <Select
           label={t('pages.server.schedules.form.conditionType', {})}
@@ -131,7 +141,7 @@ export default function ScheduleConditionBuilder({ condition, onChange, depth = 
         )}
 
         {(condition.type === 'uptime' || condition.type === 'resource_usage') && (
-          <Group grow>
+          <div className='flex flex-col gap-2 sm:flex-row sm:[&>*]:flex-1 sm:[&>*]:min-w-0'>
             {condition.type === 'resource_usage' && (
               <Select
                 label={t('pages.server.schedules.condition.metric', {})}
@@ -181,7 +191,7 @@ export default function ScheduleConditionBuilder({ condition, onChange, depth = 
                 onChange={(value) => onChange({ ...condition, value })}
               />
             )}
-          </Group>
+          </div>
         )}
 
         {condition.type === 'file_exists' && (
