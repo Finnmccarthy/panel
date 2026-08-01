@@ -31,7 +31,7 @@ export const TableHeader = ({ name, rightSection, onClick }: TableHeaderProps) =
   }
 
   return (
-    <MantineTable.Th className='font-normal!' onClick={onClick}>
+    <MantineTable.Th className='font-normal! text-nowrap' onClick={onClick}>
       <div className='flex flex-row items-center gap-2'>
         <p>{resolvedName}</p> {rightSection}
       </div>
@@ -61,7 +61,7 @@ export const TableRow = forwardRef<HTMLTableRowElement, TableTrProps>(({ classNa
 
 export const TableData = forwardRef<HTMLTableCellElement, TableTdProps>(({ className, children, ...rest }, ref) => {
   return (
-    <MantineTable.Td ref={ref} className={className} {...rest}>
+    <MantineTable.Td ref={ref} className={classNames('text-nowrap', className)} {...rest}>
       {children}
     </MantineTable.Td>
   );
@@ -203,9 +203,7 @@ export default function Table({
   children,
 }: TableProps) {
   return (
-    <MantineTable.ScrollContainer
-      minWidth={0}
-      type='native'
+    <div
       style={
         flush
           ? undefined
@@ -220,47 +218,49 @@ export default function Table({
         <Pagination data={pagination} m='xs' onPageSelect={onPageSelect} withShortcuts={false} />
       )}
 
-      <div style={{ position: 'relative', ...(loading ? { minHeight: '10rem' } : {}) }}>
-        <MantineTable
-          stickyHeader
-          highlightOnHover={(pagination?.total ?? 0) > 0 && !loading}
-          className={classNames(
-            allowSelect ? undefined : 'select-none',
-            loading && 'opacity-50 pointer-events-none transition-opacity',
-          )}
-        >
-          <TableHead>
-            {columns.map((column, index) => (
-              <TableHeader key={`column-${index}`} {...(typeof column === 'object' ? column : { name: column })} />
-            ))}
-          </TableHead>
-          <MantineTable.Tbody>
-            {error ? (
-              <MantineTable.Tr>
-                <MantineTable.Td colSpan={columns.length}>
-                  <ErrorItems error={error} />
-                </MantineTable.Td>
-              </MantineTable.Tr>
-            ) : pagination?.total === 0 && !loading ? (
-              <MantineTable.Tr>
-                <MantineTable.Td colSpan={columns.length}>
-                  <NoItems />
-                </MantineTable.Td>
-              </MantineTable.Tr>
-            ) : (
-              children
+      <MantineTable.ScrollContainer minWidth={0} type='native'>
+        <div style={{ position: 'relative', ...(loading ? { minHeight: '10rem' } : {}) }}>
+          <MantineTable
+            stickyHeader
+            highlightOnHover={(pagination?.total ?? 0) > 0 && !loading}
+            className={classNames(
+              allowSelect ? undefined : 'select-none',
+              loading && 'opacity-50 pointer-events-none transition-opacity',
             )}
-          </MantineTable.Tbody>
-        </MantineTable>
+          >
+            <TableHead>
+              {columns.map((column, index) => (
+                <TableHeader key={`column-${index}`} {...(typeof column === 'object' ? column : { name: column })} />
+              ))}
+            </TableHead>
+            <MantineTable.Tbody>
+              {error ? (
+                <MantineTable.Tr>
+                  <MantineTable.Td colSpan={columns.length}>
+                    <ErrorItems error={error} />
+                  </MantineTable.Td>
+                </MantineTable.Tr>
+              ) : pagination?.total === 0 && !loading ? (
+                <MantineTable.Tr>
+                  <MantineTable.Td colSpan={columns.length}>
+                    <NoItems />
+                  </MantineTable.Td>
+                </MantineTable.Tr>
+              ) : (
+                children
+              )}
+            </MantineTable.Tbody>
+          </MantineTable>
 
-        {loading && (
-          <div className='absolute inset-0 z-20 flex items-center justify-center pointer-events-none'>
-            <Spinner />
-          </div>
-        )}
-      </div>
+          {loading && (
+            <div className='absolute inset-0 z-20 flex items-center justify-center pointer-events-none'>
+              <Spinner />
+            </div>
+          )}
+        </div>
+      </MantineTable.ScrollContainer>
 
       {!error && pagination && onPageSelect && <Pagination data={pagination} m='xs' onPageSelect={onPageSelect} />}
-    </MantineTable.ScrollContainer>
+    </div>
   );
 }

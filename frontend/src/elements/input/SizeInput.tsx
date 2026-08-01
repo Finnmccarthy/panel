@@ -101,6 +101,9 @@ function SizeInput({ mode, min, value, onChange, ...rest }: SizeInputProps) {
               textAlign: 'right',
               cursor: 'pointer',
             },
+            wrapper: {
+              marginTop: 2,
+            },
           }}
         />
       }

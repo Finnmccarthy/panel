@@ -188,11 +188,15 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
           )}
 
           <TableData className='w-full max-w-0'>
-            <Tooltip label={t('pages.server.files.tooltip.dragToMove', {})} disabled={!canDragFile}>
+            <Tooltip
+              label={t('pages.server.files.tooltip.dragToMove', {})}
+              disabled={!canDragFile}
+              innerClassName='w-full min-w-0'
+            >
               <span
                 draggable={canDragFile}
                 className={classNames(
-                  'flex w-fit max-w-full min-w-0 items-center gap-4 rounded-sm py-0.5 leading-5',
+                  'flex w-full min-w-0 items-center gap-4 overflow-hidden rounded-sm py-0.5 leading-5',
                   canDragFile && 'cursor-grab active:cursor-grabbing',
                 )}
                 title={file.name}

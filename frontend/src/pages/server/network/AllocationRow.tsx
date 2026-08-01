@@ -163,6 +163,7 @@ export default function AllocationRow({ allocation }: { allocation: z.infer<type
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder={t('common.table.columns.notes', {})}
                 disabled={!canUpdate}
+                className='min-w-32'
               />
             </TableData>
 
