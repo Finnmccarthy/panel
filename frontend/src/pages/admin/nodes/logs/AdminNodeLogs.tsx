@@ -15,6 +15,7 @@ import Spinner from '@/elements/Spinner.tsx';
 import { stripAnsi } from '@/lib/ansi.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { bytesToString } from '@/lib/size.ts';
+import { useWebsocket } from '@/plugins/useWebsocket.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
@@ -29,7 +30,6 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [following, setFollowing] = useState(false);
-  const [connected, setConnected] = useState(false);
 
   const editorRef = useRef<Parameters<OnMount>[0]>(null);
   const linesRef = useRef(lines);
@@ -49,55 +49,6 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
     setContent(null);
     setLoaded(false);
   }, [selectedLog]);
-
-  useEffect(() => {
-    if (!following || !loaded || !selectedLog) {
-      return;
-    }
-
-    let destroyed = false;
-
-    const url = new URL(
-      `/api/admin/nodes/${node.uuid}/system/logs/${encodeURIComponent(selectedLog.name)}/ws`,
-      window.location.origin,
-    );
-    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-    url.searchParams.set('lines', '0');
-
-    const socket = new WebSocket(url);
-
-    socket.onopen = () => {
-      if (!destroyed) {
-        setConnected(true);
-      }
-    };
-
-    socket.onmessage = (event) => {
-      if (destroyed || typeof event.data !== 'string') {
-        return;
-      }
-
-      appendLine(stripAnsi(event.data));
-    };
-
-    socket.onclose = (e) => {
-      if (destroyed) {
-        return;
-      }
-
-      setConnected(false);
-
-      if (!e.wasClean) {
-        addToast(t('pages.admin.nodes.tabs.logs.page.toast.connectionLost', {}), 'error');
-      }
-    };
-
-    return () => {
-      destroyed = true;
-      setConnected(false);
-      socket.close();
-    };
-  }, [following, loaded, selectedLog?.name, node.uuid]);
 
   const appendLine = (line: string) => {
     const editor = editorRef.current;
@@ -126,6 +77,14 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
       });
     }
   };
+
+  const { connected } = useWebsocket({
+    path: `/api/admin/nodes/${node.uuid}/system/logs/${encodeURIComponent(selectedLog?.name ?? '')}/ws`,
+    params: { lines: '0' },
+    enabled: following && loaded && !!selectedLog,
+    onMessage: (line) => appendLine(stripAnsi(line)),
+    onConnectionLost: () => addToast(t('pages.admin.nodes.tabs.logs.page.toast.connectionLost', {}), 'error'),
+  });
 
   const doDownload = () => {
     if (!selectedLog) {

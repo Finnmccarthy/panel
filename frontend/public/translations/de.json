@@ -2587,6 +2587,9 @@
               "title": "Ausgehende Transfers",
               "page": {
                 "title": "Node Transfers",
+                "toast": {
+                  "connectionLost": "Verbindung zum Node-Transfer-Stream verloren."
+                },
                 "table": {
                   "columns": {
                     "progress": "Fortschritt",

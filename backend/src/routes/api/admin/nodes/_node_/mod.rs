@@ -22,6 +22,7 @@ mod reset_token;
 mod servers;
 mod system;
 mod token;
+mod transfers;
 
 pub async fn auth(
     state: GetState,
@@ -245,6 +246,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .nest("/backups", backups::router(state))
         .nest("/config", config::router(state))
         .nest("/duplicate", duplicate::router(state))
+        .nest("/transfers", transfers::router(state))
         .route_layer(axum::middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state.clone())
 }

@@ -1,17 +1,21 @@
-import { Ref, useEffect } from 'react';
+import { Ref, useCallback, useRef, useState } from 'react';
 import { z } from 'zod';
-import getNodeTransferringServers from '@/api/admin/nodes/servers/getNodeTransferringServers.ts';
+import getNodeTransferringServers from '@/api/admin/nodes/transfers/getNodeTransferringServers.ts';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import SelectionArea from '@/elements/SelectionArea.tsx';
 import Table from '@/elements/Table.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
+import { adminNodeSchema, adminNodeTransfersSchema } from '@/lib/schemas/admin/nodes.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
+import { useWebsocket } from '@/plugins/useWebsocket.ts';
+import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import ServerRow from './ServerRow.tsx';
+import ServerRow, { TransferProgressWithRates } from './ServerRow.tsx';
 
 export default function AdminNodeTransfers({ node }: { node: z.infer<typeof adminNodeSchema> }) {
   const { t } = useTranslations();
+  const { addToast } = useToast();
+
   const {
     data: nodeTransferringServers,
     loading,
@@ -26,13 +30,66 @@ export default function AdminNodeTransfers({ node }: { node: z.infer<typeof admi
     paginationKey: 'servers',
   });
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch();
-    }, 1000);
+  const [progress, setProgress] = useState<Record<string, TransferProgressWithRates>>({});
+  const lastFrame = useRef<{ at: number; keys: string } | null>(null);
+  const staleAfterLoss = useRef(false);
 
-    return () => clearInterval(interval);
-  }, [node.uuid, search]);
+  // Rates are derived where frames arrive rather than during render: rows re-render for
+  // unrelated reasons (search input, StrictMode) and a render-time diff would count those as
+  // elapsed time. The key set doubles as the completion signal - a server leaves the map once
+  // wings stops transferring it - so a changed key set means the paginated list is stale,
+  // whether or not the affected server sits on the current page.
+  const onFrame = useCallback(
+    (frame: z.infer<typeof adminNodeTransfersSchema>) => {
+      const now = performance.now();
+      const previous = lastFrame.current;
+      const elapsedSeconds = previous ? (now - previous.at) / 1000 : 0;
+
+      setProgress((current) =>
+        Object.fromEntries(
+          Object.entries(frame).map(([uuid, next]) => {
+            const last = current[uuid];
+            if (!last || elapsedSeconds <= 0) {
+              return [uuid, { ...next, archiveRate: last?.archiveRate ?? 0, networkRate: last?.networkRate ?? 0 }];
+            }
+
+            return [
+              uuid,
+              {
+                ...next,
+                archiveRate: (next.archiveBytesProcessed - last.archiveBytesProcessed) / elapsedSeconds,
+                networkRate: (next.networkBytesProcessed - last.networkBytesProcessed) / elapsedSeconds,
+              },
+            ];
+          }),
+        ),
+      );
+
+      // Transfers can finish while the socket is down, so the first frame back always refetches
+      // rather than waiting for the next key change.
+      const keys = Object.keys(frame).sort().join(',');
+      if (staleAfterLoss.current || (previous && previous.keys !== keys)) {
+        staleAfterLoss.current = false;
+        refetch();
+      }
+
+      lastFrame.current = { at: now, keys };
+    },
+    [refetch],
+  );
+
+  useWebsocket({
+    path: `/api/admin/nodes/${node.uuid}/transfers/ws`,
+    schema: adminNodeTransfersSchema,
+    reconnectDelay: 5000,
+    onMessage: onFrame,
+    onConnectionLost: () => {
+      lastFrame.current = null;
+      staleAfterLoss.current = true;
+      setProgress({});
+      addToast(t('pages.admin.nodes.tabs.transfers.page.toast.connectionLost', {}), 'error');
+    },
+  });
 
   return (
     <>
@@ -67,7 +124,7 @@ export default function AdminNodeTransfers({ node }: { node: z.infer<typeof admi
                 <ServerRow
                   key={server.uuid}
                   server={server}
-                  transferProgress={nodeTransferringServers.transfers[server.uuid]}
+                  transferProgress={progress[server.uuid]}
                   ref={innerRef as Ref<HTMLTableRowElement>}
                 />
               )}

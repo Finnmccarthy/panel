@@ -2572,6 +2572,9 @@ const baseTranslations = defineTranslations({
               title: 'Outgoing Transfers',
               page: {
                 title: 'Node Transfers',
+                toast: {
+                  connectionLost: 'Lost connection to the node transfers stream.',
+                },
                 table: {
                   columns: {
                     progress: 'Progress',

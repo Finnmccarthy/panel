@@ -57,3 +57,32 @@ export const adminNodeDesyncSchema = z.object({
   panelLocalTime: z.string(),
   node: z.lazy(() => adminNodeSchema),
 });
+
+// Wings and the database agent both serve this shape on their system stats sockets; extra
+// fields they send (packet counters) are stripped since nothing renders them.
+export const adminSystemStatisticsSchema = z.object({
+  cpu: z.object({
+    used: z.number(),
+    threads: z.number(),
+    model: z.string(),
+  }),
+  network: z.object({
+    received: z.number(),
+    receivingRate: z.number(),
+    sent: z.number(),
+    sendingRate: z.number(),
+  }),
+  memory: z.object({
+    used: z.number(),
+    usedProcess: z.number(),
+    total: z.number(),
+  }),
+  disk: z.object({
+    used: z.number(),
+    total: z.number(),
+    read: z.number(),
+    readingRate: z.number(),
+    written: z.number(),
+    writingRate: z.number(),
+  }),
+});

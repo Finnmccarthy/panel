@@ -1,4 +1,4 @@
-import { forwardRef, memo, useRef } from 'react';
+import { forwardRef, memo } from 'react';
 import { z } from 'zod';
 import Code from '@/elements/Code.tsx';
 import Progress from '@/elements/Progress.tsx';
@@ -11,28 +11,19 @@ import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { bytesProgressString, bytesToString } from '@/lib/size.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
+export type TransferProgressWithRates = z.infer<typeof adminNodeTransferProgressSchema> & {
+  archiveRate: number;
+  networkRate: number;
+};
+
 interface ServerRowProps {
   server: z.infer<typeof adminServerSchema>;
-  transferProgress?: z.infer<typeof adminNodeTransferProgressSchema>;
+  transferProgress?: TransferProgressWithRates;
 }
 
 const ServerRow = memo(
   forwardRef<HTMLTableRowElement, ServerRowProps>(function ServerRow({ server, transferProgress }, ref) {
     const { tItem } = useTranslations();
-    const lastProgress = useRef(transferProgress);
-
-    const archiveRate =
-      lastProgress.current && transferProgress
-        ? transferProgress.archiveBytesProcessed - lastProgress.current.archiveBytesProcessed
-        : 0;
-    const networkRate =
-      lastProgress.current && transferProgress
-        ? transferProgress.networkBytesProcessed - lastProgress.current.networkBytesProcessed
-        : 0;
-
-    if (transferProgress) {
-      lastProgress.current = transferProgress;
-    }
 
     return (
       <TableRow ref={ref}>
@@ -54,9 +45,9 @@ const ServerRow = memo(
           </Tooltip>
         </TableData>
 
-        <TableData>{bytesToString(archiveRate)}/s</TableData>
+        <TableData>{bytesToString(transferProgress?.archiveRate || 0)}/s</TableData>
 
-        <TableData>{bytesToString(networkRate)}/s</TableData>
+        <TableData>{bytesToString(transferProgress?.networkRate || 0)}/s</TableData>
 
         <TableData>{server.name}</TableData>
 

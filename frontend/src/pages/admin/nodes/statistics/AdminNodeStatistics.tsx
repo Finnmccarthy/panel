@@ -25,43 +25,17 @@ import TitleCard from '@/elements/TitleCard.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { useChart, useChartTickLabel } from '@/lib/chart.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
+import { adminSystemStatisticsSchema } from '@/lib/schemas/admin/system.ts';
 import { bytesToString, mapUnitToLocale } from '@/lib/size.ts';
-import { transformKeysToCamelCase } from '@/lib/transformers.ts';
+import { useWebsocket } from '@/plugins/useWebsocket.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-
-interface NodeStatistics {
-  cpu: {
-    used: number;
-    threads: number;
-    model: string;
-  };
-  network: {
-    received: number;
-    receivingRate: number;
-    sent: number;
-    sendingRate: number;
-  };
-  memory: {
-    used: number;
-    usedProcess: number;
-    total: number;
-  };
-  disk: {
-    used: number;
-    total: number;
-    read: number;
-    readingRate: number;
-    written: number;
-    writingRate: number;
-  };
-}
 
 export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adminNodeSchema> }) {
   const { t } = useTranslations();
   const { addToast } = useToast();
 
-  const [stats, setStats] = useState<NodeStatistics | null>(null);
+  const [stats, setStats] = useState<z.infer<typeof adminSystemStatisticsSchema> | null>(null);
 
   const cpu = useChartTickLabel(t('pages.admin.nodes.tabs.statistics.page.label.cpu', {}), 100, '%', 2);
   const memory = useChartTickLabel(
@@ -114,77 +88,16 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
     },
   });
 
-  useEffect(() => {
-    let socketRef: WebSocket | null = null;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-    let destroyed = false;
-    let lossNotified = false;
-
-    const connect = () => {
-      if (destroyed) {
-        return;
-      }
-
-      const url = new URL(`/api/admin/nodes/${node.uuid}/system/stats/ws`, window.location.origin);
-      url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-
-      const socket = new WebSocket(url);
-      socketRef = socket;
-
-      socket.onmessage = (event) => {
-        if (destroyed || socket !== socketRef) {
-          return;
-        }
-
-        try {
-          const data = transformKeysToCamelCase(JSON.parse(event.data)) as NodeStatistics & {
-            stats?: NodeStatistics;
-          };
-
-          lossNotified = false;
-          setStats(data.stats ?? data);
-        } catch {
-          // ignore malformed messages
-        }
-      };
-
-      socket.onclose = (e) => {
-        if (destroyed || socket !== socketRef) {
-          return;
-        }
-
-        socketRef = null;
-
-        if (e.wasClean) {
-          return;
-        }
-
-        if (!lossNotified) {
-          lossNotified = true;
-          addToast(t('pages.admin.nodes.tabs.statistics.page.toast.connectionLost', {}), 'error');
-        }
-        setStats(null);
-
-        reconnectTimer = setTimeout(() => {
-          reconnectTimer = null;
-          connect();
-        }, 5000);
-      };
-    };
-
-    connect();
-
-    return () => {
-      destroyed = true;
-
-      if (reconnectTimer !== null) {
-        clearTimeout(reconnectTimer);
-      }
-
-      socketRef?.close();
-      socketRef = null;
-    };
-  }, [node.uuid]);
+  useWebsocket({
+    path: `/api/admin/nodes/${node.uuid}/system/stats/ws`,
+    schema: adminSystemStatisticsSchema,
+    reconnectDelay: 5000,
+    onMessage: setStats,
+    onConnectionLost: () => {
+      setStats(null);
+      addToast(t('pages.admin.nodes.tabs.statistics.page.toast.connectionLost', {}), 'error');
+    },
+  });
 
   useEffect(() => {
     if (!stats) {

@@ -208,13 +208,28 @@ function formatSchemaError(schema: AnySchema, error: z.ZodError, data: unknown):
     .join('\n');
 }
 
-// Remap keys then validate, main entry point for incoming API responses
-export function parseFromApi<T extends z.ZodTypeAny>(schema: T, data: unknown): z.infer<T> {
+export type SafeParseFromApiResult<T extends z.ZodTypeAny> =
+  | { success: true; data: z.infer<T> }
+  | { success: false; error: z.ZodError; message: string };
+
+// Remap keys then validate, reporting failure instead of logging and throwing. Streaming
+// callers (websockets) need this: a schema drift on a 1Hz socket would otherwise log once a
+// second forever, so they suppress repeats themselves and log the message when it changes.
+export function safeParseFromApi<T extends z.ZodTypeAny>(schema: T, data: unknown): SafeParseFromApiResult<T> {
   const transformed = applyTransform(schema, data);
   const result = schema.safeParse(transformed);
   if (!result.success) {
+    return { success: false, error: result.error, message: formatSchemaError(schema, result.error, transformed) };
+  }
+  return { success: true, data: result.data };
+}
+
+// Remap keys then validate, main entry point for incoming API responses
+export function parseFromApi<T extends z.ZodTypeAny>(schema: T, data: unknown): z.infer<T> {
+  const result = safeParseFromApi(schema, data);
+  if (!result.success) {
     // Surface schema/backend mismatches loudly - callers often swallow the throw
-    console.error(formatSchemaError(schema, result.error, transformed), '\nfull response:', data);
+    console.error(result.message, '\nfull response:', data);
     throw result.error;
   }
   return result.data;
