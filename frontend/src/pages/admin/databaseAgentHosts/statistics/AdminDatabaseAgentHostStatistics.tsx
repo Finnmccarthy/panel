@@ -1,32 +1,22 @@
-import {
-  faCloudArrowDown,
-  faCloudArrowUp,
-  faCloudDownload,
-  faDatabase,
-  faMemory,
-  faMicrochip,
-  faPen,
-  faSearch,
-  faUserLarge,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCloudDownload, faDatabase, faMemory, faMicrochip, faUserLarge } from '@fortawesome/free-solid-svg-icons';
 import { faChartBar } from '@fortawesome/free-solid-svg-icons/faChartBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
-import { Line } from 'react-chartjs-2';
+import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import Card from '@/elements/Card.tsx';
 import ChartBlock from '@/elements/ChartBlock.tsx';
+import ChartLegend from '@/elements/ChartLegend.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
 import SemiCircleProgress from '@/elements/SemiCircleProgress.tsx';
 import Spinner from '@/elements/Spinner.tsx';
+import StreamChart from '@/elements/StreamChart.tsx';
 import Title from '@/elements/Title.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
-import Tooltip from '@/elements/Tooltip.tsx';
-import { useChart, useChartTickLabel } from '@/lib/chart.ts';
+import { formatBytes, formatBytesRate, formatPercent, useStreamChart } from '@/lib/chart.ts';
 import { adminDatabaseAgentHostSchema } from '@/lib/schemas/admin/databaseAgentHosts.ts';
 import { adminSystemStatisticsSchema } from '@/lib/schemas/admin/system.ts';
-import { bytesToString, mapUnitToLocale } from '@/lib/size.ts';
+import { bytesToString, mbToBytes } from '@/lib/size.ts';
 import { useWebsocket } from '@/plugins/useWebsocket.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -41,55 +31,38 @@ export default function AdminDatabaseAgentHostStatistics({
 
   const [stats, setStats] = useState<z.infer<typeof adminSystemStatisticsSchema> | null>(null);
 
-  const cpu = useChartTickLabel(t('pages.admin.databaseAgentHosts.tabs.statistics.page.label.cpu', {}), 100, '%', 2);
-  const memory = useChartTickLabel(
-    t('pages.admin.databaseAgentHosts.tabs.statistics.page.label.memory', {}),
-    stats ? Math.floor(stats.memory.total / 1024 / 1024) : 0,
-    mapUnitToLocale('MiB'),
-  );
-  const disk = useChart(t('pages.admin.databaseAgentHosts.tabs.statistics.page.label.disk', {}), {
-    sets: 2,
-    options: {
-      scales: {
-        y: {
-          ticks: {
-            callback(value) {
-              return bytesToString(typeof value === 'string' ? parseInt(value, 10) : value);
-            },
-          },
-        },
-      },
-    },
-    callback(opts, index) {
-      return {
-        ...opts,
-        label: !index
-          ? t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.diskRead', {})
-          : t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.diskWrite', {}),
-      };
-    },
+  const cpu = useStreamChart({
+    series: useMemo(() => [t('pages.admin.databaseAgentHosts.tabs.statistics.page.label.cpu', {})], [t]),
+    format: formatPercent,
+    min: 10,
   });
-  const network = useChart(t('pages.admin.databaseAgentHosts.tabs.statistics.page.label.network', {}), {
-    sets: 2,
-    options: {
-      scales: {
-        y: {
-          ticks: {
-            callback(value) {
-              return bytesToString(typeof value === 'string' ? parseInt(value, 10) : value);
-            },
-          },
-        },
-      },
-    },
-    callback(opts, index) {
-      return {
-        ...opts,
-        label: !index
-          ? t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.networkInLabel', {})
-          : t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.networkOutLabel', {}),
-      };
-    },
+  const memory = useStreamChart({
+    series: useMemo(() => [t('pages.admin.databaseAgentHosts.tabs.statistics.page.label.memory', {})], [t]),
+    format: formatBytes,
+    scale: 'binary',
+    min: mbToBytes(64),
+  });
+  const disk = useStreamChart({
+    series: useMemo(
+      () => [
+        t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.diskRead', {}),
+        t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.diskWrite', {}),
+      ],
+      [t],
+    ),
+    format: formatBytesRate,
+    scale: 'binary',
+  });
+  const network = useStreamChart({
+    series: useMemo(
+      () => [
+        t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.networkInLabel', {}),
+        t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.networkOutLabel', {}),
+      ],
+      [t],
+    ),
+    format: formatBytesRate,
+    scale: 'binary',
   });
 
   useWebsocket({
@@ -109,7 +82,7 @@ export default function AdminDatabaseAgentHostStatistics({
     }
 
     cpu.push(stats.cpu.used);
-    memory.push(Math.floor(stats.memory.used / 1024 / 1024));
+    memory.push(stats.memory.used);
     disk.push([stats.disk.readingRate, stats.disk.writingRate]);
     network.push([stats.network.receivingRate, stats.network.sendingRate]);
   }, [stats]);
@@ -225,49 +198,30 @@ export default function AdminDatabaseAgentHostStatistics({
                 <ChartBlock
                   icon={<FontAwesomeIcon icon={faMicrochip} />}
                   title={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.cpuLoad', {})}
+                  value={cpu.value}
                 >
-                  <Line {...cpu.props} />
+                  <StreamChart {...cpu.props} />
                 </ChartBlock>
                 <ChartBlock
                   icon={<FontAwesomeIcon icon={faMemory} />}
                   title={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.memoryUsage', {})}
+                  value={memory.value}
                 >
-                  <Line {...memory.props} />
+                  <StreamChart {...memory.props} />
                 </ChartBlock>
                 <ChartBlock
                   icon={<FontAwesomeIcon icon={faDatabase} />}
                   title={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.diskIo', {})}
-                  legend={
-                    <>
-                      <Tooltip label={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.diskRead', {})}>
-                        <FontAwesomeIcon icon={faSearch} className='mr-2 h-4 w-4 text-(--chart-series-1-border)' />
-                      </Tooltip>
-                      <Tooltip label={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.diskWrite', {})}>
-                        <FontAwesomeIcon icon={faPen} className='h-4 w-4 text-(--chart-series-2-border)' />
-                      </Tooltip>
-                    </>
-                  }
+                  legend={<ChartLegend series={disk.series} />}
                 >
-                  <Line {...disk.props} />
+                  <StreamChart {...disk.props} />
                 </ChartBlock>
                 <ChartBlock
                   icon={<FontAwesomeIcon icon={faCloudDownload} />}
                   title={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.networkTraffic', {})}
-                  legend={
-                    <>
-                      <Tooltip label={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.outbound', {})}>
-                        <FontAwesomeIcon icon={faCloudArrowUp} className='h-4 w-4 text-(--chart-series-1-border)' />
-                      </Tooltip>
-                      <Tooltip label={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.inbound', {})}>
-                        <FontAwesomeIcon
-                          icon={faCloudArrowDown}
-                          className='mr-2 h-4 w-4 text-(--chart-series-2-border)'
-                        />
-                      </Tooltip>
-                    </>
-                  }
+                  legend={<ChartLegend series={network.series} />}
                 >
-                  <Line {...network.props} />
+                  <StreamChart {...network.props} />
                 </ChartBlock>
               </div>
             </TitleCard>

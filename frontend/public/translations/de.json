@@ -4181,7 +4181,8 @@
             "memoryLoad": "RAM-Last",
             "network": "Netzwerk",
             "inbound": "Eingehend",
-            "outbound": "Ausgehend"
+            "outbound": "Ausgehend",
+            "offline": "Server ist offline"
           },
           "socketConnected": "Verbunden ({ping}ms ping)",
           "socketDisconnected": "Getrennt"
@@ -4571,7 +4572,8 @@
                 "uptime": "Laufzeit",
                 "cpuLoad": "CPU-Auslastung",
                 "memoryLoad": "Speicherauslastung",
-                "diskUsage": "Festplattennutzung"
+                "diskUsage": "Festplattennutzung",
+                "offline": "Instanz ist offline"
               }
             },
             "databases": {

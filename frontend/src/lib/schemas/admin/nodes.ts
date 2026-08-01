@@ -99,6 +99,4 @@ export const adminNodeTransferProgressSchema = z.object({
   filesProcessed: z.number(),
 });
 
-// Keyed by server uuid. Shared by the snapshot endpoint and the transfers websocket, which
-// serve byte-identical payloads.
 export const adminNodeTransfersSchema = z.record(z.string(), adminNodeTransferProgressSchema);

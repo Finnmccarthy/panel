@@ -2,27 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { safeParseFromApi } from '@/lib/api-transform.ts';
 
-/**
- * Shared client for the panel's own websocket routes - same-origin paths authenticated by the
- * session cookie. The per-server console socket is a different mechanism (msgpack over an
- * in-band JWT handshake, straight to wings) and lives in `plugins/Websocket.ts`.
- *
- * Passing a `schema` declares that frames are JSON: they are parsed, run through
- * `safeParseFromApi` for the snake_case->camelCase remap plus validation, and handed to
- * `onMessage` typed. Omitting it yields raw string frames. The framing cannot be folded into
- * the schema itself - `applyTransform` unwraps a pipe to its input side, so a
- * `z.string().transform(JSON.parse).pipe(...)` would silently skip the key remap.
- */
 interface WebsocketOptions {
   path: string;
   params?: Record<string, string>;
   enabled?: boolean;
-  /** milliseconds between reconnect attempts, or null to not reconnect */
   reconnectDelay?: number | null;
   onMessage: (data: string) => void;
   onOpen?: () => void;
   onClose?: (event: CloseEvent) => void;
-  /** fires once per loss streak, resetting only once a frame arrives again */
   onConnectionLost?: () => void;
 }
 

@@ -59,12 +59,12 @@
   --mantine-color-body: #f0eff0;
 
   /* Chart colors */
-  --chart-grid-color: #e5e7eb;
-  --chart-tick-color: #374151;
-  --chart-series-1-border: #0891b2;
-  --chart-series-1-fill: rgba(8, 145, 178, 0.15);
-  --chart-series-2-border: #d97706;
-  --chart-series-2-fill: rgba(217, 119, 6, 0.15);
+  --chart-grid-color: rgba(0, 0, 0, 0.09);
+  --chart-tick-color: #6b7280;
+  --chart-series-1: #0891b2;
+  --chart-series-2: #d97706;
+  --chart-series-3: #7c3aed;
+  --chart-series-4: #16a34a;
 }
 
 :root[data-mantine-color-scheme="dark"] {
@@ -198,12 +198,12 @@
   --mantine-primary-color-contrast: var(--mantine-color-white);
 
   /* Chart colors */
-  --chart-grid-color: #424242;
-  --chart-tick-color: #f3f4f6;
-  --chart-series-1-border: #22d3ee;
-  --chart-series-1-fill: rgba(14, 116, 144, 0.5);
-  --chart-series-2-border: #facc15;
-  --chart-series-2-fill: rgba(161, 98, 7, 0.5);
+  --chart-grid-color: rgba(255, 255, 255, 0.08);
+  --chart-tick-color: #9ca3af;
+  --chart-series-1: #22d3ee;
+  --chart-series-2: #facc15;
+  --chart-series-3: #a78bfa;
+  --chart-series-4: #4ade80;
 }
 
 html {

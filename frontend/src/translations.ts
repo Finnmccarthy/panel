@@ -4226,6 +4226,7 @@ const baseTranslations = defineTranslations({
             network: 'Network',
             inbound: 'Inbound',
             outbound: 'Outbound',
+            offline: 'Server is offline',
           },
           socketConnected: 'Connected ({ping}ms ping)',
           socketDisconnected: 'Disconnected',
@@ -4620,6 +4621,7 @@ const baseTranslations = defineTranslations({
                 cpuLoad: 'CPU Load',
                 memoryLoad: 'Memory Load',
                 diskUsage: 'Disk Usage',
+                offline: 'Instance is offline',
               },
             },
             databases: {
