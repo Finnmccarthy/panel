@@ -3254,6 +3254,19 @@ const baseTranslations = defineTranslations({
                 titleUpdate: 'Update Egg Repository',
                 form: {
                   gitRepository: 'Git Repository',
+                  credentials: 'Repository Credentials',
+                  credentialType: 'Credential Type',
+                  password: 'Password or Access Token',
+                  privateKey: 'Private Key',
+                  privateKeyPlaceholder: '-----BEGIN OPENSSH PRIVATE KEY-----',
+                  passphrase: 'Passphrase',
+                },
+                enum: {
+                  credentialType: {
+                    none: 'None',
+                    password: 'Password',
+                    privateKey: 'Private Key',
+                  },
                 },
                 button: {
                   sync: 'Sync',

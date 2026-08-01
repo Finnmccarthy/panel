@@ -14,6 +14,200 @@ use std::{
 };
 use utoipa::ToSchema;
 
+fn validate_git_repository(
+    git_repository: &compact_str::CompactString,
+    _context: &(),
+) -> Result<(), garde::Error> {
+    let url = match gix::url::parse(git_repository.as_str()) {
+        Ok(url) => url,
+        Err(err) => return Err(garde::Error::new(format!("Invalid git repository: {err}"))),
+    };
+
+    match url.scheme {
+        gix::url::Scheme::Http | gix::url::Scheme::Https | gix::url::Scheme::Ssh => {}
+        _ => {
+            return Err(garde::Error::new(
+                "Invalid git repository: only http, https and ssh urls are supported, scp-style urls have to be written as ssh://user@host/path",
+            ));
+        }
+    }
+
+    if url.host().is_none() {
+        return Err(garde::Error::new("Invalid git repository: missing host"));
+    }
+
+    Ok(())
+}
+
+#[derive(ToSchema, Validate, Serialize, Deserialize, Clone)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum EggRepositoryCredentials {
+    None,
+    Password {
+        #[garde(length(chars, min = 1, max = 255))]
+        #[schema(min_length = 1, max_length = 255)]
+        username: compact_str::CompactString,
+        #[garde(length(chars, min = 1, max = 255))]
+        #[schema(min_length = 1, max_length = 255)]
+        password: compact_str::CompactString,
+    },
+    PrivateKey {
+        #[garde(length(chars, min = 1, max = 255))]
+        #[schema(min_length = 1, max_length = 255)]
+        username: compact_str::CompactString,
+        #[garde(
+            length(chars, min = 1, max = 16384),
+            custom(crate::git::validate_private_key)
+        )]
+        #[schema(min_length = 1, max_length = 16384)]
+        private_key: String,
+        #[garde(inner(length(chars, min = 1, max = 255)))]
+        #[schema(min_length = 1, max_length = 255)]
+        passphrase: Option<compact_str::CompactString>,
+    },
+}
+
+impl EggRepositoryCredentials {
+    fn validate_scheme_for_url(&self, git_repository: &str) -> Result<(), anyhow::Error> {
+        let scheme = gix::url::parse(git_repository)
+            .map(|url| url.scheme)
+            .unwrap_or(gix::url::Scheme::Https);
+
+        match self {
+            EggRepositoryCredentials::None => {}
+            EggRepositoryCredentials::Password { .. } => {
+                if scheme == gix::url::Scheme::Http {
+                    return Err(crate::response::DisplayError::new(
+                        "password credentials cannot be sent over plain http, use an https repository url",
+                    )
+                    .into());
+                }
+            }
+            EggRepositoryCredentials::PrivateKey { .. } => {
+                if scheme != gix::url::Scheme::Ssh {
+                    return Err(crate::response::DisplayError::new(
+                        "private key credentials can only be used with ssh repositories",
+                    )
+                    .into());
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    fn validate_key_material(&self) -> Result<(), anyhow::Error> {
+        if let EggRepositoryCredentials::PrivateKey {
+            private_key,
+            passphrase,
+            ..
+        } = self
+        {
+            crate::git::parse_private_key(private_key, passphrase.as_deref()).map_err(|err| {
+                crate::response::DisplayError::new(format!("private key is unusable: {err}"))
+            })?;
+        }
+
+        Ok(())
+    }
+
+    pub async fn encrypt(
+        &mut self,
+        database: &crate::database::Database,
+    ) -> Result<(), anyhow::Error> {
+        match self {
+            EggRepositoryCredentials::None => {}
+            EggRepositoryCredentials::Password { password, .. } => {
+                *password = database.encrypt_base64(password.clone()).await?;
+            }
+            EggRepositoryCredentials::PrivateKey {
+                private_key,
+                passphrase,
+                ..
+            } => {
+                *private_key = database.encrypt_base64(private_key.clone()).await?.into();
+
+                if let Some(passphrase) = passphrase {
+                    *passphrase = database.encrypt_base64(passphrase.clone()).await?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    pub async fn decrypt(
+        &mut self,
+        database: &crate::database::Database,
+    ) -> Result<(), anyhow::Error> {
+        match self {
+            EggRepositoryCredentials::None => {}
+            EggRepositoryCredentials::Password { password, .. } => {
+                if let Some(decrypted) = database.decrypt_base64_optional(&password).await? {
+                    *password = decrypted;
+                }
+            }
+            EggRepositoryCredentials::PrivateKey {
+                private_key,
+                passphrase,
+                ..
+            } => {
+                if let Some(decrypted) = database.decrypt_base64_optional(&private_key).await? {
+                    *private_key = decrypted.into();
+                }
+
+                if let Some(passphrase) = passphrase
+                    && let Some(decrypted) = database.decrypt_base64_optional(&passphrase).await?
+                {
+                    *passphrase = decrypted;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn censor(&mut self) {
+        match self {
+            EggRepositoryCredentials::None => {}
+            EggRepositoryCredentials::Password { password, .. } => {
+                *password = "".into();
+            }
+            EggRepositoryCredentials::PrivateKey {
+                private_key,
+                passphrase,
+                ..
+            } => {
+                *private_key = "".into();
+
+                if let Some(passphrase) = passphrase {
+                    *passphrase = "".into();
+                }
+            }
+        }
+    }
+}
+
+impl From<EggRepositoryCredentials> for crate::git::GitCredentials {
+    fn from(value: EggRepositoryCredentials) -> Self {
+        match value {
+            EggRepositoryCredentials::None => Self::None,
+            EggRepositoryCredentials::Password { username, password } => {
+                Self::Password { username, password }
+            }
+            EggRepositoryCredentials::PrivateKey {
+                username,
+                private_key,
+                passphrase,
+            } => Self::PrivateKey {
+                username,
+                private_key,
+                passphrase,
+            },
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EggRepository {
     pub uuid: uuid::Uuid,
@@ -21,6 +215,7 @@ pub struct EggRepository {
     pub name: compact_str::CompactString,
     pub description: Option<compact_str::CompactString>,
     pub git_repository: compact_str::CompactString,
+    pub credentials: EggRepositoryCredentials,
 
     pub last_synced: Option<chrono::NaiveDateTime>,
     pub created: chrono::NaiveDateTime,
@@ -64,6 +259,10 @@ impl BaseModel for EggRepository {
                 compact_str::format_compact!("{prefix}git_repository"),
             ),
             (
+                "egg_repositories.credentials",
+                compact_str::format_compact!("{prefix}credentials"),
+            ),
+            (
                 "egg_repositories.last_synced",
                 compact_str::format_compact!("{prefix}last_synced"),
             ),
@@ -85,6 +284,9 @@ impl BaseModel for EggRepository {
                 .try_get(compact_str::format_compact!("{prefix}description").as_str())?,
             git_repository: row
                 .try_get(compact_str::format_compact!("{prefix}git_repository").as_str())?,
+            credentials: serde_json::from_value(
+                row.try_get(compact_str::format_compact!("{prefix}credentials").as_str())?,
+            )?,
             last_synced: row
                 .try_get(compact_str::format_compact!("{prefix}last_synced").as_str())?,
             created: row.try_get(compact_str::format_compact!("{prefix}created").as_str())?,
@@ -134,6 +336,9 @@ impl EggRepository {
     pub async fn sync(&self, database: &crate::database::Database) -> Result<usize, anyhow::Error> {
         let git_repository = self.git_repository.clone();
 
+        let mut credentials = self.credentials.clone();
+        credentials.decrypt(database).await?;
+
         struct FoundEgg {
             path: PathBuf,
             readme: Option<String>,
@@ -147,13 +352,18 @@ impl EggRepository {
                 let temp_dir = tempfile::tempdir()?;
                 let filesystem = crate::cap::CapFilesystem::new(temp_dir.path().to_path_buf())?;
 
+                let url = gix::url::parse(git_repository.as_str())?;
+
                 let mut prepare_fetch = gix::clone::PrepareFetch::new(
-                    git_repository.as_str(),
+                    url.clone(),
                     temp_dir.path(),
                     gix::create::Kind::WithWorktree,
                     Default::default(),
-                    Default::default(),
-                )?;
+                    gix::open::Options::default().config_overrides(["credential.helper="]),
+                )?
+                .configure_connection(
+                    crate::git::GitCredentials::from(credentials).into_connection_configurator(url),
+                );
 
                 let (mut prepare_checkout, _) = prepare_fetch
                     .fetch_then_checkout(gix::progress::Discard, &gix::interrupt::IS_INTERRUPTED)?;
@@ -302,11 +512,13 @@ impl IntoAdminApiObject for EggRepository {
     type ExtraArgs<'a> = ();
 
     async fn into_admin_api_object<'a>(
-        self,
+        mut self,
         state: &crate::State,
         _args: Self::ExtraArgs<'a>,
     ) -> Result<Self::AdminApiObject, crate::database::DatabaseError> {
         let api_object = AdminApiEggRepository::init_hooks(&self, state).await?;
+
+        self.credentials.censor();
 
         let api_object = finish_extendible!(
             AdminApiEggRepository {
@@ -314,6 +526,7 @@ impl IntoAdminApiObject for EggRepository {
                 name: self.name,
                 description: self.description,
                 git_repository: self.git_repository,
+                credentials: self.credentials,
                 last_synced: self.last_synced.map(|dt| dt.and_utc()),
                 created: self.created.and_utc(),
             },
@@ -333,9 +546,11 @@ pub struct CreateEggRepositoryOptions {
     #[garde(length(max = 1024))]
     #[schema(max_length = 1024)]
     pub description: Option<compact_str::CompactString>,
-    #[garde(url)]
+    #[garde(custom(validate_git_repository))]
     #[schema(example = "https://github.com/example/repo.git", format = "uri")]
     pub git_repository: compact_str::CompactString,
+    #[garde(dive)]
+    pub credentials: Option<EggRepositoryCredentials>,
 }
 
 #[async_trait::async_trait]
@@ -361,10 +576,18 @@ impl CreatableModel for EggRepository {
 
         Self::run_create_handlers(&mut options, &mut query_builder, state, transaction).await?;
 
+        let credentials = options
+            .credentials
+            .get_or_insert(EggRepositoryCredentials::None);
+        credentials.validate_scheme_for_url(&options.git_repository)?;
+        credentials.validate_key_material()?;
+        credentials.encrypt(&state.database).await?;
+
         query_builder
             .set("name", &options.name)
             .set("description", &options.description)
-            .set("git_repository", &options.git_repository);
+            .set("git_repository", &options.git_repository)
+            .set("credentials", serde_json::to_value(&credentials)?);
 
         let row = query_builder
             .returning(&Self::columns_sql(None))
@@ -391,9 +614,11 @@ pub struct UpdateEggRepositoryOptions {
         with = "::serde_with::rust::double_option"
     )]
     pub description: Option<Option<compact_str::CompactString>>,
-    #[garde(url)]
+    #[garde(inner(custom(validate_git_repository)))]
     #[schema(example = "https://github.com/example/repo.git", format = "uri")]
     pub git_repository: Option<compact_str::CompactString>,
+    #[garde(dive)]
+    pub credentials: Option<EggRepositoryCredentials>,
 }
 
 #[async_trait::async_trait]
@@ -420,6 +645,20 @@ impl UpdatableModel for EggRepository {
         self.run_update_handlers(&mut options, &mut query_builder, state, transaction)
             .await?;
 
+        let git_repository = options
+            .git_repository
+            .as_deref()
+            .unwrap_or(&self.git_repository);
+
+        match &mut options.credentials {
+            Some(credentials) => {
+                credentials.validate_scheme_for_url(git_repository)?;
+                credentials.validate_key_material()?;
+                credentials.encrypt(&state.database).await?;
+            }
+            None => self.credentials.validate_scheme_for_url(git_repository)?,
+        }
+
         query_builder
             .set("name", options.name.as_ref())
             .set(
@@ -427,6 +666,14 @@ impl UpdatableModel for EggRepository {
                 options.description.as_ref().map(|d| d.as_ref()),
             )
             .set("git_repository", options.git_repository.as_ref())
+            .set(
+                "credentials",
+                options
+                    .credentials
+                    .as_ref()
+                    .map(serde_json::to_value)
+                    .transpose()?,
+            )
             .where_eq("uuid", self.uuid);
 
         query_builder.execute(&mut **transaction).await?;
@@ -439,6 +686,9 @@ impl UpdatableModel for EggRepository {
         }
         if let Some(git_repository) = options.git_repository {
             self.git_repository = git_repository;
+        }
+        if let Some(credentials) = options.credentials {
+            self.credentials = credentials;
         }
 
         self.run_after_update_handlers(state, transaction).await?;
@@ -536,6 +786,7 @@ pub struct AdminApiEggRepository {
     pub name: compact_str::CompactString,
     pub description: Option<compact_str::CompactString>,
     pub git_repository: compact_str::CompactString,
+    pub credentials: EggRepositoryCredentials,
 
     pub last_synced: Option<chrono::DateTime<chrono::Utc>>,
     pub created: chrono::DateTime<chrono::Utc>,

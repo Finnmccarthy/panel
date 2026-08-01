@@ -26,6 +26,7 @@ pub mod env;
 pub mod events;
 pub mod extensions;
 pub mod extract;
+pub mod git;
 pub mod heavy;
 pub mod jwt;
 pub mod mail;

@@ -80,6 +80,7 @@ import { publicSettingsCaptchaProviderSchema } from '@/lib/schemas/settings.ts';
 import { userSshKeyProvider } from '@/lib/schemas/user/sshKeys.ts';
 import { getTranslations } from '@/providers/TranslationProvider.tsx';
 import { adminDatabaseCredentialsSchema } from './schemas/admin/databaseHosts.ts';
+import { adminEggRepositoryCredentialsSchema } from './schemas/admin/eggRepositories.ts';
 import { announcementType } from './schemas/announcements.ts';
 
 export const captchaProviderTypeLabelMapping: Record<
@@ -161,6 +162,16 @@ export const databaseCredentialTypeLabelMapping: Record<
   connection_string: () =>
     getTranslations().t('pages.admin.databaseHosts.tabs.general.page.enum.credentialType.connectionString', {}),
   details: () => getTranslations().t('pages.admin.databaseHosts.tabs.general.page.enum.credentialType.details', {}),
+};
+
+export const eggRepositoryCredentialTypeLabelMapping: Record<
+  z.infer<typeof adminEggRepositoryCredentialsSchema>['type'],
+  () => string
+> = {
+  none: () => getTranslations().t('pages.admin.eggRepositories.tabs.general.page.enum.credentialType.none', {}),
+  password: () => getTranslations().t('pages.admin.eggRepositories.tabs.general.page.enum.credentialType.password', {}),
+  private_key: () =>
+    getTranslations().t('pages.admin.eggRepositories.tabs.general.page.enum.credentialType.privateKey', {}),
 };
 
 export const backupDiskLabelMapping: Record<z.infer<typeof adminBackupConfigurationSchema>['backupDisk'], string> = {

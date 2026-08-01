@@ -566,6 +566,7 @@ export const eggRepositoriesTable = pgTable(
     name: varchar({ length: 255 * UTF8_MAX_SCALAR_SIZE }).notNull(),
     description: text(),
     git_repository: text().notNull(),
+    credentials: jsonb().default({ type: 'none' }).notNull(),
     last_synced: timestamp(),
     created: timestamp().defaultNow().notNull(),
   },

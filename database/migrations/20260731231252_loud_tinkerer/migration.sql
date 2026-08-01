@@ -1,0 +1,1 @@
+ALTER TABLE "egg_repositories" ADD COLUMN "credentials" jsonb DEFAULT '{"type":"none"}' NOT NULL;

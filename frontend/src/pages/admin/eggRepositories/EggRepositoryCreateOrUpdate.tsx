@@ -1,3 +1,6 @@
+import { faUnlockKeyhole } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { UseFormReturnType } from '@mantine/form';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import createEggRepository from '@/api/admin/egg-repositories/createEggRepository.ts';
@@ -7,15 +10,25 @@ import updateEggRepository from '@/api/admin/egg-repositories/updateEggRepositor
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
+import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
 import Group from '@/elements/Group.tsx';
+import Select from '@/elements/input/Select.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
+import { eggRepositoryCredentialTypeLabelMapping } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import { adminEggRepositorySchema, adminEggRepositoryUpdateSchema } from '@/lib/schemas/admin/eggRepositories.ts';
+import {
+  adminEggRepositoryCredentialsPasswordSchema,
+  adminEggRepositoryCredentialsPrivateKeySchema,
+  adminEggRepositorySchema,
+  adminEggRepositoryUpdateSchema,
+} from '@/lib/schemas/admin/eggRepositories.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import CredentialPassword from './forms/CredentialPassword.tsx';
+import CredentialPrivateKey from './forms/CredentialPrivateKey.tsx';
 
 type EggRepositoryFormValues = z.infer<typeof adminEggRepositoryUpdateSchema>;
 
@@ -35,6 +48,7 @@ export default function EggRepositoryCreateOrUpdate({
       name: '',
       description: null,
       gitRepository: '',
+      credentials: undefined,
     },
     validateInputOnBlur: true,
   });
@@ -60,6 +74,7 @@ export default function EggRepositoryCreateOrUpdate({
         name: contextEggRepository.name,
         description: contextEggRepository.description,
         gitRepository: contextEggRepository.gitRepository,
+        credentials: undefined,
       });
     }
   }, [contextEggRepository]);
@@ -93,6 +108,52 @@ export default function EggRepositoryCreateOrUpdate({
       required: true,
     },
     { type: 'textarea', name: 'description', label: t('common.form.description', {}), rows: 3, colSpan: 'full' },
+    {
+      type: 'custom',
+      name: 'credentials',
+      colSpan: 'full',
+      render: (f) => (
+        <CollapsibleSection
+          icon={<FontAwesomeIcon icon={faUnlockKeyhole} />}
+          enabled={!!f.values.credentials}
+          onToggle={(enabled) =>
+            f.setValues({
+              credentials: enabled ? (contextEggRepository?.credentials ?? { type: 'none' }) : undefined,
+            })
+          }
+          title={t('pages.admin.eggRepositories.tabs.general.page.form.credentials', {})}
+        >
+          <Select
+            withAsterisk
+            label={t('pages.admin.eggRepositories.tabs.general.page.form.credentialType', {})}
+            data={Object.entries(eggRepositoryCredentialTypeLabelMapping).map(([value, label]) => ({
+              value,
+              label: label(),
+            }))}
+            key={f.key('credentials.type')}
+            {...f.getInputProps('credentials.type')}
+          />
+
+          {f.values.credentials?.type === 'password' ? (
+            <CredentialPassword
+              form={
+                f as UseFormReturnType<{
+                  credentials: z.infer<typeof adminEggRepositoryCredentialsPasswordSchema>;
+                }>
+              }
+            />
+          ) : f.values.credentials?.type === 'private_key' ? (
+            <CredentialPrivateKey
+              form={
+                f as UseFormReturnType<{
+                  credentials: z.infer<typeof adminEggRepositoryCredentialsPrivateKeySchema>;
+                }>
+              }
+            />
+          ) : null}
+        </CollapsibleSection>
+      ),
+    },
   ];
 
   return (

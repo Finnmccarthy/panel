@@ -190,6 +190,8 @@ export interface RegisteredFormIds {
   'admin.servers.update': true;
   'admin.locations.createOrUpdate': true;
   'admin.eggRepositories.createOrUpdate': true;
+  'admin.eggRepositories.credentialPassword': true;
+  'admin.eggRepositories.credentialPrivateKey': true;
   'admin.eggConfigurations.createOrUpdate': true;
   'admin.users.createOrUpdate': true;
   'admin.announcements.createOrUpdate': true;

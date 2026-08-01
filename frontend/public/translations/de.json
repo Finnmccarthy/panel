@@ -2539,7 +2539,6 @@
                   },
                   "delete": {
                     "title": "Löschen des Node-Backups bestätigen",
-                    "form": {},
                     "alert": {
                       "forceWarning": "Das erzwungene Löschen entfernt das Backup, auch wenn seine Konfiguration fehlt oder der Remote-Speicher nicht erreichbar ist. Die Backup-Dateien selbst werden möglicherweise nicht vollständig entfernt, sodass verwaiste Daten zurückbleiben."
                     }
@@ -3249,7 +3248,20 @@
                 "titleCreate": "Egg Repository erstellen",
                 "titleUpdate": "Egg Repository aktualisieren",
                 "form": {
-                  "gitRepository": "Git Repository"
+                  "gitRepository": "Git Repository",
+                  "credentials": "Repository-Zugangsdaten",
+                  "credentialType": "Art der Zugangsdaten",
+                  "password": "Passwort oder Zugriffstoken",
+                  "privateKey": "Privater Schlüssel",
+                  "privateKeyPlaceholder": "-----BEGIN OPENSSH PRIVATE KEY-----",
+                  "passphrase": "Passphrase"
+                },
+                "enum": {
+                  "credentialType": {
+                    "none": "Keine",
+                    "password": "Passwort",
+                    "privateKey": "Privater Schlüssel"
+                  }
                 },
                 "button": {
                   "sync": "Synchronisieren"
@@ -3326,7 +3338,6 @@
                   "delete": {
                     "title": "Datenbank-Host-Löschung bestätigen",
                     "content": "Bist du sicher, dass du **{name}** löschen möchtest?",
-                    "form": {},
                     "alert": {
                       "forceWarning": "Das erzwungene Löschen entfernt alle Datenbanken auf diesem Host. Die Datenbanken auf dem Host selbst werden möglicherweise nicht vollständig bereinigt, wodurch verwaiste Daten zurückbleiben."
                     }
@@ -3345,7 +3356,6 @@
                     "toast": {
                       "deleted": "Die Datenbank wurde gelöscht."
                     },
-                    "form": {},
                     "alert": {
                       "forceWarning": "Das erzwungene Löschen ignoriert die Sperre der Datenbank und den Wartungsmodus des Hosts. Die Datenbank auf dem Host selbst wird möglicherweise nicht vollständig entfernt, sodass verwaiste Daten zurückbleiben."
                     }
@@ -3385,7 +3395,6 @@
                   "delete": {
                     "title": "Löschen des Datenbank-Agent-Hosts bestätigen",
                     "content": "Bist du sicher, dass du **{name}** löschen möchtest?",
-                    "form": {},
                     "alert": {
                       "forceWarning": "Erzwungenes Löschen entfernt alle Instanzen auf diesem Host. Instanzen, für die der Agent nicht erreichbar ist, werden möglicherweise nicht vollständig bereinigt, sodass verwaiste Daten zurückbleiben."
                     }
@@ -3416,7 +3425,6 @@
                     "toast": {
                       "deleted": "Verwaltete Datenbank gelöscht."
                     },
-                    "form": {},
                     "alert": {
                       "forceWarning": "Das erzwungene Löschen entfernt die Instanz, auch wenn der Agent nicht erreichbar ist. Die Instanz und ihre Daten auf dem Host selbst werden möglicherweise nicht vollständig entfernt, sodass verwaiste Daten zurückbleiben."
                     }
