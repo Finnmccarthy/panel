@@ -7,6 +7,9 @@ export const CHART_TICK = 1_000;
 
 const CHART_TICKS = 3;
 const CHART_SERIES_COLORS = 4;
+const CHART_SERIES_DASHES = [undefined, '6 4', '2 3', '10 4 2 4'];
+
+const NO_HIDDEN_SERIES: ReadonlySet<string> = new Set();
 
 export type ChartScale = 'decimal' | 'binary';
 
@@ -21,6 +24,8 @@ export interface StreamChartSeries {
   color: string;
   value: number | null;
   formatted: string | null;
+  dash?: string;
+  hidden?: boolean;
 }
 
 export interface StreamChartProps {
@@ -30,6 +35,13 @@ export interface StreamChartProps {
   yMax: number;
   series: StreamChartSeries[];
   format: (value: number) => string;
+  highlighted?: string | null;
+}
+
+export interface ChartLegendProps {
+  series: StreamChartSeries[];
+  onToggle?: (key: string) => void;
+  onHighlight?: (key: string | null) => void;
 }
 
 export interface UseStreamChartOptions {
@@ -68,10 +80,17 @@ function seriesColor(index: number): string {
   return `var(--chart-series-${(index % CHART_SERIES_COLORS) + 1})`;
 }
 
+function seriesDash(index: number, total: number): string | undefined {
+  return total > 1 ? CHART_SERIES_DASHES[index % CHART_SERIES_DASHES.length] : undefined;
+}
+
 export function useStreamChart({ series: labels, format, scale = 'decimal', min = 0 }: UseStreamChartOptions) {
   const samples = useRef<Sample[]>([]);
   const ceiling = useRef(0);
   const [end, setEnd] = useState(() => Date.now() - CHART_DELAY);
+  const [hidden, setHidden] = useState(NO_HIDDEN_SERIES);
+  const [highlighted, setHighlighted] = useState<string | null>(null);
+  const previousHidden = useRef(hidden);
 
   useEffect(() => {
     const interval = setInterval(() => setEnd(Date.now() - CHART_DELAY), CHART_TICK);
@@ -92,8 +111,28 @@ export function useStreamChart({ series: labels, format, scale = 'decimal', min 
 
   const clear = useCallback(() => {
     samples.current = [];
+    ceiling.current = 0;
     setEnd(Date.now() - CHART_DELAY);
   }, []);
+
+  const toggleSeries = useCallback(
+    (key: string) =>
+      setHidden((current) => {
+        if (!current.has(key)) {
+          if (current.size >= labels.length - 1) {
+            return current;
+          }
+
+          return new Set(current).add(key);
+        }
+
+        const next = new Set(current);
+        next.delete(key);
+
+        return next;
+      }),
+    [labels.length],
+  );
 
   const { data, ticks, yMax, values } = useMemo(() => {
     const start = end - CHART_WINDOW;
@@ -101,11 +140,17 @@ export function useStreamChart({ series: labels, format, scale = 'decimal', min 
 
     let peak = min;
     for (const sample of visible) {
-      for (const value of sample.values) {
-        if (value !== null && value > peak) {
+      for (let i = 0; i < sample.values.length; i++) {
+        const value = sample.values[i];
+        if (value !== null && value > peak && !hidden.has(`v${i}`)) {
           peak = value;
         }
       }
+    }
+
+    if (previousHidden.current !== hidden) {
+      previousHidden.current = hidden;
+      ceiling.current = 0;
     }
 
     const wanted = niceCeil(peak * 1.25, scale);
@@ -127,22 +172,25 @@ export function useStreamChart({ series: labels, format, scale = 'decimal', min 
       yMax: height,
       values: samples.current.at(-1)?.values ?? [],
     };
-  }, [end, labels, min, scale]);
+  }, [end, labels, min, scale, hidden]);
 
   const series = useMemo<StreamChartSeries[]>(
     () =>
       labels.map((label, index) => {
         const value = values[index] ?? null;
+        const key = `v${index}`;
 
         return {
-          key: `v${index}`,
+          key,
           label,
           color: seriesColor(index),
           value,
           formatted: value === null ? null : format(value),
+          dash: seriesDash(index, labels.length),
+          hidden: hidden.has(key),
         };
       }),
-    [labels, values, format],
+    [labels, values, format, hidden],
   );
 
   return {
@@ -153,7 +201,13 @@ export function useStreamChart({ series: labels, format, scale = 'decimal', min 
       yMax,
       series,
       format,
+      highlighted,
     } satisfies StreamChartProps,
+    legend: {
+      series,
+      onToggle: toggleSeries,
+      onHighlight: setHighlighted,
+    } satisfies ChartLegendProps,
     series,
     value: series.length === 1 ? series[0].formatted : null,
     push,

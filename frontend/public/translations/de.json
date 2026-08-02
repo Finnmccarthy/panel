@@ -451,6 +451,10 @@
       "impersonatedBy": "Impersoniert von {username}"
     },
     "elements": {
+      "chartLegend": {
+        "hide": "{series} ausblenden",
+        "show": "{series} einblenden"
+      },
       "routeOrderEditor": {
         "title": "Routen-Konfiguration",
         "label": {

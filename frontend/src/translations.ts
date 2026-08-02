@@ -371,6 +371,10 @@ const baseTranslations = defineTranslations({
       impersonatedBy: 'Impersonated by {username}',
     },
     elements: {
+      chartLegend: {
+        hide: 'Hide {series}',
+        show: 'Show {series}',
+      },
       routeOrderEditor: {
         title: 'Route Configuration',
         label: {

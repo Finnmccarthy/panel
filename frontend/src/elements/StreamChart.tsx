@@ -11,7 +11,7 @@ function formatOffset(at: number, end: number): string {
   return seconds >= 0 ? 'now' : `${seconds}s`;
 }
 
-function StreamChart({ data, domain, ticks, yMax, series, format }: StreamChartProps) {
+function StreamChart({ data, domain, ticks, yMax, series, format, highlighted }: StreamChartProps) {
   const viewport = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const previousEnd = useRef<number | null>(null);
@@ -61,7 +61,15 @@ function StreamChart({ data, domain, ticks, yMax, series, format }: StreamChartP
   }, [end, size.width, edgePixels]);
 
   const chartSeries = useMemo(
-    () => series.map((entry) => ({ name: entry.key, label: entry.label, color: entry.color })),
+    () =>
+      series
+        .filter((entry) => !entry.hidden)
+        .map((entry) => ({
+          name: entry.key,
+          label: entry.label,
+          color: entry.color,
+          strokeDasharray: entry.dash,
+        })),
     [series],
   );
 
@@ -138,7 +146,11 @@ function StreamChart({ data, domain, ticks, yMax, series, format }: StreamChartP
               connectNulls={false}
               xAxisProps={{ type: 'number', domain: [start - EDGE, end + EDGE], allowDataOverflow: true, hide: true }}
               yAxisProps={{ domain: [0, yMax], allowDataOverflow: true, hide: true }}
-              areaProps={{ isAnimationActive: false }}
+              areaProps={(entry) => ({
+                isAnimationActive: false,
+                fillOpacity: highlighted && highlighted !== entry.name ? 0 : 1,
+                strokeOpacity: highlighted && highlighted !== entry.name ? 0.3 : 1,
+              })}
               areaChartProps={{ margin: { top: PLOT_INSET, right: 0, bottom: PLOT_INSET, left: 0 } }}
             />
           )}

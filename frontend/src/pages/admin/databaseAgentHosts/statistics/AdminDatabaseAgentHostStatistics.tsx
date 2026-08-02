@@ -212,14 +212,14 @@ export default function AdminDatabaseAgentHostStatistics({
                 <ChartBlock
                   icon={<FontAwesomeIcon icon={faDatabase} />}
                   title={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.diskIo', {})}
-                  legend={<ChartLegend series={disk.series} />}
+                  legend={<ChartLegend {...disk.legend} />}
                 >
                   <StreamChart {...disk.props} />
                 </ChartBlock>
                 <ChartBlock
                   icon={<FontAwesomeIcon icon={faCloudDownload} />}
                   title={t('pages.admin.databaseAgentHosts.tabs.statistics.page.chart.networkTraffic', {})}
-                  legend={<ChartLegend series={network.series} />}
+                  legend={<ChartLegend {...network.legend} />}
                 >
                   <StreamChart {...network.props} />
                 </ChartBlock>

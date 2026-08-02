@@ -88,7 +88,7 @@ export default function ServerStats() {
       <ChartBlock
         icon={<FontAwesomeIcon icon={faCloudDownload} />}
         title={t('pages.server.console.stats.network', {})}
-        legend={<ChartLegend series={network.series} />}
+        legend={<ChartLegend {...network.legend} />}
         overlayIcon={overlayIcon}
         overlayLabel={overlayLabel}
       >
