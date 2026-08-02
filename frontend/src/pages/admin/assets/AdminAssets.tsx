@@ -1,10 +1,12 @@
 import { faFolderPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Ref, useCallback, useEffect, useRef, useState } from 'react';
+import debounce from 'debounce';
+import { Dispatch, Ref, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import { createSearchParams, useSearchParams } from 'react-router';
 import { z } from 'zod';
 import getAssets from '@/api/admin/assets/getAssets.ts';
+import searchAssets from '@/api/admin/assets/searchAssets.ts';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import Card from '@/elements/Card.tsx';
@@ -27,6 +29,11 @@ import AssetBreadcrumbs from './AssetBreadcrumbs.tsx';
 import AssetRow from './AssetRow.tsx';
 import NewDirectoryModal from './NewDirectoryModal.tsx';
 
+interface AssetsQueryData {
+  assets: z.infer<typeof storageAssetSchema>[];
+  pagination?: Pagination<z.infer<typeof storageAssetSchema>>;
+}
+
 export default function AdminAssets() {
   const { t } = useTranslations();
   const queryClient = useQueryClient();
@@ -39,12 +46,33 @@ export default function AdminAssets() {
     new ObjectSet<z.infer<typeof storageAssetSchema>, 'name'>('name'),
   );
   const [openModal, setOpenModal] = useState<'newDirectory' | null>(null);
+  const [search, setSearchValue] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  const updateDebouncedSearch = useCallback(
+    debounce((value: string) => setDebouncedSearch(value), 150),
+    [],
+  );
+
+  useEffect(() => {
+    if (!search) {
+      updateDebouncedSearch.clear();
+      setDebouncedSearch('');
+    } else {
+      updateDebouncedSearch(search);
+    }
+  }, [search]);
 
   const { data, isFetching } = useQuery({
-    queryKey: [...queryKeys.admin.assets.all(), { page, currentDirectory }],
-    queryFn: () => getAssets(page, currentDirectory),
+    queryKey: [...queryKeys.admin.assets.all(), { page, currentDirectory, search: debouncedSearch }],
+    queryFn: (): Promise<AssetsQueryData> =>
+      debouncedSearch
+        ? searchAssets(currentDirectory, debouncedSearch).then((assets) => ({ assets }))
+        : getAssets(page, currentDirectory).then((pagination) => ({ assets: pagination.data, pagination })),
     placeholderData: keepPreviousData,
   });
+
+  const assets = data?.assets;
 
   const invalidateAssets = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['admin', 'assets'] }).catch((e) => console.error(e));
@@ -66,12 +94,21 @@ export default function AdminAssets() {
     (dir: string) => {
       setSearchParams(createSearchParams({ directory: dir }));
       setSelectedAssets(new ObjectSet('name'));
+      setSearchValue('');
     },
     [setSearchParams],
   );
 
   const onPageSelect = (p: number) =>
     setSearchParams(createSearchParams({ directory: currentDirectory, page: p.toString() }));
+
+  const setSearch: Dispatch<SetStateAction<string>> = (value) => {
+    setSearchValue(value);
+
+    if (page !== 1) {
+      setSearchParams(createSearchParams({ directory: currentDirectory }));
+    }
+  };
 
   useEffect(() => {
     setSelectedAssets(new ObjectSet('name'));
@@ -108,7 +145,7 @@ export default function AdminAssets() {
           setSelectedAssets(
             new ObjectSet(
               'name',
-              data?.data.filter((a) => !a.isDirectory),
+              assets?.filter((a) => !a.isDirectory),
             ),
           ),
       },
@@ -123,6 +160,8 @@ export default function AdminAssets() {
   return (
     <AdminContentContainer
       title={t('pages.admin.assets.title', {})}
+      search={search}
+      setSearch={setSearch}
       contentRight={
         <AdminCan action='assets.upload'>
           <AssetUploadProgress
@@ -146,7 +185,7 @@ export default function AdminAssets() {
         opened={openModal === 'newDirectory'}
         onClose={() => setOpenModal(null)}
         currentDirectory={currentDirectory}
-        existingEntries={data?.data ?? []}
+        existingEntries={assets ?? []}
         onNavigate={navigateToDirectory}
       />
 
@@ -166,16 +205,17 @@ export default function AdminAssets() {
         <Table
           columns={assetTableColumns()}
           loading={isFetching}
-          pagination={data}
+          pagination={data?.pagination}
           onPageSelect={onPageSelect}
           allowSelect={false}
         >
-          {data?.data.map((asset) => (
+          {assets?.map((asset) => (
             <SelectionArea.Selectable key={asset.name} item={asset}>
               {(innerRef: Ref<HTMLElement>) => (
                 <AssetRow
                   key={asset.name}
                   asset={asset}
+                  currentDirectory={currentDirectory}
                   isSelected={selectedAssets.has(asset.name)}
                   addSelectedAsset={addSelectedAsset}
                   removeSelectedAsset={removeSelectedAsset}

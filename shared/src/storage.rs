@@ -21,6 +21,11 @@ pub struct StorageAsset {
     pub created: chrono::DateTime<chrono::Utc>,
 }
 
+/// Upper bound on entries walked while resolving a recursive name search. Object stores have no
+/// server side substring matching, so a search has to enumerate the subtree; this caps how much of
+/// it a single request is allowed to pull.
+const SEARCH_SCAN_LIMIT: usize = 10_000;
+
 fn get_s3_client(
     access_key: &str,
     secret_key: &str,
@@ -369,7 +374,8 @@ impl Storage {
                     for cp in page.common_prefixes() {
                         let Some(prefix) = cp.prefix() else { continue };
                         let name = prefix
-                            .trim_start_matches(&strip_prefix)
+                            .strip_prefix(&strip_prefix)
+                            .unwrap_or(prefix)
                             .trim_end_matches('/')
                             .to_compact_string();
                         dirs.push(StorageAsset {
@@ -386,7 +392,10 @@ impl Storage {
                         if key == s3_prefix {
                             continue;
                         }
-                        let name = key.trim_start_matches(&strip_prefix).to_compact_string();
+                        let name = key
+                            .strip_prefix(&strip_prefix)
+                            .unwrap_or(key)
+                            .to_compact_string();
                         let size = entry.size().unwrap_or(0).max(0) as u64;
                         let created = entry
                             .last_modified()
@@ -424,6 +433,204 @@ impl Storage {
                 })
             }
         }
+    }
+
+    pub async fn search(
+        &self,
+        base: impl AsRef<str>,
+        directory: impl AsRef<str>,
+        search: impl AsRef<str>,
+        limit: usize,
+    ) -> Result<Vec<StorageAsset>, anyhow::Error> {
+        let base = base.as_ref();
+        let directory = directory.as_ref();
+        let search = search.as_ref().trim().to_lowercase();
+
+        if base.is_empty() || base.contains("..") || base.starts_with('/') {
+            return Err(anyhow::anyhow!("invalid base path"));
+        }
+        if !directory.is_empty()
+            && (directory.contains("..") || directory.starts_with('/') || directory.ends_with('/'))
+        {
+            return Err(anyhow::anyhow!("invalid directory path"));
+        }
+        if search.is_empty() {
+            return Err(anyhow::anyhow!("empty search"));
+        }
+
+        let settings = self.settings.get().await?;
+
+        let mut dirs = Vec::new();
+        let mut files = Vec::new();
+        let mut scanned = 0;
+
+        match &settings.storage_driver {
+            super::settings::StorageDriver::Filesystem { path: base_path } => {
+                let dir_path = if directory.is_empty() {
+                    Path::new(base_path).join(base)
+                } else {
+                    Path::new(base_path).join(base).join(directory)
+                };
+
+                let base_filesystem = match crate::cap::CapFilesystem::async_new(dir_path).await {
+                    Ok(base_filesystem) => base_filesystem,
+                    Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+                        return Ok(Vec::new());
+                    }
+                    Err(err) => return Err(err.into()),
+                };
+                drop(settings);
+
+                let storage_url_retriever = self.retrieve_urls().await?;
+                let mut walker = base_filesystem.async_walk_dir("").await?;
+
+                while let Some(Ok((is_dir, path))) = walker.next_entry().await {
+                    scanned += 1;
+                    if scanned > SEARCH_SCAN_LIMIT {
+                        break;
+                    }
+
+                    let Some(name) = path.file_name().and_then(|name| name.to_str()) else {
+                        continue;
+                    };
+                    if !name.to_lowercase().contains(&search) {
+                        continue;
+                    }
+
+                    let relative = path.to_string_lossy();
+                    let full_name = if directory.is_empty() {
+                        relative.to_compact_string()
+                    } else {
+                        format!("{directory}/{relative}").to_compact_string()
+                    };
+
+                    let (size, created) = if is_dir {
+                        (0u64, chrono::DateTime::<chrono::Utc>::default())
+                    } else {
+                        let metadata = match base_filesystem.async_metadata(&path).await {
+                            Ok(m) => m,
+                            Err(_) => continue,
+                        };
+                        let created = metadata
+                            .created()
+                            .or_else(|_| metadata.modified())?
+                            .into_std()
+                            .into();
+                        (metadata.len(), created)
+                    };
+
+                    let asset = StorageAsset {
+                        url: storage_url_retriever.get_url(format!("{base}/{full_name}")),
+                        name: full_name,
+                        size,
+                        is_directory: is_dir,
+                        created,
+                    };
+
+                    if is_dir { &mut dirs } else { &mut files }.push(asset);
+                }
+            }
+            super::settings::StorageDriver::S3 {
+                access_key,
+                secret_key,
+                bucket,
+                region,
+                endpoint,
+                path_style,
+                ..
+            } => {
+                let s3_client =
+                    get_s3_client(access_key, secret_key, region, endpoint, *path_style)?;
+                let bucket_name = bucket.clone();
+                drop(settings);
+
+                let s3_prefix = if directory.is_empty() {
+                    format!("{base}/")
+                } else {
+                    format!("{base}/{directory}/")
+                };
+                let strip_prefix = format!("{base}/");
+
+                let storage_url_retriever = self.retrieve_urls().await?;
+                let mut seen_dirs = std::collections::HashSet::new();
+
+                let mut paginator = s3_client
+                    .list_objects_v2()
+                    .bucket(&*bucket_name)
+                    .prefix(&s3_prefix)
+                    .into_paginator()
+                    .send();
+
+                'scan: while let Some(result) = paginator.next().await {
+                    let objects = result?;
+
+                    for entry in objects.contents() {
+                        let Some(key) = entry.key() else { continue };
+                        if key.ends_with('/') {
+                            continue;
+                        }
+
+                        scanned += 1;
+                        if scanned > SEARCH_SCAN_LIMIT {
+                            break 'scan;
+                        }
+
+                        let relative = key.strip_prefix(&strip_prefix).unwrap_or(key);
+
+                        let mut segment_start = 0;
+                        for (index, char) in relative.char_indices() {
+                            if char != '/' {
+                                continue;
+                            }
+
+                            let dir_path = &relative[..index];
+                            let name = &relative[segment_start..index];
+                            segment_start = index + 1;
+
+                            if dir_path.len() <= directory.len()
+                                || !name.to_lowercase().contains(&search)
+                                || !seen_dirs.insert(dir_path.to_compact_string())
+                            {
+                                continue;
+                            }
+
+                            dirs.push(StorageAsset {
+                                url: storage_url_retriever.get_url(format!("{base}/{dir_path}/")),
+                                name: dir_path.to_compact_string(),
+                                size: 0,
+                                is_directory: true,
+                                created: chrono::DateTime::<chrono::Utc>::default(),
+                            });
+                        }
+
+                        if !relative[segment_start..].to_lowercase().contains(&search) {
+                            continue;
+                        }
+
+                        files.push(StorageAsset {
+                            url: storage_url_retriever.get_url(key),
+                            name: relative.to_compact_string(),
+                            size: entry.size().unwrap_or(0).max(0) as u64,
+                            created: entry
+                                .last_modified()
+                                .and_then(|dt| {
+                                    chrono::DateTime::<chrono::Utc>::from_timestamp(
+                                        dt.secs(),
+                                        dt.subsec_nanos(),
+                                    )
+                                })
+                                .unwrap_or_default(),
+                            is_directory: false,
+                        });
+                    }
+                }
+            }
+        }
+
+        dirs.sort_unstable_by(|a: &StorageAsset, b: &StorageAsset| a.name.cmp(&b.name));
+        files.sort_unstable_by(|a: &StorageAsset, b: &StorageAsset| a.name.cmp(&b.name));
+
+        Ok(dirs.into_iter().chain(files).take(limit).collect())
     }
 }
 

@@ -9,7 +9,7 @@ use axum::{
 use colored::Colorize;
 use compact_str::ToCompactString;
 use hyper::body::Body as _;
-use sentry_tower::SentryHttpLayer;
+use sentry_tower::{NewSentryLayer, SentryHttpLayer};
 use sha2::Digest;
 use shared::{
     ApiError, FRONTEND_ASSETS, GetIp, GetState,
@@ -965,6 +965,7 @@ pub async fn handle_startup() -> Result<
             handle_panic,
         ))
         .route_layer(SentryHttpLayer::new().enable_transaction())
+        .route_layer(NewSentryLayer::<Request>::new_from_top())
         .with_state(state.clone());
 
     let settings = settings.get().await.context("failed to load settings")?;

@@ -2517,7 +2517,6 @@ const baseTranslations = defineTranslations({
                   },
                   delete: {
                     title: 'Confirm Node Backup Deletion',
-                    form: {},
                     alert: {
                       forceWarning:
                         'Force deletion removes the backup even if its configuration is missing or the remote storage cannot be reached. The backup files themselves may not be fully cleaned up, leaving orphaned data behind.',
@@ -3346,7 +3345,6 @@ const baseTranslations = defineTranslations({
                   delete: {
                     title: 'Confirm Database Host Deletion',
                     content: 'Are you sure you want to delete **{name}**?',
-                    form: {},
                     alert: {
                       forceWarning:
                         'Force deletion removes all databases on this host. The databases on the host itself may not be fully cleaned up, leaving orphaned data behind.',
@@ -3366,7 +3364,6 @@ const baseTranslations = defineTranslations({
                     toast: {
                       deleted: 'Database has been deleted.',
                     },
-                    form: {},
                     alert: {
                       forceWarning:
                         'Force deletion ignores the database lock and the host maintenance state. The database on the host itself may not be fully cleaned up, leaving orphaned data behind.',
@@ -3408,7 +3405,6 @@ const baseTranslations = defineTranslations({
                   delete: {
                     title: 'Confirm Database Agent Host Deletion',
                     content: 'Are you sure you want to delete **{name}**?',
-                    form: {},
                     alert: {
                       forceWarning:
                         'Force deletion removes all instances on this host. Instances the agent cannot be reached for may not be fully cleaned up, leaving orphaned data behind.',
@@ -3441,7 +3437,6 @@ const baseTranslations = defineTranslations({
                     toast: {
                       deleted: 'Managed database deleted.',
                     },
-                    form: {},
                     alert: {
                       forceWarning:
                         'Force deletion removes the instance even if the agent cannot be reached. The instance and its data on the host itself may not be fully cleaned up, leaving orphaned data behind.',

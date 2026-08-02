@@ -6,6 +6,7 @@ use utoipa_axum::{
 };
 
 mod delete;
+mod search;
 
 mod get {
     use axum::{extract::Query, http::StatusCode};
@@ -203,5 +204,6 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .routes(routes!(get::route))
         .routes(routes!(put::route).layer(DefaultBodyLimit::disable()))
         .nest("/delete", delete::router(state))
+        .nest("/search", search::router(state))
         .with_state(state.clone())
 }

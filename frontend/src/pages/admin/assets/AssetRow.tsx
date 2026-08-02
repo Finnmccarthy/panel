@@ -21,6 +21,7 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 interface AssetRowProps {
   asset: z.infer<typeof storageAssetSchema>;
+  currentDirectory: string;
   isSelected: boolean;
 
   addSelectedAsset: (asset: z.infer<typeof storageAssetSchema>) => void;
@@ -30,7 +31,7 @@ interface AssetRowProps {
 }
 
 const AssetRow = forwardRef<HTMLTableRowElement, AssetRowProps>(function AssetRow(
-  { asset, isSelected, addSelectedAsset, removeSelectedAsset, invalidateAssets, onDirectoryClick },
+  { asset, currentDirectory, isSelected, addSelectedAsset, removeSelectedAsset, invalidateAssets, onDirectoryClick },
   ref,
 ) {
   const { t } = useTranslations();
@@ -39,7 +40,7 @@ const AssetRow = forwardRef<HTMLTableRowElement, AssetRowProps>(function AssetRo
 
   const [openModal, setOpenModal] = useState<'delete' | null>(null);
 
-  const displayName = asset.name.split('/').pop() ?? asset.name;
+  const displayName = currentDirectory ? asset.name.slice(currentDirectory.length + 1) : asset.name;
 
   const toggleSelected = () => (isSelected ? removeSelectedAsset(asset) : addSelectedAsset(asset));
 
