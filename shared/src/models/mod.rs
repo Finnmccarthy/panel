@@ -37,6 +37,8 @@ pub mod nest_egg_mount;
 pub mod nest_egg_variable;
 pub mod node;
 pub mod node_allocation;
+pub mod node_database_agent_host;
+pub mod node_database_host;
 pub mod node_mount;
 pub mod oauth_provider;
 pub mod oauth_provider_mapping;

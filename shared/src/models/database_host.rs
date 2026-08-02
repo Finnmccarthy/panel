@@ -481,26 +481,69 @@ impl DatabaseHost {
         })
     }
 
-    pub async fn by_location_uuid_uuid(
+    pub async fn by_node_uuid(
         database: &crate::database::Database,
-        location_uuid: uuid::Uuid,
+        node: &super::node::Node,
         uuid: uuid::Uuid,
     ) -> Result<Option<Self>, crate::database::DatabaseError> {
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
             SELECT {}
             FROM database_hosts
-            JOIN location_database_hosts ON location_database_hosts.database_host_uuid = database_hosts.uuid AND location_database_hosts.location_uuid = $1
-            WHERE database_hosts.uuid = $2
+            WHERE database_hosts.uuid = $3
+            AND (
+                EXISTS (
+                    SELECT 1 FROM node_database_hosts
+                    WHERE node_database_hosts.database_host_uuid = database_hosts.uuid AND node_database_hosts.node_uuid = $1
+                )
+                OR EXISTS (
+                    SELECT 1 FROM location_database_hosts
+                    WHERE location_database_hosts.database_host_uuid = database_hosts.uuid AND location_database_hosts.location_uuid = $2
+                )
+            )
             "#,
             Self::columns_sql(None)
         )))
-        .bind(location_uuid)
+        .bind(node.uuid)
+        .bind(node.location.uuid)
         .bind(uuid)
         .fetch_optional(database.read())
         .await?;
 
         row.try_map(|row| Self::map(None, &row))
+    }
+
+    pub async fn all_public_by_node(
+        database: &crate::database::Database,
+        node: &super::node::Node,
+    ) -> Result<Vec<Self>, crate::database::DatabaseError> {
+        let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
+            r#"
+            SELECT {}
+            FROM database_hosts
+            WHERE database_hosts.deployment_enabled
+            AND (
+                EXISTS (
+                    SELECT 1 FROM node_database_hosts
+                    WHERE node_database_hosts.database_host_uuid = database_hosts.uuid AND node_database_hosts.node_uuid = $1
+                )
+                OR EXISTS (
+                    SELECT 1 FROM location_database_hosts
+                    WHERE location_database_hosts.database_host_uuid = database_hosts.uuid AND location_database_hosts.location_uuid = $2
+                )
+            )
+            ORDER BY database_hosts.created DESC
+            "#,
+            Self::columns_sql(None)
+        )))
+        .bind(node.uuid)
+        .bind(node.location.uuid)
+        .fetch_all(database.read())
+        .await?;
+
+        rows.into_iter()
+            .map(|row| Self::map(None, &row))
+            .try_collect_vec()
     }
 }
 

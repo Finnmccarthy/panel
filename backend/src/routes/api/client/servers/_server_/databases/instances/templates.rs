@@ -36,18 +36,13 @@ mod get {
     ) -> ApiResponseResult {
         permissions.has_server_permission("database-instances.create")?;
 
-        let location_uuid = server
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .location
-            .uuid;
+        let node = server.node.fetch_cached(&state.database).await?;
 
         let mut templates = Vec::new();
         for template in DatabaseAgentTemplate::all_deployment_enabled(&state.database).await? {
-            let hosts = DatabaseAgentHost::by_location_uuid_most_eligible(
+            let hosts = DatabaseAgentHost::by_node_most_eligible(
                 &state.database,
-                location_uuid,
+                &node,
                 template.r#type,
                 template.memory,
                 template.disk,

@@ -2479,6 +2479,44 @@ const baseTranslations = defineTranslations({
                 },
               },
             },
+            databaseHosts: {
+              title: 'Database Hosts',
+              page: {
+                title: 'Node Database Hosts',
+                toast: {
+                  created: 'Node database host created.',
+                  deleted: 'Node database host deleted.',
+                },
+                modal: {
+                  create: {
+                    title: 'Create Node Database Host',
+                  },
+                  delete: {
+                    title: 'Confirm Node Database Host Deletion',
+                    content: 'Are you sure you want to delete the database host **{name}** from **{node}**?',
+                  },
+                },
+              },
+            },
+            databaseAgentHosts: {
+              title: 'Database Agent Hosts',
+              page: {
+                title: 'Node Database Agent Hosts',
+                toast: {
+                  created: 'Node database agent host created.',
+                  deleted: 'Node database agent host deleted.',
+                },
+                modal: {
+                  create: {
+                    title: 'Create Node Database Agent Host',
+                  },
+                  delete: {
+                    title: 'Confirm Node Database Agent Host Deletion',
+                    content: 'Are you sure you want to delete the database agent host **{name}** from **{node}**?',
+                  },
+                },
+              },
+            },
             backups: {
               title: 'Backups',
               page: {

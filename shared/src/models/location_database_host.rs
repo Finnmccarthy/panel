@@ -153,29 +153,6 @@ impl LocationDatabaseHost {
                 .try_collect_vec()?,
         })
     }
-
-    pub async fn all_public_by_location_uuid(
-        database: &crate::database::Database,
-        location_uuid: uuid::Uuid,
-    ) -> Result<Vec<Self>, crate::database::DatabaseError> {
-        let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
-            r#"
-            SELECT {}
-            FROM location_database_hosts
-            JOIN database_hosts ON location_database_hosts.database_host_uuid = database_hosts.uuid
-            WHERE location_database_hosts.location_uuid = $1 AND database_hosts.deployment_enabled
-            ORDER BY location_database_hosts.created DESC
-            "#,
-            Self::columns_sql(None)
-        )))
-        .bind(location_uuid)
-        .fetch_all(database.read())
-        .await?;
-
-        rows.into_iter()
-            .map(|row| Self::map(None, &row))
-            .try_collect_vec()
-    }
 }
 
 #[async_trait::async_trait]

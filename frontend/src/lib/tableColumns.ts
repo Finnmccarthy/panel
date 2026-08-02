@@ -244,6 +244,27 @@ export const nodeMountTableColumns = (): string[] => {
   ];
 };
 
+export const nodeDatabaseHostTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.type', {}),
+    t('common.table.columns.added', {}),
+    '',
+  ];
+};
+
+export const nodeDatabaseAgentHostTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.added', {}),
+    '',
+  ];
+};
+
 export const nodeAllocationTableColumns = (): string[] => {
   const { t } = getTranslations();
   return [

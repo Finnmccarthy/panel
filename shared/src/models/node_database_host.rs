@@ -9,17 +9,17 @@ use std::{
 use utoipa::ToSchema;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct LocationDatabaseAgentHost {
-    pub location: Fetchable<super::location::Location>,
-    pub database_agent_host: super::database_agent_host::DatabaseAgentHost,
+pub struct NodeDatabaseHost {
+    pub node: Fetchable<super::node::Node>,
+    pub database_host: super::database_host::DatabaseHost,
 
     pub created: chrono::NaiveDateTime,
 
     extension_data: super::ModelExtensionData,
 }
 
-impl BaseModel for LocationDatabaseAgentHost {
-    const NAME: &'static str = "location_database_agent_host";
+impl BaseModel for NodeDatabaseHost {
+    const NAME: &'static str = "node_database_host";
 
     fn get_extension_list() -> &'static super::ModelExtensionList {
         static EXTENSIONS: LazyLock<super::ModelExtensionList> =
@@ -38,18 +38,18 @@ impl BaseModel for LocationDatabaseAgentHost {
 
         let mut columns = BTreeMap::from([
             (
-                "location_database_agent_hosts.location_uuid",
-                compact_str::format_compact!("{prefix}location_uuid"),
+                "node_database_hosts.node_uuid",
+                compact_str::format_compact!("{prefix}node_uuid"),
             ),
             (
-                "location_database_agent_hosts.created",
+                "node_database_hosts.created",
                 compact_str::format_compact!("{prefix}created"),
             ),
         ]);
 
-        columns.extend(super::database_agent_host::DatabaseAgentHost::base_columns(
-            Some("database_agent_host_"),
-        ));
+        columns.extend(super::database_host::DatabaseHost::base_columns(Some(
+            "database_host_",
+        )));
 
         columns
     }
@@ -59,67 +59,64 @@ impl BaseModel for LocationDatabaseAgentHost {
         let prefix = prefix.unwrap_or_default();
 
         Ok(Self {
-            location: super::location::Location::get_fetchable(
-                row.try_get(compact_str::format_compact!("{prefix}location_uuid").as_str())?,
+            node: super::node::Node::get_fetchable(
+                row.try_get(compact_str::format_compact!("{prefix}node_uuid").as_str())?,
             ),
-            database_agent_host: super::database_agent_host::DatabaseAgentHost::map(
-                Some("database_agent_host_"),
-                row,
-            )?,
+            database_host: super::database_host::DatabaseHost::map(Some("database_host_"), row)?,
             created: row.try_get(compact_str::format_compact!("{prefix}created").as_str())?,
             extension_data: Self::map_extensions(prefix, row)?,
         })
     }
 }
 
-impl LocationDatabaseAgentHost {
-    pub async fn by_location_uuid_database_agent_host_uuid(
+impl NodeDatabaseHost {
+    pub async fn by_node_uuid_database_host_uuid(
         database: &crate::database::Database,
-        location_uuid: uuid::Uuid,
-        database_agent_host_uuid: uuid::Uuid,
+        node_uuid: uuid::Uuid,
+        database_host_uuid: uuid::Uuid,
     ) -> Result<Option<Self>, crate::database::DatabaseError> {
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
             SELECT {}
-            FROM location_database_agent_hosts
-            JOIN database_agent_hosts ON location_database_agent_hosts.database_agent_host_uuid = database_agent_hosts.uuid
-            WHERE location_database_agent_hosts.location_uuid = $1 AND location_database_agent_hosts.database_agent_host_uuid = $2
+            FROM node_database_hosts
+            JOIN database_hosts ON node_database_hosts.database_host_uuid = database_hosts.uuid
+            WHERE node_database_hosts.node_uuid = $1 AND node_database_hosts.database_host_uuid = $2
             "#,
             Self::columns_sql(None)
         )))
-        .bind(location_uuid)
-        .bind(database_agent_host_uuid)
+        .bind(node_uuid)
+        .bind(database_host_uuid)
         .fetch_optional(database.read())
         .await?;
 
         row.try_map(|row| Self::map(None, &row))
     }
 
-    pub async fn by_location_uuid_database_agent_host_uuid_with_transaction(
+    pub async fn by_node_uuid_database_host_uuid_with_transaction(
         transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-        location_uuid: uuid::Uuid,
-        database_agent_host_uuid: uuid::Uuid,
+        node_uuid: uuid::Uuid,
+        database_host_uuid: uuid::Uuid,
     ) -> Result<Option<Self>, crate::database::DatabaseError> {
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
             SELECT {}
-            FROM location_database_agent_hosts
-            JOIN database_agent_hosts ON location_database_agent_hosts.database_agent_host_uuid = database_agent_hosts.uuid
-            WHERE location_database_agent_hosts.location_uuid = $1 AND location_database_agent_hosts.database_agent_host_uuid = $2
+            FROM node_database_hosts
+            JOIN database_hosts ON node_database_hosts.database_host_uuid = database_hosts.uuid
+            WHERE node_database_hosts.node_uuid = $1 AND node_database_hosts.database_host_uuid = $2
             "#,
             Self::columns_sql(None)
         )))
-        .bind(location_uuid)
-        .bind(database_agent_host_uuid)
+        .bind(node_uuid)
+        .bind(database_host_uuid)
         .fetch_optional(&mut **transaction)
         .await?;
 
         row.try_map(|row| Self::map(None, &row))
     }
 
-    pub async fn by_location_uuid_with_pagination(
+    pub async fn by_node_uuid_with_pagination(
         database: &crate::database::Database,
-        location_uuid: uuid::Uuid,
+        node_uuid: uuid::Uuid,
         page: i64,
         per_page: i64,
         search: Option<&str>,
@@ -129,15 +126,15 @@ impl LocationDatabaseAgentHost {
         let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
             SELECT {}, COUNT(*) OVER() AS total_count
-            FROM location_database_agent_hosts
-            JOIN database_agent_hosts ON location_database_agent_hosts.database_agent_host_uuid = database_agent_hosts.uuid
-            WHERE location_database_agent_hosts.location_uuid = $1 AND ($2 IS NULL OR database_agent_hosts.name ILIKE '%' || $2 || '%')
-            ORDER BY location_database_agent_hosts.created
+            FROM node_database_hosts
+            JOIN database_hosts ON node_database_hosts.database_host_uuid = database_hosts.uuid
+            WHERE node_database_hosts.node_uuid = $1 AND ($2 IS NULL OR database_hosts.name ILIKE '%' || $2 || '%')
+            ORDER BY node_database_hosts.created
             LIMIT $3 OFFSET $4
             "#,
             Self::columns_sql(None)
         )))
-        .bind(location_uuid)
+        .bind(node_uuid)
         .bind(search)
         .bind(per_page)
         .bind(offset)
@@ -159,8 +156,8 @@ impl LocationDatabaseAgentHost {
 }
 
 #[async_trait::async_trait]
-impl IntoAdminApiObject for LocationDatabaseAgentHost {
-    type AdminApiObject = AdminApiLocationDatabaseAgentHost;
+impl IntoAdminApiObject for NodeDatabaseHost {
+    type AdminApiObject = AdminApiNodeDatabaseHost;
     type ExtraArgs<'a> = ();
 
     async fn into_admin_api_object<'a>(
@@ -168,14 +165,11 @@ impl IntoAdminApiObject for LocationDatabaseAgentHost {
         state: &crate::State,
         _args: Self::ExtraArgs<'a>,
     ) -> Result<Self::AdminApiObject, crate::database::DatabaseError> {
-        let api_object = AdminApiLocationDatabaseAgentHost::init_hooks(&self, state).await?;
+        let api_object = AdminApiNodeDatabaseHost::init_hooks(&self, state).await?;
 
         let api_object = finish_extendible!(
-            AdminApiLocationDatabaseAgentHost {
-                database_agent_host: self
-                    .database_agent_host
-                    .into_admin_api_object(state, ())
-                    .await?,
+            AdminApiNodeDatabaseHost {
+                database_host: self.database_host.into_admin_api_object(state, ()).await?,
                 created: self.created.and_utc(),
             },
             api_object,
@@ -187,20 +181,20 @@ impl IntoAdminApiObject for LocationDatabaseAgentHost {
 }
 
 #[derive(ToSchema, Deserialize, Validate)]
-pub struct CreateLocationDatabaseAgentHostOptions {
+pub struct CreateNodeDatabaseHostOptions {
     #[garde(skip)]
-    pub location_uuid: uuid::Uuid,
+    pub node_uuid: uuid::Uuid,
     #[garde(skip)]
-    pub database_agent_host_uuid: uuid::Uuid,
+    pub database_host_uuid: uuid::Uuid,
 }
 
 #[async_trait::async_trait]
-impl CreatableModel for LocationDatabaseAgentHost {
-    type CreateOptions<'a> = CreateLocationDatabaseAgentHostOptions;
+impl CreatableModel for NodeDatabaseHost {
+    type CreateOptions<'a> = CreateNodeDatabaseHostOptions;
     type CreateResult = Self;
 
     fn get_create_handlers() -> &'static LazyLock<CreateListenerList<Self>> {
-        static CREATE_LISTENERS: LazyLock<CreateListenerList<LocationDatabaseAgentHost>> =
+        static CREATE_LISTENERS: LazyLock<CreateListenerList<NodeDatabaseHost>> =
             LazyLock::new(|| Arc::new(ModelHandlerList::default()));
 
         &CREATE_LISTENERS
@@ -213,31 +207,31 @@ impl CreatableModel for LocationDatabaseAgentHost {
     ) -> Result<Self, crate::database::DatabaseError> {
         options.validate()?;
 
-        super::database_agent_host::DatabaseAgentHost::by_uuid_optional_cached(
+        super::database_host::DatabaseHost::by_uuid_optional_cached(
             &state.database,
-            options.database_agent_host_uuid,
+            options.database_host_uuid,
         )
         .await?
-        .ok_or(crate::database::InvalidRelationError("database_agent_host"))?;
+        .ok_or(crate::database::InvalidRelationError("database_host"))?;
 
-        let mut query_builder = InsertQueryBuilder::new("location_database_agent_hosts");
+        let mut query_builder = InsertQueryBuilder::new("node_database_hosts");
 
         Self::run_create_handlers(&mut options, &mut query_builder, state, transaction).await?;
 
         query_builder
-            .set("location_uuid", options.location_uuid)
-            .set("database_agent_host_uuid", options.database_agent_host_uuid);
+            .set("node_uuid", options.node_uuid)
+            .set("database_host_uuid", options.database_host_uuid);
 
         query_builder.execute(&mut **transaction).await?;
 
-        let mut result = match Self::by_location_uuid_database_agent_host_uuid_with_transaction(
+        let mut result = match Self::by_node_uuid_database_host_uuid_with_transaction(
             transaction,
-            options.location_uuid,
-            options.database_agent_host_uuid,
+            options.node_uuid,
+            options.database_host_uuid,
         )
         .await?
         {
-            Some(location_database_agent_host) => location_database_agent_host,
+            Some(node_database_host) => node_database_host,
             None => return Err(sqlx::Error::RowNotFound.into()),
         };
 
@@ -248,11 +242,11 @@ impl CreatableModel for LocationDatabaseAgentHost {
 }
 
 #[async_trait::async_trait]
-impl DeletableModel for LocationDatabaseAgentHost {
+impl DeletableModel for NodeDatabaseHost {
     type DeleteOptions = ();
 
     fn get_delete_handlers() -> &'static LazyLock<DeleteHandlerList<Self>> {
-        static DELETE_LISTENERS: LazyLock<DeleteHandlerList<LocationDatabaseAgentHost>> =
+        static DELETE_LISTENERS: LazyLock<DeleteHandlerList<NodeDatabaseHost>> =
             LazyLock::new(|| Arc::new(ModelHandlerList::default()));
 
         &DELETE_LISTENERS
@@ -269,12 +263,12 @@ impl DeletableModel for LocationDatabaseAgentHost {
 
         sqlx::query(
             r#"
-            DELETE FROM location_database_agent_hosts
-            WHERE location_database_agent_hosts.location_uuid = $1 AND location_database_agent_hosts.database_agent_host_uuid = $2
+            DELETE FROM node_database_hosts
+            WHERE node_database_hosts.node_uuid = $1 AND node_database_hosts.database_host_uuid = $2
             "#,
         )
-        .bind(self.location.uuid)
-        .bind(self.database_agent_host.uuid)
+        .bind(self.node.uuid)
+        .bind(self.database_host.uuid)
         .execute(&mut **transaction)
         .await?;
 
@@ -286,12 +280,12 @@ impl DeletableModel for LocationDatabaseAgentHost {
 }
 
 #[schema_extension_derive::extendible]
-#[init_args(LocationDatabaseAgentHost, crate::State)]
+#[init_args(NodeDatabaseHost, crate::State)]
 #[hook_args(crate::State)]
 #[derive(ToSchema, Serialize)]
-#[schema(title = "LocationDatabaseAgentHost")]
-pub struct AdminApiLocationDatabaseAgentHost {
-    pub database_agent_host: super::database_agent_host::AdminApiDatabaseAgentHost,
+#[schema(title = "NodeDatabaseHost")]
+pub struct AdminApiNodeDatabaseHost {
+    pub database_host: super::database_host::AdminApiDatabaseHost,
 
     pub created: chrono::DateTime<chrono::Utc>,
 }

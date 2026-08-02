@@ -6,7 +6,7 @@ mod get {
     use shared::{
         ApiError, GetState,
         models::{
-            IntoApiObject, location_database_host::LocationDatabaseHost, server::GetServer,
+            IntoApiObject, database_host::DatabaseHost, server::GetServer,
             user::GetPermissionManager,
         },
         prelude::AsyncIteratorExt,
@@ -36,21 +36,13 @@ mod get {
     ) -> ApiResponseResult {
         permissions.has_server_permission("databases.read")?;
 
-        let database_hosts = LocationDatabaseHost::all_public_by_location_uuid(
-            &state.database,
-            server
-                .node
-                .fetch_cached(&state.database)
-                .await?
-                .location
-                .uuid,
-        )
-        .await?;
+        let node = server.node.fetch_cached(&state.database).await?;
+        let database_hosts = DatabaseHost::all_public_by_node(&state.database, &node).await?;
 
         ApiResponse::new_serialized(Response {
             database_hosts: database_hosts
                 .into_iter()
-                .map(|database_host| database_host.database_host.into_api_object(&state, ()))
+                .map(|database_host| database_host.into_api_object(&state, ()))
                 .try_collect_async_vec()
                 .await?,
         })

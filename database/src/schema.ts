@@ -541,6 +541,24 @@ export const nodeMountsTable = pgTable(
   ],
 );
 
+export const nodeDatabaseHostsTable = pgTable(
+  'node_database_hosts',
+  {
+    node_uuid: uuid()
+      .references(() => nodesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+    database_host_uuid: uuid()
+      .references(() => databaseHostsTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+    created: timestamp().defaultNow().notNull(),
+  },
+  (cols) => [
+    primaryKey({ name: 'node_database_hosts_pk', columns: [cols.node_uuid, cols.database_host_uuid] }),
+    index('node_database_hosts_node_uuid_idx').on(cols.node_uuid),
+    index('node_database_hosts_database_host_uuid_idx').on(cols.database_host_uuid),
+  ],
+);
+
 export const nodeAllocationsTable = pgTable(
   'node_allocations',
   {
@@ -761,6 +779,27 @@ export const locationDatabaseAgentHostsTable = pgTable(
     }),
     index('location_database_agent_hosts_location_uuid_idx').on(cols.location_uuid),
     index('location_database_agent_hosts_database_agent_host_uuid_idx').on(cols.database_agent_host_uuid),
+  ],
+);
+
+export const nodeDatabaseAgentHostsTable = pgTable(
+  'node_database_agent_hosts',
+  {
+    node_uuid: uuid()
+      .references(() => nodesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+    database_agent_host_uuid: uuid()
+      .references(() => databaseAgentHostsTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+    created: timestamp().defaultNow().notNull(),
+  },
+  (cols) => [
+    primaryKey({
+      name: 'node_database_agent_hosts_pk',
+      columns: [cols.node_uuid, cols.database_agent_host_uuid],
+    }),
+    index('node_database_agent_hosts_node_uuid_idx').on(cols.node_uuid),
+    index('node_database_agent_hosts_database_agent_host_uuid_idx').on(cols.database_agent_host_uuid),
   ],
 );
 

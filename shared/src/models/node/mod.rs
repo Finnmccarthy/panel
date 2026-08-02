@@ -1319,6 +1319,28 @@ impl DuplicableModel for Node {
         .execute(&mut **transaction)
         .await?;
 
+        sqlx::query!(
+            "INSERT INTO node_database_hosts (node_uuid, database_host_uuid)
+            SELECT $1, node_database_hosts.database_host_uuid
+            FROM node_database_hosts
+            WHERE node_database_hosts.node_uuid = $2",
+            node.uuid,
+            self.uuid,
+        )
+        .execute(&mut **transaction)
+        .await?;
+
+        sqlx::query!(
+            "INSERT INTO node_database_agent_hosts (node_uuid, database_agent_host_uuid)
+            SELECT $1, node_database_agent_hosts.database_agent_host_uuid
+            FROM node_database_agent_hosts
+            WHERE node_database_agent_hosts.node_uuid = $2",
+            node.uuid,
+            self.uuid,
+        )
+        .execute(&mut **transaction)
+        .await?;
+
         self.run_after_duplicate_handlers(&mut node, &options, state, transaction)
             .await?;
 

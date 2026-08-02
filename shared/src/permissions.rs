@@ -364,6 +364,14 @@ pub(crate) static BASE_ADMIN_PERMISSIONS: LazyLock<IndexMap<&'static str, Permis
                             "Allows viewing and managing a node's allocations.",
                         ),
                         ("mounts", "Allows viewing and managing a node's mounts."),
+                        (
+                            "database-hosts",
+                            "Allows viewing and managing a node's database hosts.",
+                        ),
+                        (
+                            "database-agent-hosts",
+                            "Allows viewing and managing a node's database agent hosts.",
+                        ),
                         ("backups", "Allows viewing and managing a node's backups."),
                         ("power", "Allows executing mass-power actions on nodes."),
                         (

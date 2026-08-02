@@ -3,10 +3,12 @@ import {
   faArrowUpLong,
   faCog,
   faComputer,
+  faDatabase,
   faFileLines,
   faFolderTree,
   faHouse,
   faInfoCircle,
+  faLayerGroup,
   faNetworkWired,
   faPenRuler,
 } from '@fortawesome/free-solid-svg-icons';
@@ -22,6 +24,8 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import AdminNodeAllocations from './allocations/AdminNodeAllocations.tsx';
 import AdminNodeBackups from './backups/AdminNodeBackups.tsx';
 import AdminNodeConfiguration from './configuration/AdminNodeConfiguration.tsx';
+import AdminNodeDatabaseAgentHosts from './database-agent-hosts/AdminNodeDatabaseAgentHosts.tsx';
+import AdminNodeDatabaseHosts from './database-hosts/AdminNodeDatabaseHosts.tsx';
 import AdminNodeLogs from './logs/AdminNodeLogs.tsx';
 import AdminNodeMounts from './mounts/AdminNodeMounts.tsx';
 import NodeCreateOrUpdate from './NodeCreateOrUpdate.tsx';
@@ -95,6 +99,20 @@ export default function NodeView() {
                 path: `/mounts`,
                 element: <AdminNodeMounts node={node} />,
                 permission: 'nodes.mounts',
+              },
+              {
+                name: t('pages.admin.nodes.tabs.databaseHosts.title', {}),
+                icon: faDatabase,
+                path: `/database-hosts`,
+                element: <AdminNodeDatabaseHosts node={node} />,
+                permission: 'nodes.database-hosts',
+              },
+              {
+                name: t('pages.admin.nodes.tabs.databaseAgentHosts.title', {}),
+                icon: faLayerGroup,
+                path: `/database-agent-hosts`,
+                element: <AdminNodeDatabaseAgentHosts node={node} />,
+                permission: 'nodes.database-agent-hosts',
               },
               {
                 name: t('pages.admin.nodes.tabs.backups.title', {}),

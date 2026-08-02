@@ -231,9 +231,9 @@ impl DatabaseAgentHost {
         })
     }
 
-    pub async fn by_location_uuid_most_eligible(
+    pub async fn by_node_most_eligible(
         database: &crate::database::Database,
-        location_uuid: uuid::Uuid,
+        node: &super::node::Node,
         r#type: db_agent_api::DatabaseAgentType,
         memory: i64,
         disk: i64,
@@ -251,22 +251,32 @@ impl DatabaseAgentHost {
             )
             SELECT {}
             FROM database_agent_hosts
-            JOIN location_database_agent_hosts ON location_database_agent_hosts.database_agent_host_uuid = database_agent_hosts.uuid AND location_database_agent_hosts.location_uuid = $1
             LEFT JOIN database_usage u ON database_agent_hosts.uuid = u.database_agent_host_uuid
-            WHERE database_agent_hosts.deployment_enabled
+            WHERE (
+                EXISTS (
+                    SELECT 1 FROM node_database_agent_hosts
+                    WHERE node_database_agent_hosts.database_agent_host_uuid = database_agent_hosts.uuid AND node_database_agent_hosts.node_uuid = $1
+                )
+                OR EXISTS (
+                    SELECT 1 FROM location_database_agent_hosts
+                    WHERE location_database_agent_hosts.database_agent_host_uuid = database_agent_hosts.uuid AND location_database_agent_hosts.location_uuid = $2
+                )
+            )
+            AND database_agent_hosts.deployment_enabled
             AND NOT database_agent_hosts.maintenance_enabled
-            AND COALESCE((database_agent_hosts.types -> $2 ->> 'enabled')::BOOL, TRUE)
-            AND COALESCE(u.used_memory, 0) + $3 <= database_agent_hosts.memory
-            AND COALESCE(u.used_disk, 0) + $4 <= database_agent_hosts.disk
+            AND COALESCE((database_agent_hosts.types -> $3 ->> 'enabled')::BOOL, TRUE)
+            AND COALESCE(u.used_memory, 0) + $4 <= database_agent_hosts.memory
+            AND COALESCE(u.used_disk, 0) + $5 <= database_agent_hosts.disk
             ORDER BY
                 GREATEST(
-                    (COALESCE(u.used_memory, 0) + $3)::FLOAT / NULLIF(database_agent_hosts.memory, 0),
-                    (COALESCE(u.used_disk, 0) + $4)::FLOAT / NULLIF(database_agent_hosts.disk, 0)
+                    (COALESCE(u.used_memory, 0) + $4)::FLOAT / NULLIF(database_agent_hosts.memory, 0),
+                    (COALESCE(u.used_disk, 0) + $5)::FLOAT / NULLIF(database_agent_hosts.disk, 0)
                 )
             "#,
             Self::columns_sql(None)
         )))
-        .bind(location_uuid)
+        .bind(node.uuid)
+        .bind(node.location.uuid)
         .bind(r#type.as_str())
         .bind(memory)
         .bind(disk)
@@ -276,28 +286,6 @@ impl DatabaseAgentHost {
         rows.into_iter()
             .map(|row| Self::map(None, &row))
             .try_collect_vec()
-    }
-
-    pub async fn by_location_uuid_uuid(
-        database: &crate::database::Database,
-        location_uuid: uuid::Uuid,
-        uuid: uuid::Uuid,
-    ) -> Result<Option<Self>, crate::database::DatabaseError> {
-        let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-            r#"
-            SELECT {}
-            FROM database_agent_hosts
-            JOIN location_database_agent_hosts ON location_database_agent_hosts.database_agent_host_uuid = database_agent_hosts.uuid AND location_database_agent_hosts.location_uuid = $1
-            WHERE database_agent_hosts.uuid = $2
-            "#,
-            Self::columns_sql(None)
-        )))
-        .bind(location_uuid)
-        .bind(uuid)
-        .fetch_optional(database.read())
-        .await?;
-
-        row.try_map(|row| Self::map(None, &row))
     }
 
     #[inline]

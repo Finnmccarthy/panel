@@ -2505,6 +2505,44 @@
                 }
               }
             },
+            "databaseHosts": {
+              "title": "Datenbank-Hosts",
+              "page": {
+                "title": "Node Datenbank-Hosts",
+                "toast": {
+                  "created": "Node Datenbank-Host erstellt.",
+                  "deleted": "Node Datenbank-Host gelöscht."
+                },
+                "modal": {
+                  "create": {
+                    "title": "Node Datenbank-Host erstellen"
+                  },
+                  "delete": {
+                    "title": "Löschen des Node Datenbank-Hosts bestätigen",
+                    "content": "Bist du sicher, dass du den Datenbank-Host **{name}** von **{node}** entfernen möchtest?"
+                  }
+                }
+              }
+            },
+            "databaseAgentHosts": {
+              "title": "Datenbank-Agent-Hosts",
+              "page": {
+                "title": "Node Datenbank-Agent-Hosts",
+                "toast": {
+                  "created": "Node Datenbank-Agent-Host erstellt.",
+                  "deleted": "Node Datenbank-Agent-Host gelöscht."
+                },
+                "modal": {
+                  "create": {
+                    "title": "Node Datenbank-Agent-Host erstellen"
+                  },
+                  "delete": {
+                    "title": "Löschen des Node Datenbank-Agent-Hosts bestätigen",
+                    "content": "Bist du sicher, dass du den Datenbank-Agent-Host **{name}** von **{node}** entfernen möchtest?"
+                  }
+                }
+              }
+            },
             "backups": {
               "title": "Backups",
               "page": {

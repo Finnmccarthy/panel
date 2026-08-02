@@ -5,6 +5,8 @@ import { SubNavigationRegistry } from '../../../../slices/subNavigation.ts';
 import { AllocationsRegistry } from './allocations.ts';
 import { BackupsRegistry } from './backups.ts';
 import { ConfigurationRegistry } from './configuration.ts';
+import { DatabaseAgentHostsRegistry } from './databaseAgentHosts.ts';
+import { DatabaseHostsRegistry } from './databaseHosts.ts';
 import { LogsRegistry } from './logs.ts';
 import { MountsRegistry } from './mounts.ts';
 import { OverviewRegistry } from './overview.ts';
@@ -21,6 +23,8 @@ export class ViewRegistry implements Registry {
     this.logs.mergeFrom(other.logs);
     this.allocations.mergeFrom(other.allocations);
     this.mounts.mergeFrom(other.mounts);
+    this.databaseHosts.mergeFrom(other.databaseHosts);
+    this.databaseAgentHosts.mergeFrom(other.databaseAgentHosts);
     this.backups.mergeFrom(other.backups);
     this.servers.mergeFrom(other.servers);
     this.transfers.mergeFrom(other.transfers);
@@ -35,6 +39,8 @@ export class ViewRegistry implements Registry {
   public logs: LogsRegistry = new LogsRegistry();
   public allocations: AllocationsRegistry = new AllocationsRegistry();
   public mounts: MountsRegistry = new MountsRegistry();
+  public databaseHosts: DatabaseHostsRegistry = new DatabaseHostsRegistry();
+  public databaseAgentHosts: DatabaseAgentHostsRegistry = new DatabaseAgentHostsRegistry();
   public backups: BackupsRegistry = new BackupsRegistry();
   public servers: ServersRegistry = new ServersRegistry();
   public transfers: TransfersRegistry = new TransfersRegistry();
@@ -73,6 +79,16 @@ export class ViewRegistry implements Registry {
 
   public enterMounts(callback: (registry: MountsRegistry) => unknown): this {
     callback(this.mounts);
+    return this;
+  }
+
+  public enterDatabaseHosts(callback: (registry: DatabaseHostsRegistry) => unknown): this {
+    callback(this.databaseHosts);
+    return this;
+  }
+
+  public enterDatabaseAgentHosts(callback: (registry: DatabaseAgentHostsRegistry) => unknown): this {
+    callback(this.databaseAgentHosts);
     return this;
   }
 

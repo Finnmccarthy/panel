@@ -212,14 +212,10 @@ mod post {
                 .ok();
         }
 
-        let hosts = DatabaseAgentHost::by_location_uuid_most_eligible(
+        let node = server.node.fetch_cached(&state.database).await?;
+        let hosts = DatabaseAgentHost::by_node_most_eligible(
             &state.database,
-            server
-                .node
-                .fetch_cached(&state.database)
-                .await?
-                .location
-                .uuid,
+            &node,
             template.r#type,
             template.memory,
             template.disk,

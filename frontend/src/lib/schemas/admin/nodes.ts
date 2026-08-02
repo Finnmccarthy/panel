@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
+import { adminDatabaseAgentHostSchema } from '@/lib/schemas/admin/databaseAgentHosts.ts';
+import { adminDatabaseHostSchema } from '@/lib/schemas/admin/databaseHosts.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { adminMountSchema } from '@/lib/schemas/admin/mounts.ts';
 import { adminServerBackupSchema, adminServerSchema } from '@/lib/schemas/admin/servers.ts';
@@ -89,6 +91,16 @@ export const adminNodeAllocationsSchema = z.object({
 
 export const adminNodeMountSchema = z.looseObject({
   mount: z.lazy(() => adminMountSchema),
+  created: z.coerce.date(),
+});
+
+export const adminNodeDatabaseHostSchema = z.looseObject({
+  databaseHost: z.lazy(() => adminDatabaseHostSchema),
+  created: z.coerce.date(),
+});
+
+export const adminNodeDatabaseAgentHostSchema = z.looseObject({
+  databaseAgentHost: z.lazy(() => adminDatabaseAgentHostSchema),
   created: z.coerce.date(),
 });
 

@@ -526,6 +526,17 @@ impl DuplicableModel for Location {
         .execute(&mut **transaction)
         .await?;
 
+        sqlx::query!(
+            "INSERT INTO location_database_agent_hosts (location_uuid, database_agent_host_uuid)
+            SELECT $1, location_database_agent_hosts.database_agent_host_uuid
+            FROM location_database_agent_hosts
+            WHERE location_database_agent_hosts.location_uuid = $2",
+            location.uuid,
+            self.uuid,
+        )
+        .execute(&mut **transaction)
+        .await?;
+
         self.run_after_duplicate_handlers(&mut location, &options, state, transaction)
             .await?;
 

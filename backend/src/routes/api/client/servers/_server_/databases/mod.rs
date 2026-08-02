@@ -172,25 +172,18 @@ mod post {
 
         permissions.has_server_permission("databases.create")?;
 
-        let database_host = match DatabaseHost::by_location_uuid_uuid(
-            &state.database,
-            server
-                .node
-                .fetch_cached(&state.database)
+        let node = server.node.fetch_cached(&state.database).await?;
+        let database_host =
+            match DatabaseHost::by_node_uuid(&state.database, &node, data.database_host_uuid)
                 .await?
-                .location
-                .uuid,
-            data.database_host_uuid,
-        )
-        .await?
-        {
-            Some(host) => host,
-            None => {
-                return ApiResponse::error("database host not found")
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-        };
+            {
+                Some(host) => host,
+                None => {
+                    return ApiResponse::error("database host not found")
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+            };
 
         let databases_lock = state
             .cache
