@@ -8,8 +8,8 @@ export const adminEggConfigurationDeploymentRandomSchema = z.object({
 
 export const adminEggConfigurationDeploymentRangeSchema = z.object({
   type: z.literal('range'),
-  endPort: z.number().min(0),
-  startPort: z.number().min(0),
+  endPort: z.number().min(1).max(65535),
+  startPort: z.number().min(1).max(65535),
 });
 
 export const adminEggConfigurationDeploymentAddPrimarySchema = z.object({
@@ -70,8 +70,8 @@ export const adminEggConfigurationSchema = z.looseObject({
         dedicated: z.boolean(),
         primary: z
           .object({
-            endPort: z.number().min(0).max(65535),
-            startPort: z.number().min(0).max(65535),
+            endPort: z.number().min(1).max(65535),
+            startPort: z.number().min(1).max(65535),
             assignToVariable: z.preprocess(nullableString, z.string().max(255).nullable()),
           })
           .nullable(),
@@ -79,8 +79,8 @@ export const adminEggConfigurationSchema = z.looseObject({
       userSelfAssign: z.object({
         enabled: z.boolean(),
         requirePrimaryAllocation: z.boolean(),
-        startPort: z.number().min(1024).max(65535),
-        endPort: z.number().min(1024).max(65535),
+        startPort: z.number().min(1).max(65535),
+        endPort: z.number().min(1).max(65535),
       }),
     })
     .nullable(),

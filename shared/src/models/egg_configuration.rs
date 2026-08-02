@@ -17,7 +17,7 @@ pub fn validate_config_allocations(
 ) -> Result<(), garde::Error> {
     if !config_allocations.user_self_assign.is_valid() {
         return Err(garde::Error::new(
-            "port ranges must be 1024-65535 and start_port < end_port",
+            "port ranges must be 1-65535 and start_port < end_port",
         ));
     }
 
@@ -47,7 +47,7 @@ impl Default for EggConfigAllocationsUserSelfAssign {
 impl EggConfigAllocationsUserSelfAssign {
     #[inline]
     pub fn is_valid(&self) -> bool {
-        self.start_port < self.end_port && self.start_port >= 1024
+        self.start_port < self.end_port && self.start_port >= 1
     }
 }
 
@@ -56,9 +56,9 @@ impl EggConfigAllocationsUserSelfAssign {
 pub enum EggConfigAllocationDeploymentAdditionalAllocationMode {
     Random,
     Range {
-        #[garde(range(min = 1024, max = 65535))]
+        #[garde(range(min = 1, max = 65535))]
         start_port: u16,
-        #[garde(range(min = 1024, max = 65535))]
+        #[garde(range(min = 1, max = 65535))]
         end_port: u16,
     },
     AddPrimary {
@@ -90,9 +90,9 @@ pub struct EggConfigAllocationDeploymentAdditionalAllocation {
 
 #[derive(ToSchema, Validate, Serialize, Deserialize, Clone)]
 pub struct EggConfigAllocationDeploymentPrimaryAllocation {
-    #[garde(range(min = 1024, max = 65535))]
+    #[garde(range(min = 1, max = 65535))]
     pub start_port: u16,
-    #[garde(range(min = 1024, max = 65535))]
+    #[garde(range(min = 1, max = 65535))]
     pub end_port: u16,
 
     #[garde(length(chars, min = 1, max = 255))]

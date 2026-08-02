@@ -267,7 +267,7 @@ export const eggConfigurationDeploymentDefaultMapping: Record<
   },
   range: {
     type: 'range',
-    startPort: 1024,
+    startPort: 1,
     endPort: 65535,
   },
   add_primary: {

@@ -202,7 +202,7 @@ mod post {
         futures.reserve_exact(data.ports.len());
 
         for port in data.ports.iter().copied() {
-            if port < 1024 {
+            if port < 1 {
                 continue;
             }
 

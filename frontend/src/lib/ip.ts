@@ -85,7 +85,7 @@ interface ResolvedPorts {
 
 export function isValidPort(port: string): boolean {
   const int = Number(port);
-  return Number.isFinite(int) && Number.isInteger(int) && int >= 0 && int <= 65535;
+  return Number.isFinite(int) && Number.isInteger(int) && int >= 1 && int <= 65535;
 }
 
 export function resolvePorts(ports: string[]): ResolvedPorts {

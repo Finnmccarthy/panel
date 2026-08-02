@@ -98,8 +98,8 @@ function DeploymentItemEditor({ index, value, onChange, onRemove }: DeploymentIt
         <Group grow>
           <NumberInput
             label={t('pages.admin.eggConfigurations.tabs.general.page.allocation.deployment.form.startPort', {})}
-            placeholder='1024'
-            min={0}
+            placeholder='1'
+            min={1}
             max={65535}
             value={value.mode.startPort}
             onChange={(v) =>
@@ -114,7 +114,7 @@ function DeploymentItemEditor({ index, value, onChange, onRemove }: DeploymentIt
           <NumberInput
             label={t('pages.admin.eggConfigurations.tabs.general.page.allocation.deployment.form.endPort', {})}
             placeholder='65535'
-            min={0}
+            min={1}
             max={65535}
             value={value.mode.endPort}
             onChange={(v) =>
@@ -301,7 +301,7 @@ export default function EggConfigurationCreateOrUpdate({
   const handlePrimaryToggle = (enabled: boolean) => {
     form.setFieldValue(
       'configAllocations.deployment.primary',
-      enabled ? { startPort: 1024, endPort: 65535, assignToVariable: null } : null,
+      enabled ? { startPort: 1, endPort: 65535, assignToVariable: null } : null,
     );
   };
 
@@ -353,7 +353,7 @@ export default function EggConfigurationCreateOrUpdate({
                     userSelfAssign: {
                       enabled: false,
                       requirePrimaryAllocation: true,
-                      startPort: 1024,
+                      startPort: 1,
                       endPort: 65535,
                     },
                   }
@@ -396,11 +396,15 @@ export default function EggConfigurationCreateOrUpdate({
                   'pages.admin.eggConfigurations.tabs.general.page.allocation.form.automaticAllocationStart',
                   {},
                 )}
+                min={1}
+                max={65535}
                 key={f.key('configAllocations.userSelfAssign.startPort')}
                 {...f.getInputProps('configAllocations.userSelfAssign.startPort')}
               />
               <NumberInput
                 label={t('pages.admin.eggConfigurations.tabs.general.page.allocation.form.automaticAllocationEnd', {})}
+                min={1}
+                max={65535}
                 key={f.key('configAllocations.userSelfAssign.endPort')}
                 {...f.getInputProps('configAllocations.userSelfAssign.endPort')}
               />
@@ -439,8 +443,8 @@ export default function EggConfigurationCreateOrUpdate({
                   <Group grow>
                     <NumberInput
                       label={t('pages.admin.eggConfigurations.tabs.general.page.allocation.form.primaryStartPort', {})}
-                      placeholder='1024'
-                      min={0}
+                      placeholder='1'
+                      min={1}
                       max={65535}
                       key={f.key('configAllocations.deployment.primary.startPort')}
                       {...f.getInputProps('configAllocations.deployment.primary.startPort')}
@@ -448,7 +452,7 @@ export default function EggConfigurationCreateOrUpdate({
                     <NumberInput
                       label={t('pages.admin.eggConfigurations.tabs.general.page.allocation.form.primaryEndPort', {})}
                       placeholder='65535'
-                      min={0}
+                      min={1}
                       max={65535}
                       key={f.key('configAllocations.deployment.primary.endPort')}
                       {...f.getInputProps('configAllocations.deployment.primary.endPort')}
