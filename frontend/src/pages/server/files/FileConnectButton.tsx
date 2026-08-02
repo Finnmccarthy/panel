@@ -5,6 +5,7 @@ import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import ContextMenu from '@/elements/ContextMenu.tsx';
 import { openUrl } from '@/lib/url.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -16,6 +17,7 @@ export default function FileConnectButton({ file }: { file?: string }) {
   const { user } = useAuth();
   const server = useServerStore((state) => state.server);
   const vscodeUriScheme = useFileManager((state) => state.vscodeUriScheme);
+  const canSftp = useServerCan('files.sftp');
   const [sftpDetailsOpen, setSftpDetailsOpen] = useState(false);
 
   const sftpUrl = `sftp://${user!.username}.${server.uuidShort}@${server.sftpHost}:${server.sftpPort}`;
@@ -45,6 +47,7 @@ export default function FileConnectButton({ file }: { file?: string }) {
                 }
               },
               color: 'gray',
+              canAccess: canSftp,
             },
             {
               type: 'action',

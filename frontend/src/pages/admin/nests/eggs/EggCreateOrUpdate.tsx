@@ -727,48 +727,6 @@ export default function EggCreateOrUpdate({
                     </Button>
                   )}
                 </ContextMenu>
-                <ContextMenu
-                  menuProps={{ position: 'top', offset: 40 }}
-                  items={[
-                    {
-                      type: 'action',
-                      icon: faFileDownload,
-                      label: t('common.button.exportAs', { format: 'JSON' }),
-                      onClick: () => doExport('calagopus', 'json'),
-                      color: 'gray',
-                    },
-                    {
-                      type: 'action',
-                      icon: faFileDownload,
-                      label: t('common.button.exportAs', { format: 'YAML' }),
-                      onClick: () => doExport('calagopus', 'yaml'),
-                      color: 'gray',
-                    },
-                    {
-                      type: 'action',
-                      icon: faFileDownload,
-                      label: t('common.button.exportAs', { format: 'Pterodactyl' }),
-                      onClick: () => doExport('pterodactyl', 'json'),
-                      color: 'gray',
-                    },
-                  ]}
-                >
-                  {({ openMenu }) => (
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        openMenu(rect.left, rect.bottom);
-                      }}
-                      loading={loading}
-                      variant='outline'
-                      rightSection={<FontAwesomeIcon icon={faChevronDown} />}
-                    >
-                      {t('common.button.export', {})}
-                    </Button>
-                  )}
-                </ContextMenu>
-
                 <input
                   type='file'
                   accept='.json,.yml,.yaml'
@@ -780,9 +738,54 @@ export default function EggCreateOrUpdate({
             )}
           </AdminCan>
           {contextEgg && (
-            <Button variant='outline' onClick={() => setOpenModal('move')} loading={loading}>
-              {t('common.button.move', {})}
-            </Button>
+            <ContextMenu
+              menuProps={{ position: 'top', offset: 40 }}
+              items={[
+                {
+                  type: 'action',
+                  icon: faFileDownload,
+                  label: t('common.button.exportAs', { format: 'JSON' }),
+                  onClick: () => doExport('calagopus', 'json'),
+                  color: 'gray',
+                },
+                {
+                  type: 'action',
+                  icon: faFileDownload,
+                  label: t('common.button.exportAs', { format: 'YAML' }),
+                  onClick: () => doExport('calagopus', 'yaml'),
+                  color: 'gray',
+                },
+                {
+                  type: 'action',
+                  icon: faFileDownload,
+                  label: t('common.button.exportAs', { format: 'Pterodactyl' }),
+                  onClick: () => doExport('pterodactyl', 'json'),
+                  color: 'gray',
+                },
+              ]}
+            >
+              {({ openMenu }) => (
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    openMenu(rect.left, rect.bottom);
+                  }}
+                  loading={loading}
+                  variant='outline'
+                  rightSection={<FontAwesomeIcon icon={faChevronDown} />}
+                >
+                  {t('common.button.export', {})}
+                </Button>
+              )}
+            </ContextMenu>
+          )}
+          {contextEgg && (
+            <AdminCan action='eggs.update'>
+              <Button variant='outline' onClick={() => setOpenModal('move')} loading={loading}>
+                {t('common.button.move', {})}
+              </Button>
+            </AdminCan>
           )}
           {contextEgg && (
             <AdminCan action='eggs.create'>

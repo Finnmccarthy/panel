@@ -222,13 +222,16 @@ mod patch {
         permissions.has_admin_permission("users.update")?;
 
         if !caller.admin {
-            if data.admin.unwrap_or(false) {
-                return ApiResponse::error("you cannot grant admin status")
+            if data.admin.is_some_and(|admin| admin != user.admin) {
+                return ApiResponse::error("you cannot change admin status")
                     .with_status(StatusCode::FORBIDDEN)
                     .ok();
             }
-            if data.role_uuid.flatten().is_some() {
-                return ApiResponse::error("you cannot assign roles")
+            if data
+                .role_uuid
+                .is_some_and(|role_uuid| role_uuid != user.role.as_ref().map(|role| role.uuid))
+            {
+                return ApiResponse::error("you cannot change a user's role")
                     .with_status(StatusCode::FORBIDDEN)
                     .ok();
             }
@@ -245,7 +248,11 @@ mod patch {
                         .with_status(StatusCode::FORBIDDEN)
                         .ok();
                 }
-                if data.email.is_some() {
+                if data
+                    .email
+                    .as_ref()
+                    .is_some_and(|email| *email != user.email)
+                {
                     return ApiResponse::error("you cannot change another user's email")
                         .with_status(StatusCode::FORBIDDEN)
                         .ok();

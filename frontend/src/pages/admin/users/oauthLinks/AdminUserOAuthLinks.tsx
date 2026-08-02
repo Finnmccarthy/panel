@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 import getUserOAuthLinks from '@/api/admin/users/oauthLinks/getUserOAuthLinks.ts';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
@@ -39,12 +40,16 @@ export default function AdminUserOAuthLinks({ user }: { user: z.infer<typeof adm
       registry={window.extensionContext.extensionRegistry.pages.admin.users.view.oauthLinks.subContainer}
       registryProps={{ user }}
       contentRight={
-        <Button onClick={() => setOpenModal('add')} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
-          {t('common.button.add', {})}
-        </Button>
+        <AdminCan action='oauth-providers.read'>
+          <Button onClick={() => setOpenModal('add')} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
+            {t('common.button.add', {})}
+          </Button>
+        </AdminCan>
       }
     >
-      <UserOAuthLinkAddModal user={user} opened={openModal === 'add'} onClose={() => setOpenModal(null)} />
+      <AdminCan action='oauth-providers.read'>
+        <UserOAuthLinkAddModal user={user} opened={openModal === 'add'} onClose={() => setOpenModal(null)} />
+      </AdminCan>
 
       <Table
         columns={adminUserOAuthLinkTableColumns()}

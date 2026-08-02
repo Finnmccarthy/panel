@@ -38,6 +38,7 @@ export default function AdminOverviewHealth() {
   const [debugMode, setDebugModeState] = useState<Awaited<ReturnType<typeof getDebugMode>> | null>(null);
   const [debugLoading, setDebugLoading] = useState(false);
   const canReadSettings = useAdminCan('settings.read');
+  const canReadNodes = useAdminCan('nodes.read');
 
   const {
     data: nodes,
@@ -48,6 +49,7 @@ export default function AdminOverviewHealth() {
     queryKey: queryKeys.admin.health.nodes(),
     fetcher: (page) => getNodesHealth(page),
     paginationKey: 'desyncNodes',
+    canRequest: canReadNodes,
   });
 
   useEffect(() => {
@@ -218,48 +220,50 @@ export default function AdminOverviewHealth() {
             )}
           </TitleCard>
         </AdminCan>
-        <TitleCard
-          title={t('pages.admin.home.tabs.health.page.card.desyncNodes', {})}
-          icon={<FontAwesomeIcon icon={faServer} />}
-        >
-          {loading || !nodes?.desyncNodes ? (
-            <Spinner.Centered />
-          ) : !nodes?.desyncNodes.total ? (
-            <>
-              <FontAwesomeIcon icon={faCheck} />{' '}
-              {t('pages.admin.home.tabs.health.page.nodesSynced', { failed: nodes?.failedNodes ?? 0 })}
-            </>
-          ) : (
-            <>
-              <FontAwesomeIcon icon={faExclamationTriangle} />{' '}
-              {t('pages.admin.home.tabs.health.page.nodesDesync', {
-                desync: nodes?.desyncNodes.total ?? 0,
-                failed: nodes?.failedNodes ?? 0,
-              })}
-              <div className='mt-4' />
-              <Table
-                columns={[
-                  '',
-                  t('pages.admin.home.tabs.health.page.table.id', {}),
-                  t('pages.admin.home.tabs.health.page.table.desync', {}),
-                  ...nodeTableColumns().slice(2),
-                ]}
-                loading={loading}
-                error={error}
-                pagination={nodes.desyncNodes}
-                onPageSelect={setPage}
-              >
-                {nodes.desyncNodes.data.map((node) => (
-                  <NodeRow
-                    key={node.node.uuid}
-                    node={node.node}
-                    desync={Math.abs(new Date(node.localTime).getTime() - new Date(node.panelLocalTime).getTime())}
-                  />
-                ))}
-              </Table>
-            </>
-          )}
-        </TitleCard>
+        <AdminCan action='nodes.read'>
+          <TitleCard
+            title={t('pages.admin.home.tabs.health.page.card.desyncNodes', {})}
+            icon={<FontAwesomeIcon icon={faServer} />}
+          >
+            {loading || !nodes?.desyncNodes ? (
+              <Spinner.Centered />
+            ) : !nodes?.desyncNodes.total ? (
+              <>
+                <FontAwesomeIcon icon={faCheck} />{' '}
+                {t('pages.admin.home.tabs.health.page.nodesSynced', { failed: nodes?.failedNodes ?? 0 })}
+              </>
+            ) : (
+              <>
+                <FontAwesomeIcon icon={faExclamationTriangle} />{' '}
+                {t('pages.admin.home.tabs.health.page.nodesDesync', {
+                  desync: nodes?.desyncNodes.total ?? 0,
+                  failed: nodes?.failedNodes ?? 0,
+                })}
+                <div className='mt-4' />
+                <Table
+                  columns={[
+                    '',
+                    t('pages.admin.home.tabs.health.page.table.id', {}),
+                    t('pages.admin.home.tabs.health.page.table.desync', {}),
+                    ...nodeTableColumns().slice(2),
+                  ]}
+                  loading={loading}
+                  error={error}
+                  pagination={nodes.desyncNodes}
+                  onPageSelect={setPage}
+                >
+                  {nodes.desyncNodes.data.map((node) => (
+                    <NodeRow
+                      key={node.node.uuid}
+                      node={node.node}
+                      desync={Math.abs(new Date(node.localTime).getTime() - new Date(node.panelLocalTime).getTime())}
+                    />
+                  ))}
+                </Table>
+              </>
+            )}
+          </TitleCard>
+        </AdminCan>
 
         {window.extensionContext.extensionRegistry.pages.admin.home.health.cards.appendedComponents.map(
           (Component, index) => (

@@ -6,6 +6,7 @@ import { httpErrorToHuman } from '@/api/axios.ts';
 import attachMount from '@/api/server/mounts/attachMount.ts';
 import detachMount from '@/api/server/mounts/detachMount.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
+import { ServerCan } from '@/elements/Can.tsx';
 import Code from '@/elements/Code.tsx';
 import Group from '@/elements/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
@@ -59,32 +60,36 @@ export const MountRow = ({ contextMount }: { contextMount: z.infer<typeof server
 
   return (
     <>
-      <ConfirmationModal
-        opened={openModal === 'attach'}
-        onClose={() => setOpenModal(null)}
-        title={t('pages.server.mounts.modal.attachMount.title', {})}
-        confirm={t('pages.server.mounts.button.attach', {})}
-        confirmColor='green'
-        onConfirmed={doAttach}
-      >
-        {t('pages.server.mounts.modal.attachMount.content', {
-          name: contextMount.name,
-          target: contextMount.target,
-        }).md()}
-      </ConfirmationModal>
+      <ServerCan action='mounts.attach'>
+        <ConfirmationModal
+          opened={openModal === 'attach'}
+          onClose={() => setOpenModal(null)}
+          title={t('pages.server.mounts.modal.attachMount.title', {})}
+          confirm={t('pages.server.mounts.button.attach', {})}
+          confirmColor='green'
+          onConfirmed={doAttach}
+        >
+          {t('pages.server.mounts.modal.attachMount.content', {
+            name: contextMount.name,
+            target: contextMount.target,
+          }).md()}
+        </ConfirmationModal>
+      </ServerCan>
 
-      <ConfirmationModal
-        opened={openModal === 'detach'}
-        onClose={() => setOpenModal(null)}
-        title={t('pages.server.mounts.modal.detachMount.title', {})}
-        confirm={t('pages.server.mounts.button.detach', {})}
-        onConfirmed={doDetach}
-      >
-        {t('pages.server.mounts.modal.detachMount.content', {
-          name: contextMount.name,
-          target: contextMount.target,
-        }).md()}
-      </ConfirmationModal>
+      <ServerCan action='mounts.detach'>
+        <ConfirmationModal
+          opened={openModal === 'detach'}
+          onClose={() => setOpenModal(null)}
+          title={t('pages.server.mounts.modal.detachMount.title', {})}
+          confirm={t('pages.server.mounts.button.detach', {})}
+          onConfirmed={doDetach}
+        >
+          {t('pages.server.mounts.modal.detachMount.content', {
+            name: contextMount.name,
+            target: contextMount.target,
+          }).md()}
+        </ConfirmationModal>
+      </ServerCan>
 
       <TableRow>
         <TableData>{contextMount.name}</TableData>
@@ -113,23 +118,23 @@ export const MountRow = ({ contextMount }: { contextMount: z.infer<typeof server
 
         <TableData>
           <Group gap={4} justify='right' wrap='nowrap'>
-            <Tooltip
-              label={
-                contextMount.created
-                  ? t('pages.server.mounts.button.detach', {})
-                  : t('pages.server.mounts.button.attach', {})
-              }
-            >
-              {contextMount.created ? (
-                <ActionIcon color='red' onClick={() => setOpenModal('detach')}>
-                  <FontAwesomeIcon icon={faMinus} />
-                </ActionIcon>
-              ) : (
-                <ActionIcon color='green' onClick={() => setOpenModal('attach')}>
-                  <FontAwesomeIcon icon={faPlus} />
-                </ActionIcon>
-              )}
-            </Tooltip>
+            {contextMount.created ? (
+              <ServerCan action='mounts.detach'>
+                <Tooltip label={t('pages.server.mounts.button.detach', {})}>
+                  <ActionIcon color='red' onClick={() => setOpenModal('detach')}>
+                    <FontAwesomeIcon icon={faMinus} />
+                  </ActionIcon>
+                </Tooltip>
+              </ServerCan>
+            ) : (
+              <ServerCan action='mounts.attach'>
+                <Tooltip label={t('pages.server.mounts.button.attach', {})}>
+                  <ActionIcon color='green' onClick={() => setOpenModal('attach')}>
+                    <FontAwesomeIcon icon={faPlus} />
+                  </ActionIcon>
+                </Tooltip>
+              </ServerCan>
+            )}
           </Group>
         </TableData>
       </TableRow>

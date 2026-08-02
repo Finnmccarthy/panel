@@ -6,6 +6,7 @@ import { getEmptyPaginationSet, httpErrorToHuman } from '@/api/axios.ts';
 import getBackup from '@/api/server/backups/getBackup.ts';
 import loadDirectory from '@/api/server/files/loadDirectory.ts';
 import { registerUploadRefresh } from '@/lib/uploadManager.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useUploader } from '@/plugins/useUploader.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { createFileManagerStore, FileManagerExternals, FileManagerStoreContextProvider } from '@/stores/fileManager.ts';
@@ -18,6 +19,8 @@ const FileManagerProvider = ({ children }: { children: ReactNode }) => {
   const server = useServerStore((state) => state.server);
   const { addToast } = useToast();
   const queryClient = useQueryClient();
+  const canReadFiles = useServerCan('files.read');
+  const canReadBackups = useServerCan('backups.read');
 
   const externalsRef = useRef<FileManagerExternals>({ serverUuid: server.uuid, queryClient, directoryData: null });
   const [store] = useState(() =>
@@ -38,6 +41,7 @@ const FileManagerProvider = ({ children }: { children: ReactNode }) => {
   } = useQuery({
     queryKey: ['server', server.uuid, 'files', { browsingDirectory, page, sortMode }],
     queryFn: () => loadDirectory(server.uuid, browsingDirectory, page, sortMode),
+    enabled: canReadFiles,
     staleTime: 30_000,
     placeholderData: keepPreviousData,
   });
@@ -55,7 +59,7 @@ const FileManagerProvider = ({ children }: { children: ReactNode }) => {
   const { data: browsingBackup = null, error: browsingBackupError } = useQuery({
     queryKey: ['server', server.uuid, 'backup', backupUuid],
     queryFn: () => getBackup(server.uuid, backupUuid!),
-    enabled: !!backupUuid,
+    enabled: !!backupUuid && canReadBackups,
     staleTime: Infinity,
   });
 

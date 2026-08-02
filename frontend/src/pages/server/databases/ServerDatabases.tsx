@@ -68,6 +68,7 @@ export default function ServerDatabases() {
 
   const canReadClassic = useServerCan('databases.read');
   const canReadAgent = useServerCan('database-instances.read');
+  const canCreateAgent = useServerCan('database-instances.create');
 
   const [openModal, setOpenModal] = useState<'create-classic' | 'create-agent' | null>(null);
 
@@ -111,7 +112,7 @@ export default function ServerDatabases() {
   const { data: agentTemplates = [] } = useResource({
     queryKey: queryKeys.server(server.uuid).databases.instances.templates(),
     queryFn: () => getDatabaseInstanceTemplates(server.uuid),
-    enabled: canReadAgent && !full,
+    enabled: canCreateAgent && !full,
     silent: true,
   });
 

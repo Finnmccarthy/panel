@@ -40,11 +40,13 @@ export default function ServerStatusIndicator() {
     })),
   );
 
-  const canPower = useServerCan(['control.start', 'control.stop']);
+  const canStart = useServerCan('control.start');
+  const canStop = useServerCan('control.stop');
   const canRestart = useServerCan('control.restart');
 
   const killable = state === 'stopping';
   const isOffline = state === 'offline';
+  const canPower = isOffline ? canStart : canStop;
 
   const powerBlocked =
     !socketConnected || !!server.status || server.isSuspended || server.isTransferring || server.nodeMaintenanceEnabled;

@@ -28,6 +28,7 @@ export default function PermissionSelector({
   withAsterisk,
   permissionsMapType,
   permissions,
+  grantablePermissions,
   selectedPermissions,
   setSelectedPermissions,
 }: {
@@ -36,6 +37,7 @@ export default function PermissionSelector({
   withAsterisk?: boolean;
   permissionsMapType: keyof z.infer<typeof apiPermissionsSchema>;
   permissions: z.infer<typeof permissionMapSchema>;
+  grantablePermissions?: string[];
   selectedPermissions: string[];
   setSelectedPermissions: (selected: string[]) => void;
 }) {
@@ -45,11 +47,38 @@ export default function PermissionSelector({
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const permissionIcons = window.extensionContext.extensionRegistry.permissionIcons;
 
+  const visiblePermissions = useMemo(() => {
+    if (!grantablePermissions) {
+      return permissions;
+    }
+
+    const filtered: z.infer<typeof permissionMapSchema> = {};
+    for (const [category, { description, permissions: perms }] of Object.entries(permissions)) {
+      const visible = Object.entries(perms).filter(([perm]) => grantablePermissions.includes(`${category}.${perm}`));
+
+      if (visible.length > 0) {
+        filtered[category] = { description, permissions: Object.fromEntries(visible) };
+      }
+    }
+
+    return filtered;
+  }, [grantablePermissions, permissions]);
+
   const allPermissionKeys = useMemo(() => {
-    return Object.entries(permissions).flatMap(([category, { permissions: perms }]) =>
+    return Object.entries(visiblePermissions).flatMap(([category, { permissions: perms }]) =>
       Object.keys(perms).map((perm) => `${category}.${perm}`),
     );
-  }, [permissions]);
+  }, [visiblePermissions]);
+
+  const hiddenSelectedPermissions = useMemo(() => {
+    if (!grantablePermissions) {
+      return [];
+    }
+
+    return selectedPermissions.filter((perm) => !allPermissionKeys.includes(perm));
+  }, [allPermissionKeys, grantablePermissions, selectedPermissions]);
+
+  const visibleSelectedCount = selectedPermissions.length - hiddenSelectedPermissions.length;
 
   const toggleCategory = useCallback((category: string) => {
     setExpandedCategories((prev) => {
@@ -73,7 +102,9 @@ export default function PermissionSelector({
 
   const toggleAllInCategory = useCallback(
     (category: string) => {
-      const categoryPermissions = Object.keys(permissions[category].permissions).map((perm) => `${category}.${perm}`);
+      const categoryPermissions = Object.keys(visiblePermissions[category].permissions).map(
+        (perm) => `${category}.${perm}`,
+      );
 
       const allSelected = categoryPermissions.every((perm) => selectedPermissions.includes(perm));
 
@@ -84,16 +115,16 @@ export default function PermissionSelector({
         setSelectedPermissions(Array.from(newPermissions));
       }
     },
-    [permissions, selectedPermissions, setSelectedPermissions],
+    [visiblePermissions, selectedPermissions, setSelectedPermissions],
   );
 
   const selectAllPermissions = useCallback(() => {
-    setSelectedPermissions(allPermissionKeys);
-  }, [allPermissionKeys, setSelectedPermissions]);
+    setSelectedPermissions([...allPermissionKeys, ...hiddenSelectedPermissions]);
+  }, [allPermissionKeys, hiddenSelectedPermissions, setSelectedPermissions]);
 
   const clearAllPermissions = useCallback(() => {
-    setSelectedPermissions([]);
-  }, [setSelectedPermissions]);
+    setSelectedPermissions(hiddenSelectedPermissions);
+  }, [hiddenSelectedPermissions, setSelectedPermissions]);
 
   const sortedSelectedPermissions = useMemo(() => {
     return [...selectedPermissions].sort();
@@ -101,7 +132,7 @@ export default function PermissionSelector({
 
   const getCategorySelectionState = useCallback(
     (category: string) => {
-      const categoryPermissions = Object.keys(permissions[category].permissions);
+      const categoryPermissions = Object.keys(visiblePermissions[category].permissions);
       const selectedCount = categoryPermissions.filter((perm) =>
         selectedPermissions.includes(`${category}.${perm}`),
       ).length;
@@ -110,7 +141,7 @@ export default function PermissionSelector({
       if (selectedCount === categoryPermissions.length) return 'all';
       return 'partial';
     },
-    [permissions, selectedPermissions],
+    [visiblePermissions, selectedPermissions],
   );
 
   const selectedPanel = (
@@ -139,11 +170,11 @@ export default function PermissionSelector({
         )}
       </div>
       <div className='mt-4 flex flex-row'>
-        <Button disabled={selectedPermissions.length === allPermissionKeys.length} onClick={selectAllPermissions}>
+        <Button disabled={visibleSelectedCount === allPermissionKeys.length} onClick={selectAllPermissions}>
           {t('common.button.selectAll', {})}
         </Button>
         <Button
-          disabled={selectedPermissions.length === 0}
+          disabled={visibleSelectedCount === 0}
           color='red'
           variant='outline'
           onClick={clearAllPermissions}
@@ -168,7 +199,10 @@ export default function PermissionSelector({
               leftSection={<FontAwesomeIcon icon={faPaste} />}
               onClick={() =>
                 handleRawPasteFromClipboard((text) => {
-                  setSelectedPermissions(text.split('\n').filter((perm) => allPermissionKeys.includes(perm)));
+                  setSelectedPermissions([
+                    ...text.split('\n').filter((perm) => allPermissionKeys.includes(perm)),
+                    ...hiddenSelectedPermissions,
+                  ]);
                 }, addToast)
               }
             >
@@ -186,7 +220,7 @@ export default function PermissionSelector({
 
       <div className='flex flex-col lg:flex-row lg:items-start gap-6'>
         <div className='flex-1 space-y-4 min-w-0'>
-          {Object.entries(permissions).map(([category, { description, permissions: perms }]) => {
+          {Object.entries(visiblePermissions).map(([category, { description, permissions: perms }]) => {
             const isExpanded = expandedCategories.includes(category);
             const selectionState = getCategorySelectionState(category);
 

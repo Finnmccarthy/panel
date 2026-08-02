@@ -6,6 +6,7 @@ import getMountNodes from '@/api/admin/mounts/nodes/getMountNodes.ts';
 import deleteNodeMount from '@/api/admin/nodes/mounts/deleteNodeMount.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import ContextMenu from '@/elements/ContextMenu.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
@@ -14,6 +15,7 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminMountSchema } from '@/lib/schemas/admin/mounts.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { nodeTableColumns } from '@/lib/tableColumns.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -65,6 +67,7 @@ function MountNodeRow({
             label: t('common.button.remove', {}),
             onClick: () => setOpenModal('remove'),
             color: 'red',
+            canAccess: useAdminCan('nodes.mounts'),
           },
         ]}
         registry={window.extensionContext.extensionRegistry.pages.admin.mounts.view.nodes.contextMenu}
@@ -102,17 +105,21 @@ export default function AdminMountNodes({ mount }: { mount: z.infer<typeof admin
       registry={window.extensionContext.extensionRegistry.pages.admin.mounts.view.nodes.subContainer}
       registryProps={{ mount }}
       contentRight={
-        <Button onClick={() => setOpenModal('add')} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
-          {t('common.button.add', {})}
-        </Button>
+        <AdminCan action='nodes.mounts'>
+          <Button onClick={() => setOpenModal('add')} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
+            {t('common.button.add', {})}
+          </Button>
+        </AdminCan>
       }
     >
-      <MountAddNodeModal
-        mount={mount}
-        refetch={refetch}
-        opened={openModal === 'add'}
-        onClose={() => setOpenModal(null)}
-      />
+      <AdminCan action='nodes.mounts'>
+        <MountAddNodeModal
+          mount={mount}
+          refetch={refetch}
+          opened={openModal === 'add'}
+          onClose={() => setOpenModal(null)}
+        />
+      </AdminCan>
 
       <Table
         columns={[...nodeTableColumns(), '']}

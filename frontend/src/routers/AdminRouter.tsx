@@ -11,7 +11,7 @@ import Sidebar from '@/elements/Sidebar.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { resolveString } from '@/lib/lazy.ts';
 import { to } from '@/lib/routes.ts';
-import { checkPermissions } from '@/plugins/usePermissions.ts';
+import { checkPermissions, useAdminCan } from '@/plugins/usePermissions.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import AdminPermissionGuard from '@/routers/guards/AdminPermissionGuard.tsx';
@@ -22,10 +22,13 @@ export default function AdminRouter({ isNormal }: { isNormal: boolean }) {
   const { t } = useTranslations();
   const { user } = useAuth();
   const setUpdateInformation = useAdminStore((state) => state.setUpdateInformation);
+  const canReadStats = useAdminCan('stats.read');
 
   useEffect(() => {
+    if (!canReadStats) return;
+
     getUpdates().then(setUpdateInformation).catch(console.error);
-  }, []);
+  }, [canReadStats]);
 
   const allAdminRoutes = useMemo(() => {
     const routes = [...adminRoutes, ...window.extensionContext.extensionRegistry.routes.adminRoutes];
@@ -159,7 +162,10 @@ export default function AdminRouter({ isNormal }: { isNormal: boolean }) {
                   {allAdminRoutes
                     .filter((route) => !route.filter || route.filter())
                     .map(({ path, element: Element, permission }) => (
-                      <Route key={path} element={<AdminPermissionGuard permission={permission ?? []} />}>
+                      <Route
+                        key={path}
+                        element={<AdminPermissionGuard permission={permission ?? []} matchAny={!!permission} />}
+                      >
                         <Route path={path} element={<Element />} />
                       </Route>
                     ))}

@@ -12,6 +12,7 @@ import { httpErrorToHuman } from '@/api/axios.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import Code from '@/elements/Code.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Divider from '@/elements/Divider.tsx';
@@ -32,6 +33,7 @@ import {
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminDatabaseAgentHostSchema } from '@/lib/schemas/admin/databaseAgentHosts.ts';
 import { getUrlConnectPort, getUrlPortOr, urlIsMissingPort } from '@/lib/url.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResource } from '@/plugins/useResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -44,10 +46,14 @@ export default function AdminDatabaseAgentHostConfiguration({
   const { t } = useTranslations();
   const { addToast } = useToast();
 
+  const canReadToken = useAdminCan('database-agent-hosts.read-token');
+  const canUpdate = useAdminCan('database-agent-hosts.update');
+
   const [apiPort, setApiPort] = useState(() => getUrlPortOr(databaseAgentHost.url, DATABASE_AGENT_DEFAULT_PORT));
   const { data: hostToken } = useResource({
     queryKey: queryKeys.admin.databaseAgentHosts.token(databaseAgentHost.uuid),
     queryFn: useCallback(() => getDatabaseAgentHostToken(databaseAgentHost.uuid), [databaseAgentHost.uuid]),
+    enabled: canReadToken,
   });
 
   const connectPort = getUrlConnectPort(databaseAgentHost.url);
@@ -100,7 +106,7 @@ export default function AdminDatabaseAgentHostConfiguration({
   }, [databaseAgentHost.uuid]);
 
   const doSave = () => {
-    if (yaml === null || liveConfigError !== null) return;
+    if (!canUpdate || yaml === null || liveConfigError !== null) return;
 
     let parsed: object;
     try {
@@ -160,132 +166,138 @@ export default function AdminDatabaseAgentHostConfiguration({
         </Stack>
       ) : (
         <Stack gap='xl'>
-          <div>
-            <Title order={4} mb='md'>
-              {t('pages.admin.databaseAgentHosts.tabs.configuration.page.section.initialSetup', {})}
-            </Title>
-            <Stack gap='lg' className='min-w-0'>
-              <div className='min-w-0'>
-                <Title order={5} mb='xs'>
-                  1. {t('pages.admin.databaseAgentHosts.tabs.configuration.page.step.settings', {})}
-                </Title>
-                <Text size='sm' c='dimmed' mb='sm'>
-                  {t('pages.admin.databaseAgentHosts.tabs.configuration.page.description.settings', {})}
-                </Text>
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                  <NumberInput
-                    name='api_port'
-                    label={t('pages.admin.databaseAgentHosts.tabs.configuration.page.form.apiPort', {})}
-                    description={t(
-                      'pages.admin.databaseAgentHosts.tabs.configuration.page.form.apiPortDescription',
-                      {},
-                    )}
-                    value={apiPort}
-                    min={1}
-                    max={65535}
-                    onChange={(value) => setApiPort(Number(value) || DATABASE_AGENT_DEFAULT_PORT)}
-                  />
+          <AdminCan action='database-agent-hosts.read-token'>
+            <div>
+              <Title order={4} mb='md'>
+                {t('pages.admin.databaseAgentHosts.tabs.configuration.page.section.initialSetup', {})}
+              </Title>
+              <Stack gap='lg' className='min-w-0'>
+                <div className='min-w-0'>
+                  <Title order={5} mb='xs'>
+                    1. {t('pages.admin.databaseAgentHosts.tabs.configuration.page.step.settings', {})}
+                  </Title>
+                  <Text size='sm' c='dimmed' mb='sm'>
+                    {t('pages.admin.databaseAgentHosts.tabs.configuration.page.description.settings', {})}
+                  </Text>
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                    <NumberInput
+                      name='api_port'
+                      label={t('pages.admin.databaseAgentHosts.tabs.configuration.page.form.apiPort', {})}
+                      description={t(
+                        'pages.admin.databaseAgentHosts.tabs.configuration.page.form.apiPortDescription',
+                        {},
+                      )}
+                      value={apiPort}
+                      min={1}
+                      max={65535}
+                      onChange={(value) => setApiPort(Number(value) || DATABASE_AGENT_DEFAULT_PORT)}
+                    />
+                  </div>
+                  {portMismatch && (
+                    <Alert color='yellow' icon={<FontAwesomeIcon icon={faExclamationTriangle} />} mt='md'>
+                      {t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.portMismatch', {
+                        connectPort: String(connectPort),
+                        apiPort: String(apiPort),
+                      }).md()}
+                    </Alert>
+                  )}
                 </div>
-                {portMismatch && (
-                  <Alert color='yellow' icon={<FontAwesomeIcon icon={faExclamationTriangle} />} mt='md'>
-                    {t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.portMismatch', {
-                      connectPort: String(connectPort),
-                      apiPort: String(apiPort),
-                    }).md()}
-                  </Alert>
-                )}
-              </div>
 
-              <div className='min-w-0'>
-                <Title order={5} mb='xs'>
-                  2. {t('pages.admin.databaseAgentHosts.tabs.configuration.page.step.install', {})}
-                </Title>
-                {hostConfiguration && command ? (
-                  <>
-                    <HljsCode
-                      className='overflow-x-auto'
-                      languageName='yaml'
-                      language={() => import('highlight.js/lib/languages/yaml').then((mod) => mod.default)}
-                    >
-                      {dump(hostConfiguration)}
-                    </HljsCode>
+                <div className='min-w-0'>
+                  <Title order={5} mb='xs'>
+                    2. {t('pages.admin.databaseAgentHosts.tabs.configuration.page.step.install', {})}
+                  </Title>
+                  {hostConfiguration && command ? (
+                    <>
+                      <HljsCode
+                        className='overflow-x-auto'
+                        languageName='yaml'
+                        language={() => import('highlight.js/lib/languages/yaml').then((mod) => mod.default)}
+                      >
+                        {dump(hostConfiguration)}
+                      </HljsCode>
 
-                    <div className='mt-2'>
-                      <p>
-                        {t('pages.admin.databaseAgentHosts.tabs.configuration.page.description.placeFile', {}).md()}
-                      </p>
-                      <Group gap='xs' align='flex-start' wrap='nowrap' className='mt-2'>
-                        <Code block className='flex-1 min-w-0 overflow-x-auto'>
-                          {command}
-                        </Code>
-                        <Tooltip
-                          label={t('pages.admin.databaseAgentHosts.tabs.configuration.page.tooltip.copyCommand', {})}
-                        >
-                          <ActionIcon variant='subtle' onClick={handleCopyToClipboard(command, addToast)} size='lg'>
-                            <FontAwesomeIcon icon={faCopy} />
-                          </ActionIcon>
-                        </Tooltip>
-                      </Group>
-                    </div>
-                  </>
-                ) : (
-                  <Spinner.Centered />
-                )}
-              </div>
+                      <div className='mt-2'>
+                        <p>
+                          {t('pages.admin.databaseAgentHosts.tabs.configuration.page.description.placeFile', {}).md()}
+                        </p>
+                        <Group gap='xs' align='flex-start' wrap='nowrap' className='mt-2'>
+                          <Code block className='flex-1 min-w-0 overflow-x-auto'>
+                            {command}
+                          </Code>
+                          <Tooltip
+                            label={t('pages.admin.databaseAgentHosts.tabs.configuration.page.tooltip.copyCommand', {})}
+                          >
+                            <ActionIcon variant='subtle' onClick={handleCopyToClipboard(command, addToast)} size='lg'>
+                              <FontAwesomeIcon icon={faCopy} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </Group>
+                      </div>
+                    </>
+                  ) : (
+                    <Spinner.Centered />
+                  )}
+                </div>
 
-              <div className='min-w-0'>
-                <Title order={5} mb='xs'>
-                  3. {t('pages.admin.databaseAgentHosts.tabs.configuration.page.step.verify', {})}
-                </Title>
-                <Text size='sm' c='dimmed' mb='sm'>
-                  {t('pages.admin.databaseAgentHosts.tabs.configuration.page.description.verify', {})}
-                </Text>
-                <Stack gap='sm' align='flex-start'>
-                  <Button onClick={doVerify} loading={verifying} leftSection={<FontAwesomeIcon icon={faCheck} />}>
-                    {t('pages.admin.databaseAgentHosts.tabs.configuration.page.button.verify', {})}
-                  </Button>
-                  <Alert
-                    color={verifyResult ? (verifyResult.ok ? 'green' : 'red') : 'gray'}
-                    icon={
-                      <FontAwesomeIcon
-                        icon={verifyResult ? (verifyResult.ok ? faCheck : faExclamationTriangle) : faCircleQuestion}
-                      />
-                    }
-                    title={t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.verifyTitle', {})}
-                    className='w-full'
-                  >
-                    {!verifyResult ? (
-                      t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.verifyNotTested', {})
-                    ) : verifyResult.ok ? (
-                      t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.verifySuccess', {})
-                    ) : (
-                      <Stack gap='xs'>
-                        {t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.verifyFailed', {
-                          error: verifyResult.error,
-                        })}
-                        {urlIsMissingPort(databaseAgentHost.url) &&
-                          t('pages.admin.databaseAgentHosts.tabs.general.page.alert.urlMissingPort', {
-                            port: String(connectPort ?? 443),
-                            agentPort: String(DATABASE_AGENT_DEFAULT_PORT),
-                          }).md()}
-                      </Stack>
-                    )}
-                  </Alert>
-                </Stack>
-              </div>
-            </Stack>
-          </div>
+                <AdminCan action='database-agent-hosts.test'>
+                  <div className='min-w-0'>
+                    <Title order={5} mb='xs'>
+                      3. {t('pages.admin.databaseAgentHosts.tabs.configuration.page.step.verify', {})}
+                    </Title>
+                    <Text size='sm' c='dimmed' mb='sm'>
+                      {t('pages.admin.databaseAgentHosts.tabs.configuration.page.description.verify', {})}
+                    </Text>
+                    <Stack gap='sm' align='flex-start'>
+                      <Button onClick={doVerify} loading={verifying} leftSection={<FontAwesomeIcon icon={faCheck} />}>
+                        {t('pages.admin.databaseAgentHosts.tabs.configuration.page.button.verify', {})}
+                      </Button>
+                      <Alert
+                        color={verifyResult ? (verifyResult.ok ? 'green' : 'red') : 'gray'}
+                        icon={
+                          <FontAwesomeIcon
+                            icon={verifyResult ? (verifyResult.ok ? faCheck : faExclamationTriangle) : faCircleQuestion}
+                          />
+                        }
+                        title={t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.verifyTitle', {})}
+                        className='w-full'
+                      >
+                        {!verifyResult ? (
+                          t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.verifyNotTested', {})
+                        ) : verifyResult.ok ? (
+                          t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.verifySuccess', {})
+                        ) : (
+                          <Stack gap='xs'>
+                            {t('pages.admin.databaseAgentHosts.tabs.configuration.page.alert.verifyFailed', {
+                              error: verifyResult.error,
+                            })}
+                            {urlIsMissingPort(databaseAgentHost.url) &&
+                              t('pages.admin.databaseAgentHosts.tabs.general.page.alert.urlMissingPort', {
+                                port: String(connectPort ?? 443),
+                                agentPort: String(DATABASE_AGENT_DEFAULT_PORT),
+                              }).md()}
+                          </Stack>
+                        )}
+                      </Alert>
+                    </Stack>
+                  </div>
+                </AdminCan>
+              </Stack>
+            </div>
 
-          <Divider />
+            <Divider />
+          </AdminCan>
 
           <div>
             <Group justify='space-between' mb='md'>
               <Title order={4}>
                 {t('pages.admin.databaseAgentHosts.tabs.configuration.page.section.liveConfiguration', {})}
               </Title>
-              <Button onClick={doSave} loading={saving} disabled={yaml === null || liveConfigError !== null}>
-                {t('pages.admin.databaseAgentHosts.tabs.configuration.page.button.save', {})}
-              </Button>
+              <AdminCan action='database-agent-hosts.update'>
+                <Button onClick={doSave} loading={saving} disabled={yaml === null || liveConfigError !== null}>
+                  {t('pages.admin.databaseAgentHosts.tabs.configuration.page.button.save', {})}
+                </Button>
+              </AdminCan>
             </Group>
             {liveConfigError ? (
               <Alert color='red' icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>

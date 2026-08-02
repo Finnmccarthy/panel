@@ -19,7 +19,7 @@ import ServerClearStateModal from './modals/ServerClearStateModal.tsx';
 
 export default function AdminServerManagement({ server }: { server: z.infer<typeof adminServerSchema> }) {
   const { t } = useTranslations();
-  const canTransfer = useAdminCan(['server.transfer', 'nodes.read'], false);
+  const canTransfer = useAdminCan(['servers.transfer', 'nodes.read'], false);
 
   const [openModal, setOpenModal] = useState<'transfer' | 'suspend' | 'unsuspend' | 'clear-state' | 'delete' | null>(
     null,

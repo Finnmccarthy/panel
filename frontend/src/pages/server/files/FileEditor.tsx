@@ -28,6 +28,7 @@ import Title from '@/elements/Title.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { registerHoconLanguage, registerTomlLanguage } from '@/lib/monaco.ts';
 import { useBlocker } from '@/plugins/useBlocker.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { visualViewportBottomInset } from '@/plugins/useVisualViewport.ts';
 import { useCurrentWindow } from '@/providers/CurrentWindowProvider.tsx';
 import { FileManagerProvider, useFileManager } from '@/providers/FileManagerProvider.tsx';
@@ -127,6 +128,9 @@ function FileEditorComponent() {
   );
 
   const { getParent } = useCurrentWindow();
+
+  const canCreate = useServerCan('files.create');
+  const canUpdate = useServerCan('files.update');
 
   const [loading, setLoading] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -369,8 +373,8 @@ function FileEditorComponent() {
   useEffect(() => {
     saveShortcutRef.current = () => {
       if (params.action === 'new') {
-        setNameModalOpen(true);
-      } else {
+        if (canCreate) setNameModalOpen(true);
+      } else if (collab.active ? canUpdate : canCreate) {
         saveFile();
       }
     };
@@ -573,7 +577,7 @@ function FileEditorComponent() {
             <FileConnectButton file={fileName ? join(browsingDirectory, fileName) : undefined} />
             <div hidden={!browsingWritableDirectory || params.action === 'image' || params.action === 'audio'}>
               {params.action === 'edit' ? (
-                <ServerCan action='files.update'>
+                <ServerCan action={collab.active ? 'files.update' : 'files.create'}>
                   <Button loading={saving} onClick={() => saveFile()}>
                     {t('common.button.save', {})}
                   </Button>

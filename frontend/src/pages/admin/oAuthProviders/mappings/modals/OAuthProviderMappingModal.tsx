@@ -25,6 +25,7 @@ import {
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { roleSchema } from '@/lib/schemas/user.ts';
 import { useModalForm } from '@/plugins/useModalForm.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -56,12 +57,14 @@ export default function OAuthProviderMappingModal({
   const { t } = useTranslations();
   const { addToast } = useToast();
   const availablePermissions = useGlobalStore((state) => state.availablePermissions);
+  const canReadRoles = useAdminCan('roles.read');
 
   const isEdit = !!mapping;
 
   const roles = useSearchableResource<z.infer<typeof roleSchema>>({
     queryKey: queryKeys.admin.roles.all(),
     fetcher: (search) => getRoles(1, search),
+    canRequest: canReadRoles,
   });
 
   const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<FormValues>({

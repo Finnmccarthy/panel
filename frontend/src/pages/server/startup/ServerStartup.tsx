@@ -42,6 +42,7 @@ export default function ServerStartup() {
   );
   const canModifyVariables = useServerCan('startup.update');
   const canModifyStartupCommand = useServerCan('startup.command');
+  const canModifyDockerImage = useServerCan('startup.docker-image');
 
   const [command, setCommand] = useState(server.startup);
   const [dockerImage, setDockerImage] = useState(server.image);
@@ -191,7 +192,11 @@ export default function ServerStartup() {
               label: key,
             }))}
             searchable
-            disabled={!useServerCan('startup.docker-image') || !settings.server.allowOverwritingCustomDockerImage}
+            disabled={
+              !canModifyDockerImage ||
+              (!settings.server.allowOverwritingCustomDockerImage &&
+                !Object.values(server.egg.dockerImages).includes(server.image))
+            }
           />
           <p className='text-(--mantine-color-dimmed) text-sm mt-4'>
             {Object.values(server.egg.dockerImages).includes(server.image) ||

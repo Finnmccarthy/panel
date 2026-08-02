@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import getServerDatabases from '@/api/admin/servers/databases/getServerDatabases.ts';
+import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Table from '@/elements/Table.tsx';
@@ -48,7 +49,9 @@ export default function AdminServerDatabases({ server }: { server: z.infer<typeo
         </Table>
       </AdminSubContentContainer>
 
-      <AdminServerDatabaseInstances server={server} />
+      <AdminCan action='database-agent-hosts.read'>
+        <AdminServerDatabaseInstances server={server} />
+      </AdminCan>
     </Stack>
   );
 }

@@ -76,6 +76,7 @@ export default function AdminSettings() {
             icon: faEnvelopesBulk,
             path: '/mail-templates',
             element: <EmailTemplatesContainer />,
+            permission: 'email-templates.read',
           },
           {
             name: t('pages.admin.settings.tabs.captcha.title', {}),

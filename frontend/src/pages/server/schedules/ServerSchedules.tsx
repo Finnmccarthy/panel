@@ -12,6 +12,7 @@ import ServerContentContainer from '@/elements/containers/ServerContentContainer
 import Table from '@/elements/Table.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { useImportDragAndDrop } from '@/plugins/useImportDragAndDrop.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -24,6 +25,8 @@ export default function ServerSchedules() {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const { server } = useServerStore();
+
+  const canCreate = useServerCan('schedules.create');
 
   const [openModal, setOpenModal] = useState<'create' | null>(null);
 
@@ -68,6 +71,7 @@ export default function ServerSchedules() {
 
   const { isDragging } = useImportDragAndDrop({
     onDrop: (files) => Promise.all(files.map(handleImport)),
+    enabled: canCreate,
   });
 
   const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +134,7 @@ export default function ServerSchedules() {
       }
     >
       <ScheduleCreateOrUpdateModal opened={openModal === 'create'} onClose={() => setOpenModal(null)} />
-      <ScheduleImportOverlay visible={isDragging} />
+      <ScheduleImportOverlay visible={canCreate && isDragging} />
 
       <Table
         columns={[

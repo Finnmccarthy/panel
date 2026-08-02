@@ -27,6 +27,7 @@ import FileCopyConflictModal, {
   FileConflict,
 } from '@/pages/server/files/modals/FileCopyConflictModal.tsx';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -63,6 +64,10 @@ function FileActionBar() {
       invalidateFilemanager: state.invalidateFilemanager,
     })),
   );
+
+  const canCreate = useServerCan('files.create');
+  const canUpdate = useServerCan('files.update');
+  const canDelete = useServerCan('files.delete');
 
   const [loading, setLoading] = useState(false);
   const [conflicts, setConflicts] = useState<FileConflict[] | null>(null);
@@ -188,7 +193,7 @@ function FileActionBar() {
       {
         id: 'files.cut',
         callback: () => {
-          if (actingFiles.size === 0 && selectedFiles.size > 0 && browsingWritableDirectory) {
+          if (canUpdate && actingFiles.size === 0 && selectedFiles.size > 0 && browsingWritableDirectory) {
             doActFiles('move', selectedFiles.values());
             doSelectFiles([]);
           }
@@ -197,7 +202,7 @@ function FileActionBar() {
       {
         id: 'files.copy',
         callback: () => {
-          if (actingFiles.size === 0 && selectedFiles.size > 0) {
+          if (canCreate && actingFiles.size === 0 && selectedFiles.size > 0) {
             doActFiles('copy', selectedFiles.values());
             doSelectFiles([]);
           }
@@ -210,6 +215,7 @@ function FileActionBar() {
             actingFiles.size > 0 &&
             !loading &&
             browsingWritableDirectory &&
+            (actingMode === 'copy' ? canCreate : canUpdate) &&
             (actingMode === 'copy' || browsingDirectory !== actingFilesSource)
           ) {
             if (actingMode === 'copy') {
@@ -223,7 +229,7 @@ function FileActionBar() {
       {
         id: 'files.delete',
         callback: () => {
-          if (actingFiles.size === 0 && selectedFiles.size > 0 && browsingWritableDirectory) {
+          if (canDelete && actingFiles.size === 0 && selectedFiles.size > 0 && browsingWritableDirectory) {
             doOpenModal('delete', selectedFiles.values());
           }
         },
@@ -237,6 +243,9 @@ function FileActionBar() {
       loading,
       browsingWritableDirectory,
       browsingDirectory,
+      canCreate,
+      canUpdate,
+      canDelete,
     ],
   });
 
@@ -260,21 +269,25 @@ function FileActionBar() {
         {actingFiles.size > 0 ? (
           <>
             {actingMode === 'copy' ? (
-              <Tooltip label={t('pages.server.files.actionBar.copyHere', { files: tItem('file', actingFiles.size) })}>
-                <Button onClick={doCopy} loading={loading} disabled={!browsingWritableDirectory}>
-                  <FontAwesomeIcon icon={faAnglesDown} />
-                </Button>
-              </Tooltip>
+              <ServerCan action='files.create'>
+                <Tooltip label={t('pages.server.files.actionBar.copyHere', { files: tItem('file', actingFiles.size) })}>
+                  <Button onClick={doCopy} loading={loading} disabled={!browsingWritableDirectory}>
+                    <FontAwesomeIcon icon={faAnglesDown} />
+                  </Button>
+                </Tooltip>
+              </ServerCan>
             ) : (
-              <Tooltip label={t('pages.server.files.actionBar.moveHere', { files: tItem('file', actingFiles.size) })}>
-                <Button
-                  onClick={doMove}
-                  loading={loading}
-                  disabled={!browsingWritableDirectory || browsingDirectory === actingFilesSource}
-                >
-                  <FontAwesomeIcon icon={faAnglesDown} />
-                </Button>
-              </Tooltip>
+              <ServerCan action='files.update'>
+                <Tooltip label={t('pages.server.files.actionBar.moveHere', { files: tItem('file', actingFiles.size) })}>
+                  <Button
+                    onClick={doMove}
+                    loading={loading}
+                    disabled={!browsingWritableDirectory || browsingDirectory === actingFilesSource}
+                  >
+                    <FontAwesomeIcon icon={faAnglesDown} />
+                  </Button>
+                </Tooltip>
+              </ServerCan>
             )}
             <Tooltip label={t('common.button.cancel', {})}>
               <Button variant='default' onClick={clearActingFiles}>

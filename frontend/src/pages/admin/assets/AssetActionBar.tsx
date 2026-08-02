@@ -11,6 +11,7 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { ObjectSet } from '@/lib/objectSet.ts';
 import { storageAssetSchema } from '@/lib/schemas/admin/assets.ts';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
@@ -23,6 +24,7 @@ export default function AssetActionBar({
 }) {
   const { t, tItem } = useTranslations();
   const { addToast } = useToast();
+  const canDeleteAssets = useAdminCan('assets.delete');
 
   const [openModal, setOpenModal] = useState<'delete' | null>(null);
 
@@ -46,6 +48,7 @@ export default function AssetActionBar({
         callback: () => setOpenModal('delete'),
       },
     ],
+    enabled: canDeleteAssets,
     deps: [],
   });
 

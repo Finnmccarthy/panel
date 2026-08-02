@@ -20,6 +20,7 @@ import { eggTableColumns } from '@/lib/tableColumns.ts';
 import EggView from '@/pages/admin/nests/eggs/EggView.tsx';
 import { useImportDragAndDrop } from '@/plugins/useImportDragAndDrop.ts';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useSelectionArea } from '@/plugins/useSelectionArea.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -34,6 +35,8 @@ function EggsContainer({ contextNest }: { contextNest: z.infer<typeof adminNestS
   const navigate = useNavigate();
   const { addToast } = useToast();
   const { t } = useTranslations();
+
+  const canCreate = useAdminCan('eggs.create');
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -78,6 +81,7 @@ function EggsContainer({ contextNest }: { contextNest: z.infer<typeof adminNestS
 
   const { isDragging } = useImportDragAndDrop({
     onDrop: (files) => Promise.all(files.map(handleImport)),
+    enabled: canCreate,
   });
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -163,7 +167,7 @@ function EggsContainer({ contextNest }: { contextNest: z.infer<typeof adminNestS
           refetch();
         }}
       />
-      <EggImportOverlay visible={isDragging} />
+      <EggImportOverlay visible={canCreate && isDragging} />
 
       <SelectionArea onSelectedStart={onSelectedStart} onSelected={onSelected}>
         <Table

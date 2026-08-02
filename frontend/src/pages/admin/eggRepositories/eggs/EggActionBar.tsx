@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 import ActionBar from '@/elements/ActionBar.tsx';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import { ObjectSet } from '@/lib/objectSet.ts';
 import { adminEggRepositoryEggSchema, adminEggRepositorySchema } from '@/lib/schemas/admin/eggRepositories.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -22,7 +23,7 @@ export default function EggActionBar({
   const [openModal, setOpenModal] = useState<'install' | null>(null);
 
   return (
-    <>
+    <AdminCan action={['eggs.create', 'nests.read']}>
       <EggRepositoryEggsInstallModal
         eggRepository={eggRepository}
         selectedEggs={selectedEggs}
@@ -36,6 +37,6 @@ export default function EggActionBar({
           <FontAwesomeIcon icon={faDownload} className='mr-2' /> {t('common.button.install', {})}
         </Button>
       </ActionBar>
-    </>
+    </AdminCan>
   );
 }

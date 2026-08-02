@@ -7,6 +7,7 @@ import { getEmptyPaginationSet } from '@/api/axios.ts';
 import getServerActivity from '@/api/server/getServerActivity.ts';
 import Avatar from '@/elements/Avatar.tsx';
 import Button from '@/elements/Button.tsx';
+import { ServerCan } from '@/elements/Can.tsx';
 import Card from '@/elements/Card.tsx';
 import Code from '@/elements/Code.tsx';
 import Divider from '@/elements/Divider.tsx';
@@ -44,6 +45,7 @@ export default function CommandHistoryDrawer({ opened, onClose, ...props }: Draw
   const server = useServerStore((state) => state.server);
   const state = useServerStore((state) => state.state);
   const socketInstance = useServerStore((state) => state.socketInstance);
+  const canSendCommand = useServerCan('control.console');
 
   const [selectedCommand, setSelectedCommand] = useState<CommandDetail | null>(null);
 
@@ -73,7 +75,7 @@ export default function CommandHistoryDrawer({ opened, onClose, ...props }: Draw
   };
 
   const handleSendCommand = () => {
-    if (selectedCommand && socketInstance && state === 'running') {
+    if (canSendCommand && selectedCommand && socketInstance && state === 'running') {
       socketInstance.send('send command', selectedCommand.command);
       addToast(t('pages.server.console.drawer.commandHistory.commandSent', {}), 'success');
       setSelectedCommand(null);
@@ -123,14 +125,16 @@ export default function CommandHistoryDrawer({ opened, onClose, ...props }: Draw
             </ScrollArea>
 
             <Group gap='sm'>
-              <Button
-                onClick={handleSendCommand}
-                disabled={state === 'offline' || !socketInstance}
-                leftSection={<FontAwesomeIcon icon={faPaperPlane} />}
-                className='flex-1'
-              >
-                {t('pages.server.console.drawer.commandHistory.sendButton', {})}
-              </Button>
+              <ServerCan action='control.console'>
+                <Button
+                  onClick={handleSendCommand}
+                  disabled={state === 'offline' || !socketInstance}
+                  leftSection={<FontAwesomeIcon icon={faPaperPlane} />}
+                  className='flex-1'
+                >
+                  {t('pages.server.console.drawer.commandHistory.sendButton', {})}
+                </Button>
+              </ServerCan>
               <Button
                 onClick={handleCopyToClipboard(selectedCommand.command, addToast)}
                 leftSection={<FontAwesomeIcon icon={faClipboard} />}

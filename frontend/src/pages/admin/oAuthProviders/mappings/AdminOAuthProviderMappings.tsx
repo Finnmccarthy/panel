@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 import getOAuthProviderMappings from '@/api/admin/oauth-providers/mappings/getOAuthProviderMappings.ts';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
@@ -41,9 +42,11 @@ export default function AdminOAuthProviderMappings({
       registry={window.extensionContext.extensionRegistry.pages.admin.oauthProviders.view.mappings.subContainer}
       registryProps={{ oauthProvider }}
       contentRight={
-        <Button onClick={() => setOpenModal('add')} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
-          {t('common.button.add', {})}
-        </Button>
+        <AdminCan action='oauth-providers.update'>
+          <Button onClick={() => setOpenModal('add')} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
+            {t('common.button.add', {})}
+          </Button>
+        </AdminCan>
       }
     >
       <OAuthProviderMappingModal

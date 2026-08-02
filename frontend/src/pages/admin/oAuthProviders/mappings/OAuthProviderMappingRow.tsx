@@ -12,6 +12,7 @@ import TableLink from '@/elements/TableLink.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { oauthProviderMappingMatcherLabelMapping } from '@/lib/enums.ts';
 import { adminOAuthProviderMappingSchema, adminOAuthProviderSchema } from '@/lib/schemas/admin/oauthProviders.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import OAuthProviderMappingModal from './modals/OAuthProviderMappingModal.tsx';
@@ -27,6 +28,7 @@ export default function OAuthProviderMappingRow({
 }) {
   const { addToast } = useToast();
   const { t } = useTranslations();
+  const canUpdate = useAdminCan('oauth-providers.update');
 
   const [openModal, setOpenModal] = useState<'edit' | 'delete' | null>(null);
 
@@ -68,6 +70,7 @@ export default function OAuthProviderMappingRow({
             icon: faPencil,
             label: t('common.button.edit', {}),
             onClick: () => setOpenModal('edit'),
+            canAccess: canUpdate,
           },
           {
             type: 'action',
@@ -75,6 +78,7 @@ export default function OAuthProviderMappingRow({
             label: t('common.button.delete', {}),
             onClick: () => setOpenModal('delete'),
             color: 'red',
+            canAccess: canUpdate,
           },
         ]}
         registry={window.extensionContext.extensionRegistry.pages.admin.oauthProviders.view.mappings.contextMenu}

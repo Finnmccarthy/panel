@@ -42,6 +42,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     getMe()
       .then((user) => setUser(user))
       .catch(() => {
+        if (getImpersonatedUser()) {
+          setImpersonatedUser(null);
+          setImpersonating(false);
+
+          return getMe()
+            .then((user) => setUser(user))
+            .catch(() => setUser(null));
+        }
+
         setUser(null);
       })
       .finally(() => setLoading(false));
@@ -60,14 +69,22 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener('session-expired', handleSessionExpired);
   }, [queryClient]);
 
-  const doImpersonate = (user: z.infer<typeof fullUserSchema>) => {
+  const doImpersonate = async (user: z.infer<typeof fullUserSchema>) => {
+    const previousImpersonatedUser = getImpersonatedUser();
     setImpersonatedUser(user.uuid);
 
-    clearIdentityData();
-    navigate('/');
-    closeAllWindows();
-    setUser(user);
-    setImpersonating(true);
+    try {
+      const impersonatedUser = await getMe();
+
+      clearIdentityData();
+      navigate('/');
+      closeAllWindows();
+      setUser(impersonatedUser);
+      setImpersonating(true);
+    } catch (msg) {
+      setImpersonatedUser(previousImpersonatedUser);
+      addToast(httpErrorToHuman(msg), 'error');
+    }
   };
 
   const doLogin = (user: z.infer<typeof fullUserSchema>, doNavigate: boolean = true) => {

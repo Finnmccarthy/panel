@@ -12,6 +12,7 @@ import { axiosInstance, httpErrorToHuman } from '@/api/axios.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import Code from '@/elements/Code.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Divider from '@/elements/Divider.tsx';
@@ -37,6 +38,7 @@ import {
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { urlIsMissingPort } from '@/lib/url.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResource } from '@/plugins/useResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -72,6 +74,8 @@ function VerifyStatusAlert({
 export default function AdminNodeConfiguration({ node }: { node: z.infer<typeof adminNodeSchema> }) {
   const { t } = useTranslations();
   const { addToast } = useToast();
+  const canReadToken = useAdminCan('nodes.read-token');
+  const canUpdate = useAdminCan('nodes.update');
 
   const [remote, setRemote] = useState(window.location.origin);
   const [apiPort, setApiPort] = useState(() => getNodeDefaultApiPort(node));
@@ -87,6 +91,7 @@ export default function AdminNodeConfiguration({ node }: { node: z.infer<typeof 
   const { data: nodeToken } = useResource({
     queryKey: queryKeys.admin.nodes.token(node.uuid),
     queryFn: useCallback(() => getNodeToken(node.uuid), [node.uuid]),
+    enabled: canReadToken,
   });
 
   const doVerify = () => {
@@ -147,7 +152,7 @@ export default function AdminNodeConfiguration({ node }: { node: z.infer<typeof 
   }, [node.uuid]);
 
   const doSave = () => {
-    if (yaml === null || liveConfigError !== null) return;
+    if (!canUpdate || yaml === null || liveConfigError !== null) return;
 
     let parsed: object;
     try {
@@ -184,7 +189,7 @@ export default function AdminNodeConfiguration({ node }: { node: z.infer<typeof 
       registry={window.extensionContext.extensionRegistry.pages.admin.nodes.view.configuration.subContainer}
       registryProps={{ node }}
     >
-      {!revealed ? (
+      {canReadToken && !revealed ? (
         <Stack>
           <Alert color='yellow' icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>
             {t('pages.admin.nodes.tabs.configuration.page.alert.tokenWarning', {})}
@@ -200,140 +205,146 @@ export default function AdminNodeConfiguration({ node }: { node: z.infer<typeof 
         </Stack>
       ) : (
         <Stack gap='xl'>
-          <div>
-            <Title order={4} mb='md'>
-              {t('pages.admin.nodes.tabs.configuration.page.section.initialSetup', {})}
-            </Title>
-            <Stack gap='lg' className='min-w-0'>
-              <div className='min-w-0'>
-                <Title order={5} mb='xs'>
-                  1. {t('pages.admin.nodes.tabs.configuration.page.step.settings', {})}
-                </Title>
-                <Text size='sm' c='dimmed' mb='sm'>
-                  {t('pages.admin.nodes.tabs.configuration.page.description.settings', {})}
-                </Text>
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                  <TextInput
-                    name='remote'
-                    label={t('pages.admin.nodes.tabs.configuration.page.form.panelUrl', {})}
-                    description={t('pages.admin.nodes.tabs.configuration.page.form.panelUrlDescription', {})}
-                    value={remote}
-                    onChange={(e) => setRemote(e.target.value)}
-                  />
-                  <NumberInput
-                    name='api_port'
-                    label={t('pages.admin.nodes.tabs.configuration.page.form.apiPort', {})}
-                    description={t('pages.admin.nodes.tabs.configuration.page.form.apiPortDescription', {})}
-                    value={apiPort}
-                    min={1}
-                    max={65535}
-                    onChange={(value) => setApiPort(Number(value) || WINGS_DEFAULT_PORT)}
-                  />
-                  <NumberInput
-                    name='sftp_port'
-                    label={t('common.form.sftpPort', {})}
-                    description={t('pages.admin.nodes.tabs.configuration.page.form.sftpPortDescription', {})}
-                    value={sftpPort}
-                    min={1}
-                    max={65535}
-                    onChange={(value) => setSftpPort(Number(value) || node.sftpPort)}
-                  />
-                </div>
-                {portMismatch && (
-                  <Alert color='yellow' icon={<FontAwesomeIcon icon={faExclamationTriangle} />} mt='md'>
-                    {t('pages.admin.nodes.tabs.configuration.page.alert.portMismatch', {
-                      connectPort: String(connectPort),
-                      apiPort: String(apiPort),
-                    }).md()}
-                  </Alert>
-                )}
-              </div>
-
-              <div className='min-w-0'>
-                <Title order={5} mb='xs'>
-                  2. {t('pages.admin.nodes.tabs.configuration.page.step.install', {})}
-                </Title>
-                {nodeConfiguration && command ? (
-                  <>
-                    <HljsCode
-                      className='overflow-x-auto'
-                      languageName='yaml'
-                      language={() => import('highlight.js/lib/languages/yaml').then((mod) => mod.default)}
-                    >
-                      {dump(nodeConfiguration)}
-                    </HljsCode>
-
-                    <div className='mt-2'>
-                      <p>{t('pages.admin.nodes.tabs.configuration.page.description.placeFile', {}).md()}</p>
-                      <Group gap='xs' align='flex-start' wrap='nowrap' className='mt-2'>
-                        <Code block className='flex-1 min-w-0 overflow-x-auto'>
-                          {command}
-                        </Code>
-                        <Tooltip label={t('pages.admin.nodes.tabs.configuration.page.tooltip.copyCommand', {})}>
-                          <ActionIcon variant='subtle' onClick={handleCopyToClipboard(command, addToast)} size='lg'>
-                            <FontAwesomeIcon icon={faCopy} />
-                          </ActionIcon>
-                        </Tooltip>
-                      </Group>
-                    </div>
-                  </>
-                ) : (
-                  <Spinner.Centered />
-                )}
-              </div>
-
+          {canReadToken && (
+            <>
               <div>
-                <Title order={5} mb='xs'>
-                  3. {t('pages.admin.nodes.tabs.configuration.page.step.verify', {})}
+                <Title order={4} mb='md'>
+                  {t('pages.admin.nodes.tabs.configuration.page.section.initialSetup', {})}
                 </Title>
-                <Text size='sm' c='dimmed' mb='sm'>
-                  {t('pages.admin.nodes.tabs.configuration.page.description.verify', {})}
-                </Text>
-                <Stack gap='sm' align='flex-start'>
-                  <Button
-                    onClick={doVerify}
-                    loading={verifying}
-                    disabled={!nodeToken}
-                    leftSection={<FontAwesomeIcon icon={faCheck} />}
-                  >
-                    {t('pages.admin.nodes.tabs.configuration.page.button.verify', {})}
-                  </Button>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full'>
-                    <VerifyStatusAlert
-                      title={t('pages.admin.nodes.tabs.configuration.page.alert.verifyBackend', {})}
-                      result={backendResult}
-                      renderError={(error) => (
-                        <Stack gap='xs'>
-                          {t('pages.admin.nodes.tabs.configuration.page.alert.verifyFailed', { error })}
-                          {urlIsMissingPort(node.url) &&
-                            t('pages.admin.nodes.tabs.general.page.alert.urlMissingPort', {
-                              port: String(connectPort ?? 443),
-                              wingsPort: String(WINGS_DEFAULT_PORT),
-                            }).md()}
-                        </Stack>
-                      )}
-                    />
-                    <VerifyStatusAlert
-                      title={t('pages.admin.nodes.tabs.configuration.page.alert.verifyFrontend', {})}
-                      result={frontendResult}
-                      renderError={(error) =>
-                        t('pages.admin.nodes.tabs.configuration.page.alert.verifyFrontendFailed', { error })
-                      }
-                    />
+                <Stack gap='lg' className='min-w-0'>
+                  <div className='min-w-0'>
+                    <Title order={5} mb='xs'>
+                      1. {t('pages.admin.nodes.tabs.configuration.page.step.settings', {})}
+                    </Title>
+                    <Text size='sm' c='dimmed' mb='sm'>
+                      {t('pages.admin.nodes.tabs.configuration.page.description.settings', {})}
+                    </Text>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                      <TextInput
+                        name='remote'
+                        label={t('pages.admin.nodes.tabs.configuration.page.form.panelUrl', {})}
+                        description={t('pages.admin.nodes.tabs.configuration.page.form.panelUrlDescription', {})}
+                        value={remote}
+                        onChange={(e) => setRemote(e.target.value)}
+                      />
+                      <NumberInput
+                        name='api_port'
+                        label={t('pages.admin.nodes.tabs.configuration.page.form.apiPort', {})}
+                        description={t('pages.admin.nodes.tabs.configuration.page.form.apiPortDescription', {})}
+                        value={apiPort}
+                        min={1}
+                        max={65535}
+                        onChange={(value) => setApiPort(Number(value) || WINGS_DEFAULT_PORT)}
+                      />
+                      <NumberInput
+                        name='sftp_port'
+                        label={t('common.form.sftpPort', {})}
+                        description={t('pages.admin.nodes.tabs.configuration.page.form.sftpPortDescription', {})}
+                        value={sftpPort}
+                        min={1}
+                        max={65535}
+                        onChange={(value) => setSftpPort(Number(value) || node.sftpPort)}
+                      />
+                    </div>
+                    {portMismatch && (
+                      <Alert color='yellow' icon={<FontAwesomeIcon icon={faExclamationTriangle} />} mt='md'>
+                        {t('pages.admin.nodes.tabs.configuration.page.alert.portMismatch', {
+                          connectPort: String(connectPort),
+                          apiPort: String(apiPort),
+                        }).md()}
+                      </Alert>
+                    )}
+                  </div>
+
+                  <div className='min-w-0'>
+                    <Title order={5} mb='xs'>
+                      2. {t('pages.admin.nodes.tabs.configuration.page.step.install', {})}
+                    </Title>
+                    {nodeConfiguration && command ? (
+                      <>
+                        <HljsCode
+                          className='overflow-x-auto'
+                          languageName='yaml'
+                          language={() => import('highlight.js/lib/languages/yaml').then((mod) => mod.default)}
+                        >
+                          {dump(nodeConfiguration)}
+                        </HljsCode>
+
+                        <div className='mt-2'>
+                          <p>{t('pages.admin.nodes.tabs.configuration.page.description.placeFile', {}).md()}</p>
+                          <Group gap='xs' align='flex-start' wrap='nowrap' className='mt-2'>
+                            <Code block className='flex-1 min-w-0 overflow-x-auto'>
+                              {command}
+                            </Code>
+                            <Tooltip label={t('pages.admin.nodes.tabs.configuration.page.tooltip.copyCommand', {})}>
+                              <ActionIcon variant='subtle' onClick={handleCopyToClipboard(command, addToast)} size='lg'>
+                                <FontAwesomeIcon icon={faCopy} />
+                              </ActionIcon>
+                            </Tooltip>
+                          </Group>
+                        </div>
+                      </>
+                    ) : (
+                      <Spinner.Centered />
+                    )}
+                  </div>
+
+                  <div>
+                    <Title order={5} mb='xs'>
+                      3. {t('pages.admin.nodes.tabs.configuration.page.step.verify', {})}
+                    </Title>
+                    <Text size='sm' c='dimmed' mb='sm'>
+                      {t('pages.admin.nodes.tabs.configuration.page.description.verify', {})}
+                    </Text>
+                    <Stack gap='sm' align='flex-start'>
+                      <Button
+                        onClick={doVerify}
+                        loading={verifying}
+                        disabled={!nodeToken}
+                        leftSection={<FontAwesomeIcon icon={faCheck} />}
+                      >
+                        {t('pages.admin.nodes.tabs.configuration.page.button.verify', {})}
+                      </Button>
+                      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full'>
+                        <VerifyStatusAlert
+                          title={t('pages.admin.nodes.tabs.configuration.page.alert.verifyBackend', {})}
+                          result={backendResult}
+                          renderError={(error) => (
+                            <Stack gap='xs'>
+                              {t('pages.admin.nodes.tabs.configuration.page.alert.verifyFailed', { error })}
+                              {urlIsMissingPort(node.url) &&
+                                t('pages.admin.nodes.tabs.general.page.alert.urlMissingPort', {
+                                  port: String(connectPort ?? 443),
+                                  wingsPort: String(WINGS_DEFAULT_PORT),
+                                }).md()}
+                            </Stack>
+                          )}
+                        />
+                        <VerifyStatusAlert
+                          title={t('pages.admin.nodes.tabs.configuration.page.alert.verifyFrontend', {})}
+                          result={frontendResult}
+                          renderError={(error) =>
+                            t('pages.admin.nodes.tabs.configuration.page.alert.verifyFrontendFailed', { error })
+                          }
+                        />
+                      </div>
+                    </Stack>
                   </div>
                 </Stack>
               </div>
-            </Stack>
-          </div>
 
-          <Divider />
+              <Divider />
+            </>
+          )}
 
           <div>
             <Group justify='space-between' mb='md'>
               <Title order={4}>{t('pages.admin.nodes.tabs.configuration.page.section.liveConfiguration', {})}</Title>
-              <Button onClick={doSave} loading={saving} disabled={yaml === null || liveConfigError !== null}>
-                {t('pages.admin.nodes.tabs.configuration.page.button.save', {})}
-              </Button>
+              <AdminCan action='nodes.update' cantSave>
+                <Button onClick={doSave} loading={saving} disabled={yaml === null || liveConfigError !== null}>
+                  {t('pages.admin.nodes.tabs.configuration.page.button.save', {})}
+                </Button>
+              </AdminCan>
             </Group>
             {liveConfigError ? (
               <Alert color='red' icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>

@@ -7,12 +7,14 @@ import getEggVariables from '@/api/admin/nests/eggs/variables/getEggVariables.ts
 import updateEggVariableOrder from '@/api/admin/nests/eggs/variables/updateEggVariableOrder.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import { DndContainer, DndItem, SortableItem } from '@/elements/DragAndDrop.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { adminEggSchema, adminEggVariableSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
 import EggVariableContainer from '@/pages/admin/nests/eggs/variables/EggVariableContainer.tsx';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
@@ -31,6 +33,8 @@ export default function AdminEggVariables({
 }) {
   const { addToast } = useToast();
   const { t } = useTranslations();
+
+  const canUpdate = useAdminCan('eggs.update');
 
   const [loading, setLoading] = useState(true);
   const [eggVariables, setEggVariables] = useState<z.infer<typeof adminEggVariableSchema>[]>([]);
@@ -79,9 +83,11 @@ export default function AdminEggVariables({
       title={t('pages.admin.nests.tabs.eggs.page.tabs.variables.page.title', {})}
       titleOrder={2}
       contentRight={
-        <Button onClick={addVariable} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
-          {t('common.button.add', {})}
-        </Button>
+        <AdminCan action='eggs.update'>
+          <Button onClick={addVariable} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
+            {t('common.button.add', {})}
+          </Button>
+        </AdminCan>
       }
     >
       {loading ? (
@@ -132,6 +138,7 @@ export default function AdminEggVariables({
                 <SortableItem
                   key={variable.id}
                   id={variable.id}
+                  disabled={!canUpdate}
                   renderItem={({ dragHandleProps }) => (
                     <div {...dragHandleProps} className='h-full'>
                       <MemoizedEggVariableContainer

@@ -61,6 +61,7 @@ export default function ServerCreate() {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const canReadNodes = useAdminCan('nodes.read');
+  const canReadNodeAllocations = useAdminCan('nodes.allocations');
   const canReadUsers = useAdminCan('users.read');
   const canReadNests = useAdminCan('nests.read');
   const canReadEggs = useAdminCan('eggs.read');
@@ -159,6 +160,7 @@ export default function ServerCreate() {
         ? getAvailableNodeAllocations(selectedNodeUuid, 1, search)
         : Promise.resolve(getEmptyPaginationSet()),
     deps: [selectedNodeUuid],
+    canRequest: canReadNodes && canReadNodeAllocations,
   });
   const availableAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
     queryKey: selectedNodeUuid
@@ -169,6 +171,7 @@ export default function ServerCreate() {
         ? getAvailableNodeAllocations(selectedNodeUuid, 1, search)
         : Promise.resolve(getEmptyPaginationSet()),
     deps: [selectedNodeUuid],
+    canRequest: canReadNodes && canReadNodeAllocations,
   });
   const backupConfigurations = useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>({
     queryKey: queryKeys.admin.backupConfigurations.all(),

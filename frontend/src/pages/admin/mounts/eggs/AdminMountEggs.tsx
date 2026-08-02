@@ -6,6 +6,7 @@ import getMountNestEggs from '@/api/admin/mounts/nest-eggs/getMountNestEggs.ts';
 import deleteEggMount from '@/api/admin/nests/eggs/mounts/deleteEggMount.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import ContextMenu from '@/elements/ContextMenu.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
@@ -15,6 +16,7 @@ import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminMountSchema } from '@/lib/schemas/admin/mounts.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
 import { eggTableColumns } from '@/lib/tableColumns.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -68,6 +70,7 @@ function MountEggRow({
             label: t('common.button.remove', {}),
             onClick: () => setOpenModal('remove'),
             color: 'red',
+            canAccess: useAdminCan('eggs.mounts'),
           },
         ]}
         registry={window.extensionContext.extensionRegistry.pages.admin.mounts.view.eggs.contextMenu}
@@ -105,17 +108,21 @@ export default function AdminMountNestEggs({ mount }: { mount: z.infer<typeof ad
       registry={window.extensionContext.extensionRegistry.pages.admin.mounts.view.eggs.subContainer}
       registryProps={{ mount }}
       contentRight={
-        <Button onClick={() => setOpenModal('add')} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
-          {t('common.button.add', {})}
-        </Button>
+        <AdminCan action='eggs.mounts'>
+          <Button onClick={() => setOpenModal('add')} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
+            {t('common.button.add', {})}
+          </Button>
+        </AdminCan>
       }
     >
-      <MountAddEggModal
-        mount={mount}
-        refetch={refetch}
-        opened={openModal === 'add'}
-        onClose={() => setOpenModal(null)}
-      />
+      <AdminCan action='eggs.mounts'>
+        <MountAddEggModal
+          mount={mount}
+          refetch={refetch}
+          opened={openModal === 'add'}
+          onClose={() => setOpenModal(null)}
+        />
+      </AdminCan>
 
       <Table
         columns={[...eggTableColumns(), '']}

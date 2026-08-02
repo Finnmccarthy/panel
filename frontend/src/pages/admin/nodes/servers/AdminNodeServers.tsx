@@ -4,6 +4,7 @@ import getNodeServers from '@/api/admin/nodes/servers/getNodeServers.ts';
 import sendNodeServersPowerAction from '@/api/admin/nodes/servers/sendNodeServersPowerAction.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
@@ -230,13 +231,15 @@ export default function AdminNodeServers({ node }: { node: z.infer<typeof adminN
 
   return (
     <>
-      <ServersTransferModal
-        contextNode={node}
-        servers={selectedServers}
-        clearSelected={() => setSelectedServers(new ObjectSet('uuid'))}
-        opened={openModal === 'transfer'}
-        onClose={() => setOpenModal(null)}
-      />
+      <AdminCan action='nodes.transfers'>
+        <ServersTransferModal
+          contextNode={node}
+          servers={selectedServers}
+          clearSelected={() => setSelectedServers(new ObjectSet('uuid'))}
+          opened={openModal === 'transfer'}
+          onClose={() => setOpenModal(null)}
+        />
+      </AdminCan>
 
       <ConfirmationModal
         opened={confirmPowerAction !== null}
@@ -262,37 +265,41 @@ export default function AdminNodeServers({ node }: { node: z.infer<typeof adminN
         registryProps={{ node }}
         contentRight={
           <Group gap='sm'>
-            <Button
-              color='green'
-              onClick={() => setConfirmPowerAction({ action: 'start', scope: 'all' })}
-              loading={allActionLoading === 'start'}
-              disabled={(allActionLoading !== null && allActionLoading !== 'start') || nodeServers?.total === 0}
-            >
-              {t('common.enum.serverPowerAction.start', {})} ({nodeServers?.total})
-            </Button>
-            <Button
-              color='gray'
-              onClick={() => setConfirmPowerAction({ action: 'restart', scope: 'all' })}
-              loading={allActionLoading === 'restart'}
-              disabled={(allActionLoading !== null && allActionLoading !== 'restart') || nodeServers?.total === 0}
-            >
-              {t('common.enum.serverPowerAction.restart', {})} ({nodeServers?.total})
-            </Button>
-            <Button
-              color='red'
-              onClick={() => setConfirmPowerAction({ action: 'stop', scope: 'all' })}
-              loading={allActionLoading === 'stop'}
-              disabled={(allActionLoading !== null && allActionLoading !== 'stop') || nodeServers?.total === 0}
-            >
-              {t('common.enum.serverPowerAction.stop', {})} ({nodeServers?.total})
-            </Button>
-            <Button
-              color='gray'
-              onClick={() => setOpenModal('transfer')}
-              disabled={allActionLoading !== null || nodeServers?.total === 0}
-            >
-              {t('common.button.transfer', {})} ({nodeServers?.total})
-            </Button>
+            <AdminCan action='nodes.power'>
+              <Button
+                color='green'
+                onClick={() => setConfirmPowerAction({ action: 'start', scope: 'all' })}
+                loading={allActionLoading === 'start'}
+                disabled={(allActionLoading !== null && allActionLoading !== 'start') || nodeServers?.total === 0}
+              >
+                {t('common.enum.serverPowerAction.start', {})} ({nodeServers?.total})
+              </Button>
+              <Button
+                color='gray'
+                onClick={() => setConfirmPowerAction({ action: 'restart', scope: 'all' })}
+                loading={allActionLoading === 'restart'}
+                disabled={(allActionLoading !== null && allActionLoading !== 'restart') || nodeServers?.total === 0}
+              >
+                {t('common.enum.serverPowerAction.restart', {})} ({nodeServers?.total})
+              </Button>
+              <Button
+                color='red'
+                onClick={() => setConfirmPowerAction({ action: 'stop', scope: 'all' })}
+                loading={allActionLoading === 'stop'}
+                disabled={(allActionLoading !== null && allActionLoading !== 'stop') || nodeServers?.total === 0}
+              >
+                {t('common.enum.serverPowerAction.stop', {})} ({nodeServers?.total})
+              </Button>
+            </AdminCan>
+            <AdminCan action='nodes.transfers'>
+              <Button
+                color='gray'
+                onClick={() => setOpenModal('transfer')}
+                disabled={allActionLoading !== null || nodeServers?.total === 0}
+              >
+                {t('common.button.transfer', {})} ({nodeServers?.total})
+              </Button>
+            </AdminCan>
           </Group>
         }
       >

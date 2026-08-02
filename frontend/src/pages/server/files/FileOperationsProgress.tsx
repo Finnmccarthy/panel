@@ -16,6 +16,7 @@ import Tooltip from '@/elements/Tooltip.tsx';
 import UnstyledButton from '@/elements/UnstyledButton.tsx';
 import { bytesProgressString } from '@/lib/size.ts';
 import { canResumeInSession, pauseUpload, resumeDetachedUpload, resumeUpload } from '@/lib/uploadManager.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/contexts/toastContext.ts';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -78,6 +79,8 @@ function FileOperationsProgress() {
       invalidateFilemanager: state.invalidateFilemanager,
     })),
   );
+
+  const canUpdate = useServerCan('files.update');
 
   const [openModal, setOpenModal] = useState<'cancelUploads' | 'cancelOperations' | null>(null);
 
@@ -223,7 +226,7 @@ function FileOperationsProgress() {
               {t('elements.fileUpload.cancelAllUploads', {})}
             </Button>
           )}
-          {fileOperations.size > 0 && (
+          {fileOperations.size > 0 && canUpdate && (
             <Button size='xs' variant='subtle' color='red' onClick={() => setOpenModal('cancelOperations')}>
               {t('pages.server.files.operations.cancelAllOperations', {})}
             </Button>
@@ -428,16 +431,18 @@ function FileOperationsProgress() {
                   <FailedOperationProgress failedAt={failedAt} />
                 )}
               </div>
-              <Tooltip label={failedAt === undefined ? t('common.button.cancel', {}) : t('common.button.close', {})}>
-                <ActionIcon
-                  variant='light'
-                  color='red'
-                  className='ml-3'
-                  onClick={() => (failedAt === undefined ? doCancelOperation(uuid) : removeFileOperation(uuid))}
-                >
-                  <FontAwesomeIcon icon={faXmark} size='sm' />
-                </ActionIcon>
-              </Tooltip>
+              {(failedAt !== undefined || canUpdate) && (
+                <Tooltip label={failedAt === undefined ? t('common.button.cancel', {}) : t('common.button.close', {})}>
+                  <ActionIcon
+                    variant='light'
+                    color='red'
+                    className='ml-3'
+                    onClick={() => (failedAt === undefined ? doCancelOperation(uuid) : removeFileOperation(uuid))}
+                  >
+                    <FontAwesomeIcon icon={faXmark} size='sm' />
+                  </ActionIcon>
+                </Tooltip>
+              )}
             </div>
           );
         })}

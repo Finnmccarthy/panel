@@ -46,7 +46,7 @@ export default function EggRepositoryEggDrawer({
     >
       {displayEgg && (
         <>
-          <AdminCan action='nests.read'>
+          <AdminCan action={['eggs.create', 'nests.read']}>
             <EggRepositoryEggInstallModal
               eggRepository={eggRepository}
               egg={displayEgg}
@@ -56,7 +56,7 @@ export default function EggRepositoryEggDrawer({
           </AdminCan>
 
           <Stack gap='md' className='h-full'>
-            <AdminCan action='nests.read'>
+            <AdminCan action={['eggs.create', 'nests.read']}>
               <Button leftSection={<FontAwesomeIcon icon={faDownload} />} onClick={() => setInstallOpen(true)}>
                 {t('common.button.install', {})}
               </Button>

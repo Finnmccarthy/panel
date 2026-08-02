@@ -1,6 +1,7 @@
 import { useShallow } from 'zustand/react/shallow';
 import FileUploadOverlay from '@/pages/server/files/FileUploadOverlay.tsx';
 import { useFileDragAndDrop } from '@/pages/server/files/hooks/useFileDragAndDrop.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 
 export default function FileUpload() {
@@ -16,9 +17,11 @@ export default function FileUpload() {
       })),
     );
 
+  const canCreate = useServerCan('files.create');
+
   const { isDragging } = useFileDragAndDrop({
     onDrop: uploadFiles,
-    enabled: browsingWritableDirectory,
+    enabled: browsingWritableDirectory && canCreate,
   });
 
   return (
@@ -39,7 +42,7 @@ export default function FileUpload() {
         {...{ webkitdirectory: '', directory: '' }}
       />
 
-      <FileUploadOverlay visible={isDragging && browsingWritableDirectory} />
+      <FileUploadOverlay visible={isDragging && browsingWritableDirectory && canCreate} />
     </>
   );
 }

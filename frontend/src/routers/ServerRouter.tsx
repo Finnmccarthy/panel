@@ -274,7 +274,10 @@ export default function ServerRouter({ isNormal }: { isNormal: boolean }) {
                       .filter((route) => !route.filter || route.filter())
                       .filter((route) => !accessibleRoutePaths || accessibleRoutePaths.has(route.path))
                       .map(({ path, element: Element, permission }) => (
-                        <Route key={path} element={<ServerPermissionGuard permission={permission ?? []} />}>
+                        <Route
+                          key={path}
+                          element={<ServerPermissionGuard permission={permission ?? []} matchAny={!!permission} />}
+                        >
                           <Route path={path} element={<Element />} />
                         </Route>
                       ))}

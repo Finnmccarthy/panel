@@ -57,7 +57,7 @@ const routes: ServerRouteDefinition[] = [
     name: undefined,
     path: '/files/:action',
     element: ServerFilesEditor,
-    permission: 'files.read',
+    permission: ['files.read-content', 'files.create'],
   },
   {
     name: () => getTranslations().t('pages.server.databases.title', {}),

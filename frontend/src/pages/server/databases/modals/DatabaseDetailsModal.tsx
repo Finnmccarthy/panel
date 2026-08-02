@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import rotateDatabasePassword from '@/api/server/databases/rotateDatabasePassword.ts';
 import Button from '@/elements/Button.tsx';
+import { ServerCan } from '@/elements/Can.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
@@ -63,9 +64,11 @@ export default function DatabaseDetailsModal({ database, ...props }: Props) {
         />
 
         <ModalFooter>
-          <Button color='red' onClick={onRotatePassword} loading={loading} disabled={database.isLocked}>
-            {t('pages.server.databases.button.rotatePassword', {})}
-          </Button>
+          <ServerCan action='databases.update'>
+            <Button color='red' onClick={onRotatePassword} loading={loading} disabled={database.isLocked}>
+              {t('pages.server.databases.button.rotatePassword', {})}
+            </Button>
+          </ServerCan>
           <Button variant='default' onClick={props.onClose}>
             {t('common.button.close', {})}
           </Button>

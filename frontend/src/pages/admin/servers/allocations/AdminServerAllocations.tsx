@@ -38,7 +38,7 @@ export default function AdminServerAllocations({ server }: { server: z.infer<typ
       search={search}
       setSearch={setSearch}
       contentRight={
-        <AdminCan action='nodes.read'>
+        <AdminCan action={['nodes.read', 'nodes.allocations']}>
           <Button onClick={() => setOpenModal('add')} color='blue' leftSection={<FontAwesomeIcon icon={faPlus} />}>
             {t('common.button.add', {})}
           </Button>
@@ -47,7 +47,7 @@ export default function AdminServerAllocations({ server }: { server: z.infer<typ
       registry={window.extensionContext.extensionRegistry.pages.admin.servers.view.allocations.subContainer}
       registryProps={{ server }}
     >
-      <AdminCan action='nodes.read'>
+      <AdminCan action={['nodes.read', 'nodes.allocations']}>
         <ServerAllocationAddModal server={server} opened={openModal === 'add'} onClose={() => setOpenModal(null)} />
       </AdminCan>
 

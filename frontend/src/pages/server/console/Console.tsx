@@ -20,6 +20,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Button from '@/elements/Button.tsx';
+import { ServerCan } from '@/elements/Can.tsx';
 import Card from '@/elements/Card.tsx';
 import Autocomplete from '@/elements/input/Autocomplete.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
@@ -890,36 +891,38 @@ export default function Terminal() {
         )}
 
         <div className='w-full mt-4 flex flex-row'>
-          <Autocomplete
-            value={inputValue}
-            onChange={(value) => {
-              if (inputValueUpdatedRef.current) {
-                inputValueUpdatedRef.current = false;
-                return;
-              }
+          <ServerCan action='control.console'>
+            <Autocomplete
+              value={inputValue}
+              onChange={(value) => {
+                if (inputValueUpdatedRef.current) {
+                  inputValueUpdatedRef.current = false;
+                  return;
+                }
 
-              inputValueRef.current = value;
-              setInputValue(value);
-            }}
-            placeholder={t('pages.server.console.input.placeholder', {})}
-            aria-label={t('pages.server.console.input.ariaLabel', {})}
-            disabled={!socketConnected || state === 'offline'}
-            onKeyDown={handleKeyDown}
-            autoCorrect='off'
-            autoCapitalize='none'
-            className='w-full'
-            data={commandSnippets.map((s) => `!${s.name}`)}
-            filter={commandSnippetFilter}
-            onOptionSubmit={(option) => {
-              const snippet = commandSnippets.find((s) => `!${s.name}` === option);
-              if (snippet) {
-                inputValueUpdatedRef.current = true;
-                inputValueCompletedRef.current = true;
-                inputValueRef.current = snippet.command;
-                setInputValue(snippet.command);
-              }
-            }}
-          />
+                inputValueRef.current = value;
+                setInputValue(value);
+              }}
+              placeholder={t('pages.server.console.input.placeholder', {})}
+              aria-label={t('pages.server.console.input.ariaLabel', {})}
+              disabled={!socketConnected || state === 'offline'}
+              onKeyDown={handleKeyDown}
+              autoCorrect='off'
+              autoCapitalize='none'
+              className='w-full'
+              data={commandSnippets.map((s) => `!${s.name}`)}
+              filter={commandSnippetFilter}
+              onOptionSubmit={(option) => {
+                const snippet = commandSnippets.find((s) => `!${s.name}` === option);
+                if (snippet) {
+                  inputValueUpdatedRef.current = true;
+                  inputValueCompletedRef.current = true;
+                  inputValueRef.current = snippet.command;
+                  setInputValue(snippet.command);
+                }
+              }}
+            />
+          </ServerCan>
           {window.extensionContext.extensionRegistry.pages.server.console.terminalInputRowComponents.map(
             (Component, i) => (
               <Component key={`console-terminalInputRow-${i}`} />

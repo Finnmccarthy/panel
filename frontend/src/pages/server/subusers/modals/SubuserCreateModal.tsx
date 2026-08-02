@@ -27,6 +27,8 @@ export default function SubuserCreateModal({ ...props }: ModalProps) {
   const { availablePermissions } = useGlobalStore();
   const queryClient = useQueryClient();
 
+  const grantablePermissions = server.permissions.includes('*') ? undefined : server.permissions;
+
   const captchaRef = useRef<CaptchaRef>(null);
   const [isCaptchaValid, setIsCaptchaValid] = useState(false);
 
@@ -77,6 +79,7 @@ export default function SubuserCreateModal({ ...props }: ModalProps) {
           label={t('pages.server.subusers.modal.createSubuser.form.permissions', {})}
           permissionsMapType='serverPermissions'
           permissions={availablePermissions.serverPermissions}
+          grantablePermissions={grantablePermissions}
           selectedPermissions={form.values.permissions}
           setSelectedPermissions={(permissions) => form.setFieldValue('permissions', permissions)}
         />

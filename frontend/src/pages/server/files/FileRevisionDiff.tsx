@@ -10,6 +10,7 @@ import getFileRevisionContent from '@/api/server/files/getFileRevisionContent.ts
 import saveFileContent from '@/api/server/files/saveFileContent.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Button from '@/elements/Button.tsx';
+import { ServerCan } from '@/elements/Can.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
 import { MonacoDiffEditor } from '@/elements/MonacoEditor.tsx';
@@ -170,19 +171,21 @@ function FileRevisionDiffComponent() {
           <Title>{title}</Title>
         </Group>
         {!previousRevisionId && (
-          <Group>
-            <Button
-              loading={saving}
-              variant='outline'
-              leftSection={<FontAwesomeIcon icon={faRotateLeft} />}
-              onClick={handleRestore}
-            >
-              {t('pages.server.files.drawer.revisions.tooltip.restore', {})}
-            </Button>
-            <Button loading={saving} onClick={handleSave}>
-              {t('common.button.save', {})}
-            </Button>
-          </Group>
+          <ServerCan action='files.create'>
+            <Group>
+              <Button
+                loading={saving}
+                variant='outline'
+                leftSection={<FontAwesomeIcon icon={faRotateLeft} />}
+                onClick={handleRestore}
+              >
+                {t('pages.server.files.drawer.revisions.tooltip.restore', {})}
+              </Button>
+              <Button loading={saving} onClick={handleSave}>
+                {t('common.button.save', {})}
+              </Button>
+            </Group>
+          </ServerCan>
         )}
       </div>
 

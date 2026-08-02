@@ -39,6 +39,7 @@ export default function BackupConfigurationView() {
                 name: t('pages.admin.backupConfigurations.tabs.stats.title', {}),
                 icon: faChartBar,
                 path: `/stats`,
+                permission: 'stats.read',
                 element: <AdminBackupConfigurationStats backupConfiguration={backupConfiguration} />,
               },
               {

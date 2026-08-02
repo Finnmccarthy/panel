@@ -7,6 +7,7 @@ import { ServerCan } from '@/elements/Can.tsx';
 import Select from '@/elements/input/Select.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import Text from '@/elements/Text.tsx';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import useWebsocketEvent, { SocketEvent } from '@/plugins/useWebsocketEvent.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -40,6 +41,8 @@ export default function JavaVersionModal() {
       updateServer: s.updateServer,
     })),
   );
+
+  const canRestart = useServerCan('control.restart');
 
   const [opened, setOpened] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -82,7 +85,7 @@ export default function JavaVersionModal() {
       addToast(t('pages.server.console.feature.javaVersion.toast.updated', {}), 'success');
       setOpened(false);
 
-      if (state === 'offline') {
+      if (state === 'offline' && canRestart) {
         socketInstance?.send('set state', 'restart');
       }
     } catch (error) {

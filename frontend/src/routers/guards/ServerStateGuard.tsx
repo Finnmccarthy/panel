@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import cancelServerInstall from '@/api/server/settings/cancelServerInstall.ts';
 import Button from '@/elements/Button.tsx';
+import { ServerCan } from '@/elements/Can.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import ScreenBlock from '@/elements/ScreenBlock.tsx';
@@ -83,9 +84,11 @@ export default function ServerStateGuard() {
           )}
           {(settings.server.allowAcknowledgingInstallationFailure || isAdmin(user)) &&
             server.status === 'install_failed' && (
-              <Button color='red' onClick={() => setOpenModal('acknowledgeFailure')}>
-                {t('elements.screenBlock.serverConflict.button.acknowledgeFailure', {})}
-              </Button>
+              <ServerCan action='settings.cancel-install'>
+                <Button color='red' onClick={() => setOpenModal('acknowledgeFailure')}>
+                  {t('elements.screenBlock.serverConflict.button.acknowledgeFailure', {})}
+                </Button>
+              </ServerCan>
             )}
         </div>
       </ServerContentContainer>

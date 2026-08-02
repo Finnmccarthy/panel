@@ -13,6 +13,7 @@ import { ObjectSet } from '@/lib/objectSet.ts';
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import EggsMoveModal from './modals/EggsMoveModal.tsx';
@@ -28,6 +29,8 @@ export default function EggActionBar({
 }) {
   const { addToast } = useToast();
   const { t, tItem } = useTranslations();
+
+  const canDelete = useAdminCan('eggs.delete');
 
   const [openModal, setOpenModal] = useState<'move' | 'delete' | null>(null);
   const [loading, setLoading] = useState(false);
@@ -69,6 +72,7 @@ export default function EggActionBar({
         callback: () => setOpenModal('delete'),
       },
     ],
+    enabled: canDelete,
     deps: [],
   });
 

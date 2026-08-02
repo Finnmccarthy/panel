@@ -3,6 +3,7 @@ import { z } from 'zod';
 import updateEggScript from '@/api/admin/nests/eggs/updateEggScript.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
 import Group from '@/elements/Group.tsx';
@@ -109,9 +110,11 @@ export default function EggInstallationScriptContainer({
           </Stack>
 
           <Group pt='md' mt='auto'>
-            <Button type='submit' disabled={!form.isValid()} loading={loading}>
-              {t('common.button.save', {})}
-            </Button>
+            <AdminCan action='eggs.update' cantSave>
+              <Button type='submit' disabled={!form.isValid()} loading={loading}>
+                {t('common.button.save', {})}
+              </Button>
+            </AdminCan>
           </Group>
         </form>
       </AdminSubContentContainer>

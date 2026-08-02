@@ -16,6 +16,7 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminOAuthProviderUpdateSchema } from '@/lib/schemas/admin/oauthProviders.ts';
 import { oauthProviderTableColumns } from '@/lib/tableColumns.ts';
 import { useImportDragAndDrop } from '@/plugins/useImportDragAndDrop.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -29,6 +30,7 @@ function OAuthProvidersContainer() {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const { t } = useTranslations();
+  const canCreate = useAdminCan('oauth-providers.create');
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -72,6 +74,7 @@ function OAuthProvidersContainer() {
 
   const { isDragging } = useImportDragAndDrop({
     onDrop: (files) => Promise.all(files.map(handleImport)),
+    enabled: canCreate,
   });
 
   const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -113,7 +116,7 @@ function OAuthProvidersContainer() {
         </AdminCan>
       }
     >
-      <OAuthProviderImportOverlay visible={isDragging} />
+      <OAuthProviderImportOverlay visible={isDragging && canCreate} />
 
       <Table
         columns={oauthProviderTableColumns()}

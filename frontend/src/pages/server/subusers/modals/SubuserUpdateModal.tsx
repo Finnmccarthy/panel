@@ -25,6 +25,8 @@ export default function SubuserUpdateModal({ subuser, ...props }: Props) {
   const server = useServerStore((state) => state.server);
   const availablePermissions = useGlobalStore((state) => state.availablePermissions);
 
+  const grantablePermissions = server.permissions.includes('*') ? undefined : server.permissions;
+
   const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<z.infer<typeof serverSubuserUpdateSchema>>(
     {
       initialValues: {
@@ -60,6 +62,7 @@ export default function SubuserUpdateModal({ subuser, ...props }: Props) {
           label={t('pages.server.subusers.modal.createSubuser.form.permissions', {})}
           permissionsMapType='serverPermissions'
           permissions={availablePermissions.serverPermissions}
+          grantablePermissions={grantablePermissions}
           selectedPermissions={form.values.permissions}
           setSelectedPermissions={(permissions) => form.setFieldValue('permissions', permissions)}
         />

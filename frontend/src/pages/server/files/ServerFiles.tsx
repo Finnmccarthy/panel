@@ -29,6 +29,7 @@ import FileSettings from '@/pages/server/files/FileSettings.tsx';
 import FileToolbar from '@/pages/server/files/FileToolbar.tsx';
 import FileUpload from '@/pages/server/files/FileUpload.tsx';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useSelectionArea } from '@/plugins/useSelectionArea.ts';
 import { FileManagerProvider } from '@/providers/FileManagerProvider.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -104,6 +105,9 @@ function ServerFilesComponent() {
   const clickOnce = useFileManagerStore((state) => state.clickOnce);
   const preferPhysicalSize = useFileManagerStore((state) => state.preferPhysicalSize);
   const { doSelectFiles, doOpenModal, setSortMode, resetEntries } = store.getState();
+
+  const canCreate = useServerCan('files.create');
+  const canUpdate = useServerCan('files.update');
 
   const { onSelectedStart, onSelected } = useSelectionArea({
     identify: (file) => file.name,
@@ -229,7 +233,7 @@ function ServerFilesComponent() {
         id: 'files.duplicate',
         callback: () => {
           const state = store.getState();
-          if (state.selectedFiles.size === 1 && state.browsingWritableDirectory) {
+          if (canCreate && state.selectedFiles.size === 1 && state.browsingWritableDirectory) {
             const file = state.selectedFiles.values()[0];
 
             copyFile(server.uuid, join(state.browsingDirectory, file.name), null)
@@ -246,7 +250,7 @@ function ServerFilesComponent() {
         id: 'files.rename',
         callback: () => {
           const state = store.getState();
-          if (state.selectedFiles.size === 1 && state.browsingWritableDirectory) {
+          if (canUpdate && state.selectedFiles.size === 1 && state.browsingWritableDirectory) {
             doOpenModal('rename', [state.selectedFiles.values()[0]]);
           }
         },
@@ -261,7 +265,7 @@ function ServerFilesComponent() {
         },
       },
     ],
-    deps: [handleOpen],
+    deps: [handleOpen, canCreate, canUpdate],
   });
 
   const columns = useMemo(() => {

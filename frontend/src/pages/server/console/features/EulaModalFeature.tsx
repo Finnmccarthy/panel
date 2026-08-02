@@ -4,8 +4,10 @@ import { httpErrorToHuman } from '@/api/axios.ts';
 import getFileContent from '@/api/server/files/getFileContent.ts';
 import saveFileContent from '@/api/server/files/saveFileContent.ts';
 import Button from '@/elements/Button.tsx';
+import { ServerCan } from '@/elements/Can.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import Text from '@/elements/Text.tsx';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import useWebsocketEvent, { SocketEvent } from '@/plugins/useWebsocketEvent.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -17,6 +19,8 @@ export default function EulaModal() {
   const { server, state, socketInstance } = useServerStore(
     useShallow((s) => ({ server: s.server, state: s.state, socketInstance: s.socketInstance })),
   );
+
+  const canRestart = useServerCan('control.restart');
 
   const [opened, setOpened] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,7 +51,9 @@ export default function EulaModal() {
       addToast(t('pages.server.console.feature.eula.toast.accepted', {}), 'success');
       setOpened(false);
 
-      socketInstance?.send('set state', 'restart');
+      if (canRestart) {
+        socketInstance?.send('set state', 'restart');
+      }
     } catch (error) {
       addToast(httpErrorToHuman(error as object), 'error');
     } finally {
@@ -65,9 +71,11 @@ export default function EulaModal() {
       </Text>
 
       <ModalFooter>
-        <Button color='green' loading={loading} onClick={acceptEula}>
-          {t('pages.server.console.feature.eula.button.accept', {})}
-        </Button>
+        <ServerCan action='files.create'>
+          <Button color='green' loading={loading} onClick={acceptEula}>
+            {t('pages.server.console.feature.eula.button.accept', {})}
+          </Button>
+        </ServerCan>
         <Button variant='default' onClick={() => setOpened(false)}>
           {t('common.button.cancel', {})}
         </Button>

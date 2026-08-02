@@ -15,6 +15,7 @@ import Text from '@/elements/Text.tsx';
 import Title from '@/elements/Title.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { serverDatabaseInstanceSchema } from '@/lib/schemas/server/databaseInstances.ts';
+import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useResource } from '@/plugins/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
@@ -34,13 +35,14 @@ export default function DatabaseInstanceUsers({
   const maxUserCount = useGlobalStore((state) => state.settings.server.maxDatabaseInstanceUserCount);
 
   const hasDatabases = instance.type !== 'redis';
+  const canReadDatabases = useServerCan('database-instances.databases');
 
   const [createUserOpen, setCreateUserOpen] = useState(false);
 
   const { data: databases = [] } = useResource({
     queryKey: queryKeys.server(server.uuid).databases.instances.databases(instance.uuid),
     queryFn: () => getDatabaseInstanceDatabases(server.uuid, instance.uuid),
-    enabled: hasDatabases,
+    enabled: hasDatabases && canReadDatabases,
     silent: true,
   });
 
@@ -84,7 +86,11 @@ export default function DatabaseInstanceUsers({
             })}
           </Text>
         </div>
-        <ServerCan action='database-instances.users'>
+        <ServerCan
+          action={
+            hasDatabases ? ['database-instances.users', 'database-instances.databases'] : 'database-instances.users'
+          }
+        >
           <ConditionalTooltip
             enabled={createDisabled}
             label={

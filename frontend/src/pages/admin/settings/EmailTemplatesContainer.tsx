@@ -250,10 +250,12 @@ export default function EmailTemplatesContainer() {
                     </Text>
                   </Group>
                   <Group gap='xs'>
-                    <Button size='xs' variant='subtle' onClick={() => setConfirmReset(true)} disabled={saving}>
-                      {t('common.tooltip.resetToDefault', {})}
-                    </Button>
-                    <AdminCan action='settings.update' cantSave>
+                    <AdminCan action={['settings.read', 'email-templates.update']}>
+                      <Button size='xs' variant='subtle' onClick={() => setConfirmReset(true)} disabled={saving}>
+                        {t('common.tooltip.resetToDefault', {})}
+                      </Button>
+                    </AdminCan>
+                    <AdminCan action={['settings.read', 'email-templates.update']} cantSave>
                       <Button size='xs' loading={saving} disabled={!isContentDirty && !form.isDirty()} onClick={doSave}>
                         {t('common.button.save', {})}
                       </Button>

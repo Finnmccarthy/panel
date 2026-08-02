@@ -8,7 +8,7 @@ import sendPasswordResetEmail from '@/api/admin/users/email/sendPasswordResetEma
 import updateUser from '@/api/admin/users/updateUser.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
-import { AdminCan } from '@/elements/Can.tsx';
+import { AdminCan, CantSaveTooltip } from '@/elements/Can.tsx';
 import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
@@ -34,6 +34,8 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
   const { addToast } = useToast();
   const { t } = useTranslations();
   const canReadRoles = useAdminCan('roles.read');
+  const isRootAdmin = !!user?.admin;
+  const editingOtherUser = !!contextUser && contextUser.uuid !== user?.uuid;
 
   const [openModal, setOpenModal] = useState<'delete' | 'disable_two_factor' | 'send_password_reset_email' | null>(
     null,
@@ -128,7 +130,13 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
 
   const fields: FieldDef<UserFormValues>[] = [
     { type: 'text', name: 'username', label: t('common.table.columns.username', {}), required: true },
-    { type: 'text', name: 'email', label: t('common.form.email', {}), required: true, props: { type: 'email' } },
+    {
+      type: 'text',
+      name: 'email',
+      label: t('common.form.email', {}),
+      required: true,
+      props: { type: 'email', disabled: !isRootAdmin && editingOtherUser },
+    },
     { type: 'text', name: 'nameFirst', label: t('common.form.firstName', {}), required: true },
     { type: 'text', name: 'nameLast', label: t('common.form.lastName', {}), required: true },
     {
@@ -146,6 +154,7 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
       type: 'select',
       name: 'roleUuid',
       label: t('pages.admin.users.tabs.general.page.form.role', {}),
+      when: () => isRootAdmin,
       options: roles.items.map((role) => ({ label: role.name, value: role.uuid })),
       props: {
         placeholder: t('common.none', {}),
@@ -163,12 +172,13 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
       type: 'password',
       name: 'password',
       label: t('common.form.password', {}),
-      props: { withAsterisk: !contextUser },
+      props: { withAsterisk: !contextUser, disabled: !isRootAdmin && editingOtherUser },
     },
     {
       type: 'switch',
       name: 'admin',
       label: t('pages.admin.users.tabs.general.page.form.admin', {}),
+      when: () => isRootAdmin,
       description: t('pages.admin.users.tabs.general.page.form.adminDescription', {}),
     },
     {
@@ -232,16 +242,20 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
         <FormEngine form={form} fields={fields} />
 
         <Group mt='md'>
-          <AdminCan action={contextUser ? 'users.update' : 'users.create'} cantSave>
-            <Button type='submit' disabled={!form.isValid()} loading={loading}>
-              {t('common.button.save', {})}
-            </Button>
-            {!contextUser && (
-              <Button onClick={() => doCreateOrUpdate(true)} disabled={!form.isValid()} loading={loading}>
-                {t('common.button.saveAndStay', {})}
+          {!isRootAdmin && contextUser?.admin ? (
+            <CantSaveTooltip />
+          ) : (
+            <AdminCan action={contextUser ? 'users.update' : 'users.create'} cantSave>
+              <Button type='submit' disabled={!form.isValid()} loading={loading}>
+                {t('common.button.save', {})}
               </Button>
-            )}
-          </AdminCan>
+              {!contextUser && (
+                <Button onClick={() => doCreateOrUpdate(true)} disabled={!form.isValid()} loading={loading}>
+                  {t('common.button.saveAndStay', {})}
+                </Button>
+              )}
+            </AdminCan>
+          )}
           {contextUser && (
             <>
               <AdminCan action='users.disable-two-factor'>

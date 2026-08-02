@@ -5,6 +5,7 @@ import deleteEggVariable from '@/api/admin/nests/eggs/variables/deleteEggVariabl
 import updateEggVariable from '@/api/admin/nests/eggs/variables/updateEggVariable.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import Card from '@/elements/Card.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
 import Group from '@/elements/Group.tsx';
@@ -224,17 +225,21 @@ export default function EggVariableContainer({
           <FormEngine form={form} fields={fields} />
 
           <Group pt='md' mt='auto' justify='flex-end'>
-            <Button type='submit' disabled={!form.isValid()} loading={loading}>
-              {t('common.button.save', {})}
-            </Button>
-            {contextVariable?.uuid && (
-              <Button variant='default' onClick={() => setOpenModal('duplicate')}>
-                {t('common.button.duplicate', {})}
+            <AdminCan action='eggs.update' cantSave>
+              <Button type='submit' disabled={!form.isValid()} loading={loading}>
+                {t('common.button.save', {})}
               </Button>
-            )}
-            <Button color='red' variant='outline' onClick={() => setOpenModal('delete')}>
-              {t('common.button.remove', {})}
-            </Button>
+            </AdminCan>
+            <AdminCan action='eggs.update'>
+              {contextVariable?.uuid && (
+                <Button variant='default' onClick={() => setOpenModal('duplicate')}>
+                  {t('common.button.duplicate', {})}
+                </Button>
+              )}
+              <Button color='red' variant='outline' onClick={() => setOpenModal('delete')}>
+                {t('common.button.remove', {})}
+              </Button>
+            </AdminCan>
           </Group>
         </form>
       </Card>

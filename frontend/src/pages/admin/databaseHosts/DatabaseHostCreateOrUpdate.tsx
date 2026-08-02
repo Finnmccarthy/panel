@@ -246,7 +246,7 @@ export default function DatabaseHostCreateOrUpdate({
           </AdminCan>
           {contextDatabaseHost && (
             <>
-              <AdminCan action='database-hosts.read'>
+              <AdminCan action='database-hosts.test'>
                 <Button variant='outline' onClick={doTest} loading={loading}>
                   {t('pages.admin.databaseHosts.tabs.general.page.button.testConnection', {})}
                 </Button>

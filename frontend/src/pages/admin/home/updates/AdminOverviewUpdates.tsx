@@ -17,6 +17,7 @@ import recheckUpdates from '@/api/admin/system/updates/recheckUpdates.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
+import { AdminCan } from '@/elements/Can.tsx';
 import Code from '@/elements/Code.tsx';
 import Select from '@/elements/input/Select.tsx';
 import Spinner from '@/elements/Spinner.tsx';
@@ -30,6 +31,7 @@ import {
 } from '@/lib/schemas/admin/system.ts';
 import { databaseAgentHostTableColumns, nodeTableColumns } from '@/lib/tableColumns.ts';
 import { parseVersion } from '@/lib/version.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -42,6 +44,8 @@ export default function AdminOverviewUpdates() {
   const { t } = useTranslations();
   const updateInformation = useAdminStore((state) => state.updateInformation);
   const setUpdateInformation = useAdminStore((state) => state.setUpdateInformation);
+  const canReadNodes = useAdminCan('nodes.read');
+  const canReadDatabaseAgentHosts = useAdminCan('database-agent-hosts.read');
 
   const [updateHistory, setUpdateHistory] = useState<Awaited<ReturnType<typeof getUpdateHistory>> | null>(null);
   const [selectedUpdateHistory, setSelectedUpdateHistory] = useState<string | null>(null);
@@ -57,6 +61,7 @@ export default function AdminOverviewUpdates() {
     queryKey: queryKeys.admin.updates.nodes(),
     fetcher: (page) => getNodeUpdates(page),
     paginationKey: 'outdatedNodes',
+    canRequest: canReadNodes,
   });
 
   const {
@@ -69,6 +74,7 @@ export default function AdminOverviewUpdates() {
     queryKey: queryKeys.admin.updates.databaseAgentHosts(),
     fetcher: (page) => getDatabaseAgentHostUpdates(page),
     paginationKey: 'outdatedDatabaseAgentHosts',
+    canRequest: canReadDatabaseAgentHosts,
   });
 
   useEffect(() => {
@@ -293,76 +299,83 @@ export default function AdminOverviewUpdates() {
             </>
           )}
         </TitleCard>
-        <TitleCard
-          title={t('pages.admin.home.tabs.updates.page.card.outdatedNodes', {})}
-          icon={<FontAwesomeIcon icon={faServer} />}
-        >
-          {loading || !nodes?.outdatedNodes ? (
-            <Spinner.Centered />
-          ) : !nodes?.outdatedNodes.total ? (
-            <>
-              <FontAwesomeIcon icon={faCheck} />{' '}
-              {t('pages.admin.home.tabs.updates.page.nodesUpToDate', { failed: nodes?.failedNodes ?? 0 })}
-            </>
-          ) : (
-            <>
-              <FontAwesomeIcon icon={faExclamationTriangle} />{' '}
-              {t('pages.admin.home.tabs.updates.page.nodesOutdated', {
-                latest: updateInformation?.latestWingsVersion || unknownLabel,
-                outdated: nodes?.outdatedNodes.total ?? 0,
-                failed: nodes?.failedNodes ?? 0,
-              }).md()}
-              <div className='mt-4' />
-              <Table
-                columns={nodeTableColumns()}
-                loading={loading}
-                error={error}
-                pagination={nodes.outdatedNodes}
-                onPageSelect={setPage}
-              >
-                {nodes.outdatedNodes.data.map((node) => (
-                  <NodeRow key={node.node.uuid} node={node.node} />
-                ))}
-              </Table>
-            </>
-          )}
-        </TitleCard>
-        <TitleCard
-          title={t('pages.admin.home.tabs.updates.page.card.outdatedDatabaseAgentHosts', {})}
-          icon={<FontAwesomeIcon icon={faServer} />}
-        >
-          {databaseAgentHostsLoading || !databaseAgentHosts?.outdatedDatabaseAgentHosts ? (
-            <Spinner.Centered />
-          ) : !databaseAgentHosts?.outdatedDatabaseAgentHosts.total ? (
-            <>
-              <FontAwesomeIcon icon={faCheck} />{' '}
-              {t('pages.admin.home.tabs.updates.page.databaseAgentHostsUpToDate', {
-                failed: databaseAgentHosts?.failedDatabaseAgentHosts ?? 0,
-              })}
-            </>
-          ) : (
-            <>
-              <FontAwesomeIcon icon={faExclamationTriangle} />{' '}
-              {t('pages.admin.home.tabs.updates.page.databaseAgentHostsOutdated', {
-                latest: updateInformation?.latestDbAgentVersion || unknownLabel,
-                outdated: databaseAgentHosts?.outdatedDatabaseAgentHosts.total ?? 0,
-                failed: databaseAgentHosts?.failedDatabaseAgentHosts ?? 0,
-              }).md()}
-              <div className='mt-4' />
-              <Table
-                columns={databaseAgentHostTableColumns()}
-                loading={databaseAgentHostsLoading}
-                error={databaseAgentHostsError}
-                pagination={databaseAgentHosts.outdatedDatabaseAgentHosts}
-                onPageSelect={setDatabaseAgentHostsPage}
-              >
-                {databaseAgentHosts.outdatedDatabaseAgentHosts.data.map((host) => (
-                  <DatabaseAgentHostRow key={host.databaseAgentHost.uuid} databaseAgentHost={host.databaseAgentHost} />
-                ))}
-              </Table>
-            </>
-          )}
-        </TitleCard>
+        <AdminCan action='nodes.read'>
+          <TitleCard
+            title={t('pages.admin.home.tabs.updates.page.card.outdatedNodes', {})}
+            icon={<FontAwesomeIcon icon={faServer} />}
+          >
+            {loading || !nodes?.outdatedNodes ? (
+              <Spinner.Centered />
+            ) : !nodes?.outdatedNodes.total ? (
+              <>
+                <FontAwesomeIcon icon={faCheck} />{' '}
+                {t('pages.admin.home.tabs.updates.page.nodesUpToDate', { failed: nodes?.failedNodes ?? 0 })}
+              </>
+            ) : (
+              <>
+                <FontAwesomeIcon icon={faExclamationTriangle} />{' '}
+                {t('pages.admin.home.tabs.updates.page.nodesOutdated', {
+                  latest: updateInformation?.latestWingsVersion || unknownLabel,
+                  outdated: nodes?.outdatedNodes.total ?? 0,
+                  failed: nodes?.failedNodes ?? 0,
+                }).md()}
+                <div className='mt-4' />
+                <Table
+                  columns={nodeTableColumns()}
+                  loading={loading}
+                  error={error}
+                  pagination={nodes.outdatedNodes}
+                  onPageSelect={setPage}
+                >
+                  {nodes.outdatedNodes.data.map((node) => (
+                    <NodeRow key={node.node.uuid} node={node.node} />
+                  ))}
+                </Table>
+              </>
+            )}
+          </TitleCard>
+        </AdminCan>
+        <AdminCan action='database-agent-hosts.read'>
+          <TitleCard
+            title={t('pages.admin.home.tabs.updates.page.card.outdatedDatabaseAgentHosts', {})}
+            icon={<FontAwesomeIcon icon={faServer} />}
+          >
+            {databaseAgentHostsLoading || !databaseAgentHosts?.outdatedDatabaseAgentHosts ? (
+              <Spinner.Centered />
+            ) : !databaseAgentHosts?.outdatedDatabaseAgentHosts.total ? (
+              <>
+                <FontAwesomeIcon icon={faCheck} />{' '}
+                {t('pages.admin.home.tabs.updates.page.databaseAgentHostsUpToDate', {
+                  failed: databaseAgentHosts?.failedDatabaseAgentHosts ?? 0,
+                })}
+              </>
+            ) : (
+              <>
+                <FontAwesomeIcon icon={faExclamationTriangle} />{' '}
+                {t('pages.admin.home.tabs.updates.page.databaseAgentHostsOutdated', {
+                  latest: updateInformation?.latestDbAgentVersion || unknownLabel,
+                  outdated: databaseAgentHosts?.outdatedDatabaseAgentHosts.total ?? 0,
+                  failed: databaseAgentHosts?.failedDatabaseAgentHosts ?? 0,
+                }).md()}
+                <div className='mt-4' />
+                <Table
+                  columns={databaseAgentHostTableColumns()}
+                  loading={databaseAgentHostsLoading}
+                  error={databaseAgentHostsError}
+                  pagination={databaseAgentHosts.outdatedDatabaseAgentHosts}
+                  onPageSelect={setDatabaseAgentHostsPage}
+                >
+                  {databaseAgentHosts.outdatedDatabaseAgentHosts.data.map((host) => (
+                    <DatabaseAgentHostRow
+                      key={host.databaseAgentHost.uuid}
+                      databaseAgentHost={host.databaseAgentHost}
+                    />
+                  ))}
+                </Table>
+              </>
+            )}
+          </TitleCard>
+        </AdminCan>
 
         {window.extensionContext.extensionRegistry.pages.admin.home.updates.cards.appendedComponents.map(
           (Component, index) => (

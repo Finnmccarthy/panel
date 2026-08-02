@@ -25,6 +25,7 @@ import { adminServerBackupSchema, adminServerSchema } from '@/lib/schemas/admin/
 import { transferArchiveFormat } from '@/lib/schemas/generic.ts';
 import { compressionLevel as compressionLevelEnum } from '@/lib/schemas/server/files.ts';
 import { formatAllocation } from '@/lib/server.ts';
+import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -36,6 +37,7 @@ export default function ServerTransferModal({
   const { t } = useTranslations();
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const canReadNodeAllocations = useAdminCan('nodes.allocations');
 
   const [openModal, setOpenModal] = useState<'confirm' | null>(null);
   const [selectedNodeUuid, setSelectedNodeUuid] = useState<string | null>(null);
@@ -60,6 +62,7 @@ export default function ServerTransferModal({
         ? getAvailableNodeAllocations(selectedNodeUuid, 1, search)
         : Promise.resolve(getEmptyPaginationSet()),
     deps: [selectedNodeUuid],
+    canRequest: canReadNodeAllocations,
   });
   const availableAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
     queryKey: selectedNodeUuid
@@ -70,6 +73,7 @@ export default function ServerTransferModal({
         ? getAvailableNodeAllocations(selectedNodeUuid, 1, search)
         : Promise.resolve(getEmptyPaginationSet()),
     deps: [selectedNodeUuid],
+    canRequest: canReadNodeAllocations,
   });
   const backups = useSearchableResource<z.infer<typeof adminServerBackupSchema>>({
     queryKey: queryKeys.admin.servers.backups(server.uuid),
