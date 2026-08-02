@@ -16,4 +16,6 @@ sha2 = { workspace = true }
 hex = { workspace = true }
 chrono = { workspace = true }
 anyhow = { workspace = true }
+
+[target.'cfg(unix)'.dependencies]
 rustix = { workspace = true }

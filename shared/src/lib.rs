@@ -27,6 +27,7 @@ pub mod events;
 pub mod extensions;
 pub mod extract;
 pub mod git;
+#[cfg(unix)]
 pub mod heavy;
 pub mod jwt;
 pub mod mail;

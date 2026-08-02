@@ -1,16 +1,36 @@
+#[cfg(unix)]
 use crate::config::Config;
-use std::{path::PathBuf, process::ExitCode};
+#[cfg(unix)]
+use std::path::PathBuf;
+use std::process::ExitCode;
 
+#[cfg(unix)]
 mod build;
+#[cfg(unix)]
 mod cache_key;
+#[cfg(unix)]
 mod config;
+#[cfg(unix)]
 mod group;
+#[cfg(unix)]
 mod panel;
+#[cfg(unix)]
 mod runtime;
+#[cfg(unix)]
 mod server;
+#[cfg(unix)]
 mod store;
+#[cfg(unix)]
 mod translations;
 
+#[cfg(not(unix))]
+fn main() -> ExitCode {
+    eprintln!("the heavy supervisor is only supported on unix platforms");
+
+    ExitCode::FAILURE
+}
+
+#[cfg(unix)]
 #[tokio::main]
 async fn main() -> ExitCode {
     tracing_subscriber::fmt()

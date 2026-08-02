@@ -21,9 +21,6 @@ pub struct StorageAsset {
     pub created: chrono::DateTime<chrono::Utc>,
 }
 
-/// Upper bound on entries walked while resolving a recursive name search. Object stores have no
-/// server side substring matching, so a search has to enumerate the subtree; this caps how much of
-/// it a single request is allowed to pull.
 const SEARCH_SCAN_LIMIT: usize = 10_000;
 
 fn get_s3_client(

@@ -1,6 +1,7 @@
 use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
+#[cfg(unix)]
 mod manage;
 
 mod get {
@@ -32,8 +33,10 @@ mod get {
 }
 
 pub fn router(state: &State) -> OpenApiRouter<State> {
-    OpenApiRouter::new()
-        .nest("/manage", manage::router(state))
-        .routes(routes!(get::route))
-        .with_state(state.clone())
+    let router = OpenApiRouter::new().routes(routes!(get::route));
+
+    #[cfg(unix)]
+    let router = router.nest("/manage", manage::router(state));
+
+    router.with_state(state.clone())
 }
