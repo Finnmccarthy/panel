@@ -247,6 +247,14 @@ strong {
   @apply font-semibold;
 }
 
+.monaco-editor .find-widget > .button.codicon-widget-close {
+  box-sizing: content-box;
+}
+
+.workbench-hover-container {
+  width: max-content;
+}
+
 [data-mantine-color-scheme="dark"] {
   .hljs {
     background: #2b2b2b;
