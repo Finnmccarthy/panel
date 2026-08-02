@@ -63,7 +63,7 @@ export default function ActivityContainer() {
     <AdminSubContentContainer title={t('pages.admin.settings.tabs.activity.page.title', {})} titleOrder={2}>
       <form onSubmit={form.onSubmit(() => doUpdate())}>
         <Stack>
-          <Group grow>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
             <NumberInput
               withAsterisk
               label={t('pages.admin.settings.tabs.activity.page.form.adminLogRetentionDays', {})}
@@ -84,9 +84,9 @@ export default function ActivityContainer() {
               key={form.key('serverLogRetentionDays')}
               {...form.getInputProps('serverLogRetentionDays')}
             />
-          </Group>
+          </div>
 
-          <Group grow>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
             <NumberInput
               label={t('pages.admin.settings.tabs.activity.page.form.adminLogRetentionCount', {})}
               key={form.key('adminLogRetentionCount')}
@@ -104,9 +104,9 @@ export default function ActivityContainer() {
               key={form.key('serverLogRetentionCount')}
               {...form.getInputProps('serverLogRetentionCount')}
             />
-          </Group>
+          </div>
 
-          <Group grow>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
             <Switch
               label={t('pages.admin.settings.tabs.activity.page.form.serverLogAdminActivity', {})}
               description={t('pages.admin.settings.tabs.activity.page.form.serverLogAdminActivityDescription', {})}
@@ -120,7 +120,7 @@ export default function ActivityContainer() {
               key={form.key('serverLogScheduleActivity')}
               {...form.getInputProps('serverLogScheduleActivity', { type: 'checkbox' })}
             />
-          </Group>
+          </div>
         </Stack>
 
         <Group mt='md'>

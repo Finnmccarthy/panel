@@ -86,7 +86,7 @@ export default function RatelimitsContainer() {
                 <Code w='fit-content' title={label}>
                   {label}
                 </Code>
-                <Group grow>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
                   <NumberInput
                     withAsterisk
                     label={t('pages.admin.settings.tabs.ratelimits.page.form.hits', {})}
@@ -101,7 +101,7 @@ export default function RatelimitsContainer() {
                     key={form.key(`${key}.windowSeconds`)}
                     {...form.getInputProps(`${key}.windowSeconds`)}
                   />
-                </Group>
+                </div>
               </Stack>
             </Card>
           ))}

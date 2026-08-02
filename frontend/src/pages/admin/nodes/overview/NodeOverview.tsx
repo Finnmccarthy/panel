@@ -64,33 +64,33 @@ function CapacityResource({
   if (limit === 0) {
     return (
       <Card>
-        <Group grow>
-          <div className='flex justify-center'>
+        <div className='flex flex-col md:flex-row gap-4 md:items-center'>
+          <div className='flex justify-center md:flex-1'>
             <SemiCircleProgress value={100} label='--' filledSegmentColor='gray' />
           </div>
-          <div className='flex flex-col text-right flex-1'>
+          <div className='flex flex-col text-center md:text-right flex-1'>
             <Title order={2}>
               {icon} {label}
             </Title>
             <h2>{formatValue(allocated)}</h2>
             <p className='text-xs'>{footer ?? t('pages.admin.nodes.tabs.capacity.page.label.noLimit', {})}</p>
           </div>
-        </Group>
+        </div>
       </Card>
     );
   }
 
   return (
     <Card>
-      <Group grow>
-        <div className='flex justify-center'>
+      <div className='flex flex-col md:flex-row gap-4 md:items-center'>
+        <div className='flex justify-center md:flex-1'>
           <SemiCircleProgress
             value={Math.min(percent, 100)}
             label={<>{percent.toFixed(1)}%</>}
             filledSegmentColor={percent >= 90 ? 'red' : undefined}
           />
         </div>
-        <div className='flex flex-col text-right flex-1'>
+        <div className='flex flex-col text-center md:text-right flex-1'>
           <Title order={2}>
             {icon} {label}
           </Title>
@@ -99,7 +99,7 @@ function CapacityResource({
           </h2>
           {footer}
         </div>
-      </Group>
+      </div>
     </Card>
   );
 }

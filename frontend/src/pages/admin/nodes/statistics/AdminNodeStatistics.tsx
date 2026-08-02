@@ -7,7 +7,6 @@ import Card from '@/elements/Card.tsx';
 import ChartBlock from '@/elements/ChartBlock.tsx';
 import ChartLegend from '@/elements/ChartLegend.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
-import Group from '@/elements/Group.tsx';
 import SemiCircleProgress from '@/elements/SemiCircleProgress.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import StreamChart from '@/elements/StreamChart.tsx';
@@ -101,15 +100,15 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
             >
               <div className='grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4'>
                 <Card>
-                  <Group grow>
-                    <div className='flex justify-center'>
+                  <div className='flex flex-col md:flex-row gap-4 md:items-center'>
+                    <div className='flex justify-center md:flex-1'>
                       <SemiCircleProgress
                         value={stats.cpu.used}
                         label={<>{stats.cpu.used.toFixed(1)}%</>}
                         filledSegmentColor={stats.cpu.used >= 90 ? 'red' : undefined}
                       />
                     </div>
-                    <div className='flex flex-col text-right flex-1'>
+                    <div className='flex flex-col text-center md:text-right flex-1'>
                       <Title order={2}>{t('pages.admin.nodes.tabs.statistics.page.label.cpu', {})}</Title>
                       <h2>
                         {t('pages.admin.nodes.tabs.statistics.page.label.cpuThreads', {
@@ -118,18 +117,18 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
                         })}
                       </h2>
                     </div>
-                  </Group>
+                  </div>
                 </Card>
                 <Card>
-                  <Group grow>
-                    <div className='flex justify-center'>
+                  <div className='flex flex-col md:flex-row gap-4 md:items-center'>
+                    <div className='flex justify-center md:flex-1'>
                       <SemiCircleProgress
                         value={(stats.memory.used / stats.memory.total) * 100}
                         label={<>{((stats.memory.used / stats.memory.total) * 100).toFixed(1)}%</>}
                         filledSegmentColor={stats.memory.used / stats.memory.total >= 0.9 ? 'red' : undefined}
                       />
                     </div>
-                    <div className='flex flex-col text-right flex-1'>
+                    <div className='flex flex-col text-center md:text-right flex-1'>
                       <Title order={2}>{t('pages.admin.nodes.tabs.statistics.page.label.memory', {})}</Title>
                       <h2>
                         {bytesToString(stats.memory.used)} / {bytesToString(stats.memory.total)}
@@ -140,31 +139,31 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
                         })}
                       </p>
                     </div>
-                  </Group>
+                  </div>
                 </Card>
                 <Card>
-                  <Group grow>
-                    <div className='flex justify-center'>
+                  <div className='flex flex-col md:flex-row gap-4 md:items-center'>
+                    <div className='flex justify-center md:flex-1'>
                       <SemiCircleProgress
                         value={(stats.disk.used / stats.disk.total) * 100}
                         label={<>{((stats.disk.used / stats.disk.total) * 100).toFixed(1)}%</>}
                         filledSegmentColor={stats.disk.used / stats.disk.total >= 0.9 ? 'red' : undefined}
                       />
                     </div>
-                    <div className='flex flex-col text-right flex-1'>
+                    <div className='flex flex-col text-center md:text-right flex-1'>
                       <Title order={2}>{t('pages.admin.nodes.tabs.statistics.page.label.disk', {})}</Title>
                       <h2>
                         {bytesToString(stats.disk.used)} / {bytesToString(stats.disk.total)}
                       </h2>
                     </div>
-                  </Group>
+                  </div>
                 </Card>
                 <Card>
-                  <Group grow>
-                    <div className='flex justify-center'>
+                  <div className='flex flex-col md:flex-row gap-4 md:items-center'>
+                    <div className='flex justify-center md:flex-1'>
                       <SemiCircleProgress value={100} label='--' filledSegmentColor='gray' />
                     </div>
-                    <div className='flex flex-col text-right flex-1'>
+                    <div className='flex flex-col text-center md:text-right flex-1'>
                       <Title order={2}>{t('pages.admin.nodes.tabs.statistics.page.label.network', {})}</Title>
                       <h2>
                         {t('pages.admin.nodes.tabs.statistics.page.label.networkIn', {
@@ -176,7 +175,7 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
                         })}
                       </h2>
                     </div>
-                  </Group>
+                  </div>
                 </Card>
               </div>
             </TitleCard>

@@ -1,4 +1,4 @@
-import { Box, Select, TextInput, type TextInputProps } from '@mantine/core';
+import { Box, Group, Select, TextInput, type TextInputProps } from '@mantine/core';
 import { useCallback, useMemo, useState } from 'react';
 import { makeComponentHookable } from 'shared';
 import { getTranslations } from '@/providers/TranslationProvider.tsx';
@@ -33,8 +33,11 @@ function LocalizedTextInput({
   languageLabels,
   label,
   disabled,
+  required,
+  withAsterisk,
   ...inputProps
 }: LocalizedTextInputProps) {
+  const isRequired = typeof withAsterisk === 'boolean' ? withAsterisk : required;
   const allLanguages = useMemo(() => {
     const codes = [EN, ...languages.filter((c) => c !== EN)];
     return [...new Set(codes)];
@@ -74,38 +77,43 @@ function LocalizedTextInput({
   );
 
   return (
-    <Box pos='relative'>
-      <TextInput
-        {...inputProps}
-        label={label}
-        value={currentValue}
-        placeholder={typeof label === 'string' ? label : undefined}
-        onChange={handleChange}
-        disabled={disabled}
-      />
-      <Select
-        data={selectData}
-        value={selectedLang}
-        onChange={(v) => setSelectedLang(v ?? EN)}
-        allowDeselect={false}
-        size='sm'
-        w={130}
-        comboboxProps={{ withinPortal: true }}
-        disabled={disabled}
-        aria-label='Language'
-        styles={{
-          input: {
-            fontWeight: 500,
-            fontSize: 'var(--mantine-font-size-xs)',
-          },
-        }}
-        style={{
-          position: 'absolute',
-          top: label && !inputProps.description ? 24 : 0,
-          right: 0,
-        }}
-      />
-    </Box>
+    <TextInput
+      {...inputProps}
+      label={
+        <Group justify='space-between' align='center' wrap='nowrap' gap='xs' w='100%'>
+          <Box style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
+            {label}
+            {isRequired && (
+              <span aria-hidden style={{ color: 'var(--input-asterisk-color, var(--mantine-color-error))' }}>
+                &nbsp;*
+              </span>
+            )}
+          </Box>
+          <Select
+            data={selectData}
+            value={selectedLang}
+            onChange={(v) => setSelectedLang(v ?? EN)}
+            allowDeselect={false}
+            size='xs'
+            w={130}
+            comboboxProps={{ withinPortal: true }}
+            disabled={disabled}
+            aria-label='Language'
+            styles={{
+              input: {
+                fontWeight: 500,
+                fontSize: 'var(--mantine-font-size-xs)',
+              },
+            }}
+          />
+        </Group>
+      }
+      labelProps={{ labelElement: 'div', style: { display: 'block', width: '100%' } }}
+      value={currentValue}
+      placeholder={typeof label === 'string' ? label : undefined}
+      onChange={handleChange}
+      disabled={disabled}
+    />
   );
 }
 

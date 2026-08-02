@@ -183,7 +183,7 @@ export default function AdminOverviewHealth() {
             {!debugMode ? (
               <Spinner.Centered />
             ) : (
-              <div className='flex flex-row justify-between'>
+              <div className='flex flex-col md:flex-row gap-2 justify-between'>
                 <span>
                   <FontAwesomeIcon icon={debugMode.enabled ? faExclamationTriangle : faCheck} />{' '}
                   {debugMode.enabled
