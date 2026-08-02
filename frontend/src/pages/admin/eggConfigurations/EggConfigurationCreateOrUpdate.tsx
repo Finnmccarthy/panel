@@ -258,16 +258,22 @@ export default function EggConfigurationCreateOrUpdate({
 
     serverRoutes
       .then((module) => {
+        const entries = [...module.default, ...window.extensionContext.extensionRegistry.routes.serverRoutes];
+
+        for (const interceptor of window.extensionContext.extensionRegistry.routes.serverRouteInterceptors) {
+          interceptor(entries);
+        }
+
         const routes: z.infer<typeof eggConfigurationRouteItemSchema>[] = [];
 
-        for (const route of [...module.default, ...window.extensionContext.extensionRegistry.routes.serverRoutes]) {
+        for (const route of entries) {
           if (route.name === undefined) continue;
           routes.push({ type: 'route', path: route.path });
         }
 
         setDefaultRoutes({
           order: routes,
-          entries: [...module.default, ...window.extensionContext.extensionRegistry.routes.serverRoutes],
+          entries,
         });
       })
       .catch((msg) => addToast(httpErrorToHuman(msg), 'error'));

@@ -57,6 +57,11 @@ export default function UserContainer() {
     import('@/routers/routes/accountRoutes.ts')
       .then((module) => {
         const entries = [...module.default, ...window.extensionContext.extensionRegistry.routes.accountRoutes];
+
+        for (const interceptor of window.extensionContext.extensionRegistry.routes.accountRouteInterceptors) {
+          interceptor(entries);
+        }
+
         const order: z.infer<typeof eggConfigurationRouteItemSchema>[] = [];
         for (const route of entries) {
           if (route.name === undefined) continue;
