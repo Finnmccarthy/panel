@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react';
 
-const MIN_DURATION = 3;
+const MIN_DURATION = 6;
 const MAX_DURATION = 30;
 
-const SPEED = 40;
+const SPEED = 20;
 
 export default function ScrollingText({ children, className }: { children: ReactNode; className?: string }) {
   const containerRef = useRef<HTMLSpanElement>(null);

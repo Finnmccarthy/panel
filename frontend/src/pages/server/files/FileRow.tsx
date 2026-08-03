@@ -192,7 +192,7 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
             <Tooltip
               label={t('pages.server.files.tooltip.dragToMove', {})}
               disabled={!canDragFile}
-              innerClassName='w-fit min-w-0'
+              innerClassName='w-full max-w-fit min-w-0'
             >
               <span
                 draggable={canDragFile}
