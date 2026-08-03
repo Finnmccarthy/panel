@@ -3,6 +3,8 @@ import { createContext, MouseEvent as ReactMouseEvent, ReactNode, useContext } f
 import { z } from 'zod';
 import { userToastPosition } from '@/lib/schemas/user.ts';
 
+export const toastTimeout = 7500;
+
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export interface ToastAction {

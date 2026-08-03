@@ -123,6 +123,12 @@ function buildCoreShortcutDefinitions(): ShortcutDefinition[] {
       defaultBinding: binding('Delete'),
     },
     {
+      id: 'files.undo',
+      category: fileManager,
+      description: () => getTranslations().t('pages.account.shortcuts.fileManager.undo', {}),
+      defaultBinding: binding('z', ['ctrlOrMeta']),
+    },
+    {
       id: 'table.previousPage',
       category: table,
       description: () => getTranslations().t('pages.account.shortcuts.table.previousPage', {}),

@@ -1245,7 +1245,8 @@
             "moveDownSelection": "Auswahl nach unten verschieben",
             "renameFile": "Datei umbenennen",
             "deselectAll": "Alle Dateien abwählen",
-            "deleteFiles": "Ausgewählte Dateien löschen"
+            "deleteFiles": "Ausgewählte Dateien löschen",
+            "undo": "Letzten Dateivorgang rückgängig machen"
           },
           "table": {
             "title": "Tabellen-Navigation",

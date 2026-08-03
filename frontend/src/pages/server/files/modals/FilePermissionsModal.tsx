@@ -1,4 +1,3 @@
-import { faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
 import { ModalProps } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
@@ -15,11 +14,12 @@ import Stack from '@/elements/Stack.tsx';
 import Title from '@/elements/Title.tsx';
 import { permissionStringToNumber } from '@/lib/files.ts';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
+import { useUndoableToast } from '@/plugins/useUndoableToast.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
-import { ToastAction } from '@/providers/contexts/toastContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
+import { fileManagerUndoScope } from '@/stores/undoHistory.ts';
 
 type Props = ModalProps & {
   file: z.infer<typeof serverDirectoryEntrySchema> | null;
@@ -32,6 +32,7 @@ export default function FilePermissionsModal({ file, ...props }: Props) {
   const { t, tItem } = useTranslations();
   const { addToast } = useToast();
   const server = useServerStore((state) => state.server);
+  const addUndoableToast = useUndoableToast(fileManagerUndoScope(server.uuid));
   const browsingWritableDirectory = useFileManager((state) => state.browsingWritableDirectory);
   const browsingDirectory = useFileManager((state) => state.browsingDirectory);
   const invalidateFilemanager = useFileManager((state) => state.invalidateFilemanager);
@@ -154,40 +155,34 @@ export default function FilePermissionsModal({ file, ...props }: Props) {
       .then(({ updated }) => {
         props.onClose();
         if (updated > 0) {
-          const undoAction: ToastAction[] =
+          const undo =
             wasRecursive || oldMode === newPermissions.toString()
-              ? []
-              : [
-                  {
-                    name: t('common.button.undo', {}),
-                    icon: faArrowLeftLong,
-                    onClick: () =>
-                      chmodFiles({
-                        uuid: server.uuid,
-                        root: directory,
-                        files: [{ file: fileName, mode: oldMode, recursive: false }],
-                      })
-                        .then(({ updated: restored }) => {
-                          if (restored < 1) {
-                            addToast(t('pages.server.files.toast.permissionsCouldNotBeRestored', {}), 'error');
-                            return;
-                          }
+              ? null
+              : () =>
+                  chmodFiles({
+                    uuid: server.uuid,
+                    root: directory,
+                    files: [{ file: fileName, mode: oldMode, recursive: false }],
+                  })
+                    .then(({ updated: restored }) => {
+                      if (restored < 1) {
+                        addToast(t('pages.server.files.toast.permissionsCouldNotBeRestored', {}), 'error');
+                        return;
+                      }
 
-                          addToast(t('pages.server.files.toast.permissionsRestored', {}), 'success');
-                          invalidateFilemanager();
-                        })
-                        .catch((msg) => {
-                          addToast(httpErrorToHuman(msg), 'error');
-                        }),
-                  },
-                ];
+                      addToast(t('pages.server.files.toast.permissionsRestored', {}), 'success');
+                      invalidateFilemanager();
+                    })
+                    .catch((msg) => {
+                      addToast(httpErrorToHuman(msg), 'error');
+                    });
 
           if (updated === 1) {
-            addToast(t('pages.server.files.toast.permissionsUpdated', {}), undoAction);
+            addUndoableToast(t('pages.server.files.toast.permissionsUpdated', {}), undo);
           } else {
-            addToast(
+            addUndoableToast(
               t('pages.server.files.toast.permissionsUpdatedMany', { files: tItem('file', updated) }),
-              undoAction,
+              undo,
             );
           }
         } else {

@@ -1,4 +1,3 @@
-import { faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
 import { ModalProps } from '@mantine/core';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { useEffect } from 'react';
@@ -12,10 +11,12 @@ import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import { serverDirectoryEntrySchema, serverFilesNameSchema } from '@/lib/schemas/server/files.ts';
 import { useModalForm } from '@/plugins/useModalForm.ts';
+import { useUndoableToast } from '@/plugins/useUndoableToast.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
+import { fileManagerUndoScope } from '@/stores/undoHistory.ts';
 
 type Props = ModalProps & {
   file: z.infer<typeof serverDirectoryEntrySchema> | null;
@@ -25,6 +26,7 @@ export default function FileRenameModal({ file, ...props }: Props) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const server = useServerStore((state) => state.server);
+  const addUndoableToast = useUndoableToast(fileManagerUndoScope(server.uuid));
   const { browsingDirectory, selectedFiles, addSelectedFile, removeSelectedFile, invalidateFilemanager } =
     useFileManager(
       useShallow((state) => ({
@@ -65,30 +67,25 @@ export default function FileRenameModal({ file, ...props }: Props) {
         return;
       }
 
-      addToast(t('pages.server.files.toast.fileRenamed', {}), [
-        {
-          name: t('common.button.undo', {}),
-          icon: faArrowLeftLong,
-          onClick: () =>
-            renameFiles({
-              uuid: server.uuid,
-              root: directory,
-              files: [{ from: newName, to: oldName }],
-            })
-              .then(({ renamed: undone }) => {
-                if (undone < 1) {
-                  addToast(t('pages.server.files.toast.renameCouldNotBeUndone', {}), 'error');
-                  return;
-                }
+      addUndoableToast(t('pages.server.files.toast.fileRenamed', {}), () =>
+        renameFiles({
+          uuid: server.uuid,
+          root: directory,
+          files: [{ from: newName, to: oldName }],
+        })
+          .then(({ renamed: undone }) => {
+            if (undone < 1) {
+              addToast(t('pages.server.files.toast.renameCouldNotBeUndone', {}), 'error');
+              return;
+            }
 
-                addToast(t('pages.server.files.toast.renameUndone', {}), 'success');
-                invalidateFilemanager();
-              })
-              .catch((msg) => {
-                addToast(httpErrorToHuman(msg), 'error');
-              }),
-        },
-      ]);
+            addToast(t('pages.server.files.toast.renameUndone', {}), 'success');
+            invalidateFilemanager();
+          })
+          .catch((msg) => {
+            addToast(httpErrorToHuman(msg), 'error');
+          }),
+      );
       invalidateFilemanager();
       if (selectedFiles.has(file)) {
         removeSelectedFile(file);

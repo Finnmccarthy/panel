@@ -36,6 +36,7 @@ import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useFileManagerApi, useFileManagerStore } from '@/stores/fileManager.ts';
 import { useServerStore } from '@/stores/server.ts';
+import { fileManagerUndoScope, runLastUndoEntry } from '@/stores/undoHistory.ts';
 
 type ServerFilesColumn = 'name' | 'size' | 'physical_size' | 'modified';
 
@@ -254,6 +255,10 @@ function ServerFilesComponent() {
             doOpenModal('rename', [state.selectedFiles.values()[0]]);
           }
         },
+      },
+      {
+        id: 'files.undo',
+        callback: () => void runLastUndoEntry(fileManagerUndoScope(server.uuid)),
       },
       {
         key: 'Enter',

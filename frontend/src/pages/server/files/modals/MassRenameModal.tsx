@@ -1,5 +1,4 @@
 import {
-  faArrowLeftLong,
   faArrowRight,
   faFont,
   faHashtag,
@@ -31,10 +30,12 @@ import Text from '@/elements/Text.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { buildRenamePreview, MassRenameOptions, RenameCase, RenameScope, RenameStatus } from '@/lib/massRename.ts';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
+import { useUndoableToast } from '@/plugins/useUndoableToast.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
+import { fileManagerUndoScope } from '@/stores/undoHistory.ts';
 
 type Props = ModalProps & {
   files: z.infer<typeof serverDirectoryEntrySchema>[];
@@ -66,6 +67,7 @@ export default function MassRenameModal({ files, ...props }: Props) {
   const { t, tReact, tItem } = useTranslations();
   const { addToast } = useToast();
   const server = useServerStore((state) => state.server);
+  const addUndoableToast = useUndoableToast(fileManagerUndoScope(server.uuid));
   const { browsingDirectory, browsingEntries, invalidateFilemanager, doSelectFiles } = useFileManager(
     useShallow((state) => ({
       browsingDirectory: state.browsingDirectory,
@@ -134,30 +136,25 @@ export default function MassRenameModal({ files, ...props }: Props) {
         return;
       }
 
-      addToast(t('pages.server.files.toast.filesRenamed', { files: tItem('file', renamed) }), [
-        {
-          name: t('common.button.undo', {}),
-          icon: faArrowLeftLong,
-          onClick: () =>
-            renameFiles({
-              uuid: server.uuid,
-              root: directory,
-              files: renames.map((rename) => ({ from: rename.to, to: rename.from })),
-            })
-              .then(({ renamed: undone }) => {
-                if (undone < 1) {
-                  addToast(t('pages.server.files.toast.renameCouldNotBeUndone', {}), 'error');
-                  return;
-                }
+      addUndoableToast(t('pages.server.files.toast.filesRenamed', { files: tItem('file', renamed) }), () =>
+        renameFiles({
+          uuid: server.uuid,
+          root: directory,
+          files: renames.map((rename) => ({ from: rename.to, to: rename.from })),
+        })
+          .then(({ renamed: undone }) => {
+            if (undone < 1) {
+              addToast(t('pages.server.files.toast.renameCouldNotBeUndone', {}), 'error');
+              return;
+            }
 
-                addToast(t('pages.server.files.toast.renameUndone', {}), 'success');
-                invalidateFilemanager();
-              })
-              .catch((err) => {
-                addToast(err instanceof Error ? err.message : String(err), 'error');
-              }),
-        },
-      ]);
+            addToast(t('pages.server.files.toast.renameUndone', {}), 'success');
+            invalidateFilemanager();
+          })
+          .catch((err) => {
+            addToast(err instanceof Error ? err.message : String(err), 'error');
+          }),
+      );
       invalidateFilemanager();
       doSelectFiles([]);
       props.onClose();

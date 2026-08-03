@@ -1186,6 +1186,7 @@ const baseTranslations = defineTranslations({
             renameFile: 'Rename file',
             deselectAll: 'Deselect all files',
             deleteFiles: 'Delete selected files',
+            undo: 'Undo the last file operation',
           },
           table: {
             title: 'Table Navigation',

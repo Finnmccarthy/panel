@@ -1,13 +1,14 @@
-import { faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import { canMoveFilesToDirectory, FileMoveEntry, moveFilesToDirectory } from '@/pages/server/files/fileMove.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
+import { useUndoableToast } from '@/plugins/useUndoableToast.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { FileManagerStore, useFileManagerApi, useFileManagerStore } from '@/stores/fileManager.ts';
 import { useServerStore } from '@/stores/server.ts';
+import { fileManagerUndoScope } from '@/stores/undoHistory.ts';
 
 interface UseDraggedFileMoveOptions {
   disabled?: boolean;
@@ -16,8 +17,9 @@ interface UseDraggedFileMoveOptions {
 
 export function useDraggedFileMove({ disabled = false, targetDirectory }: UseDraggedFileMoveOptions = {}) {
   const { t, tItem } = useTranslations();
-  const { addToast, dismissToast } = useToast();
+  const { addToast } = useToast();
   const server = useServerStore((state) => state.server);
+  const addUndoableToast = useUndoableToast(fileManagerUndoScope(server.uuid));
   const canUpdateFiles = useServerCan('files.update');
   const store = useFileManagerApi();
   const [moving, setMoving] = useState(false);
@@ -80,13 +82,9 @@ export function useDraggedFileMove({ disabled = false, targetDirectory }: UseDra
         return;
       }
 
-      const toastId: number = addToast(t('pages.server.files.toast.filesMoved', { files: tItem('file', renamed) }), [
-        {
-          name: t('common.button.undo', {}),
-          icon: faArrowLeftLong,
-          onClick: () => undoMove(movedFiles, source, target).then(() => dismissToast(toastId)),
-        },
-      ]);
+      addUndoableToast(t('pages.server.files.toast.filesMoved', { files: tItem('file', renamed) }), () =>
+        undoMove(movedFiles, source, target),
+      );
       state.doSelectFiles([]);
       state.invalidateFilemanager();
     } catch (msg) {

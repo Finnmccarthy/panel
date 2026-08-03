@@ -7,9 +7,7 @@ import ActionIcon from '@/elements/ActionIcon.tsx';
 import Notification from '@/elements/Notification.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { userToastPosition } from '@/lib/schemas/user.ts';
-import { Toast, ToastAction, ToastContext, ToastType } from '@/providers/contexts/toastContext.ts';
-
-const toastTimeout = 7500;
+import { Toast, ToastAction, ToastContext, ToastType, toastTimeout } from '@/providers/contexts/toastContext.ts';
 
 const ToastActionButton: FC<{ action: ToastAction }> = ({ action }) => {
   const [loading, setLoading] = useState(false);
