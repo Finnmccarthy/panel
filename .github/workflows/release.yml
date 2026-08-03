@@ -17,7 +17,7 @@ jobs:
     name: Generate SBOM
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout sources
@@ -89,18 +89,22 @@ jobs:
             os: ubuntu-24.04
             target: x86_64-unknown-linux-musl
             binary_suffix: ""
+            wings_platform: linux/amd64
           - build: aarch64-linux
             os: ubuntu-24.04
             target: aarch64-unknown-linux-musl
             binary_suffix: ""
+            wings_platform: linux/arm64
           - build: riscv64-linux
             os: ubuntu-24.04
             target: riscv64gc-unknown-linux-gnu
             binary_suffix: ""
+            wings_platform: linux/riscv64
           - build: ppc64le-linux
             os: ubuntu-24.04
             target: powerpc64le-unknown-linux-gnu
             binary_suffix: ""
+            wings_platform: linux/ppc64le
           - build: x86_64-windows
             os: windows-latest
             target: x86_64-pc-windows-msvc
@@ -133,8 +137,21 @@ jobs:
         if: contains(matrix.target, 'linux')
         run: cargo install cross --git https://github.com/cross-rs/cross
 
+      - name: Extract wings binary
+        if: contains(matrix.target, 'linux')
+        run: |
+          mkdir -p bins/all-in-one/bins
+          docker pull --platform ${{ matrix.wings_platform }} ghcr.io/calagopus/wings:latest
+          cid=$(docker create --platform ${{ matrix.wings_platform }} ghcr.io/calagopus/wings:latest)
+          docker cp "$cid:/usr/bin/calagopus-wings" bins/all-in-one/bins/wings-release-bin
+          docker rm "$cid"
+          chmod +x bins/all-in-one/bins/wings-release-bin
+
       - name: Build release binaries (Linux)
         if: contains(matrix.target, 'linux')
+        env:
+          WINGS_RELEASE: ${{ github.ref_name }}
+          WINGS_BINARY_PATH: bins/wings-release-bin
         run: |
           RUSTFLAGS="-C target-feature=+crt-static" \
           cross build --release --target ${{ matrix.target }} -p $BIN_NAME

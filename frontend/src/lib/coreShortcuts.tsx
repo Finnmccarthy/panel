@@ -1,9 +1,10 @@
-import { faFolder, faTable, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { faFolder, faKeyboard, faTable, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ModifierKey, ShortcutCategory, ShortcutDefinition } from '@/lib/shortcuts.ts';
 import { getTranslations } from '@/providers/TranslationProvider.tsx';
 
 export const CORE_SHORTCUT_CATEGORIES = {
+  general: 'general',
   files: 'files',
   table: 'table',
   console: 'console',
@@ -15,6 +16,11 @@ function binding(key: string, modifiers: ModifierKey[] = []) {
 
 export function buildCoreShortcutCategories(): Record<string, ShortcutCategory> {
   return {
+    general: {
+      id: CORE_SHORTCUT_CATEGORIES.general,
+      label: () => getTranslations().t('pages.account.shortcuts.general.title', {}),
+      icon: <FontAwesomeIcon icon={faKeyboard} size='sm' />,
+    },
     files: {
       id: CORE_SHORTCUT_CATEGORIES.files,
       label: () => getTranslations().t('pages.account.shortcuts.fileManager.title', {}),
@@ -45,11 +51,18 @@ export function getShortcutDefinition(id: string): ShortcutDefinition | undefine
 }
 
 function buildCoreShortcutDefinitions(): ShortcutDefinition[] {
+  const general = CORE_SHORTCUT_CATEGORIES.general;
   const fileManager = CORE_SHORTCUT_CATEGORIES.files;
   const table = CORE_SHORTCUT_CATEGORIES.table;
   const console = CORE_SHORTCUT_CATEGORIES.console;
 
   return [
+    {
+      id: 'general.undo',
+      category: general,
+      description: () => getTranslations().t('pages.account.shortcuts.general.undo', {}),
+      defaultBinding: binding('z', ['ctrlOrMeta']),
+    },
     {
       id: 'files.selectAll',
       category: fileManager,
@@ -121,12 +134,6 @@ function buildCoreShortcutDefinitions(): ShortcutDefinition[] {
       category: fileManager,
       description: () => getTranslations().t('pages.account.shortcuts.fileManager.deleteFiles', {}),
       defaultBinding: binding('Delete'),
-    },
-    {
-      id: 'files.undo',
-      category: fileManager,
-      description: () => getTranslations().t('pages.account.shortcuts.fileManager.undo', {}),
-      defaultBinding: binding('z', ['ctrlOrMeta']),
     },
     {
       id: 'table.previousPage',

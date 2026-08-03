@@ -69,12 +69,14 @@ fn main() {
 
     let mut final_version = existing_version.clone();
 
+    let has_usable_bin = std::fs::metadata(&bin_path).is_ok_and(|m| m.len() > 0);
+
     let should_check_github = if release_env.starts_with("latest") {
         true
-    } else if release_env.is_empty() && bin_path.exists() {
+    } else if release_env.is_empty() && has_usable_bin {
         false
     } else {
-        !bin_path.exists() || (!release_env.is_empty() && release_env != existing_version)
+        !has_usable_bin || (!release_env.is_empty() && release_env != existing_version)
     };
 
     if should_check_github
@@ -113,7 +115,13 @@ fn main() {
         }
     }
 
-    if !bin_path.exists() {
+    if !std::fs::metadata(&bin_path).is_ok_and(|m| m.len() > 0) {
+        if target_os == "linux" {
+            panic!(
+                "failed to obtain a wings-rs binary for {target_arch}, refusing to build an all-in-one binary without one, set WINGS_BINARY_PATH to build from a local binary"
+            );
+        }
+
         File::create(&bin_path).ok();
     }
 
@@ -127,7 +135,12 @@ fn fetch_release_metadata(arch: &str) -> Option<(String, String)> {
         .ok()?;
     let release: GithubRelease = serde_json::from_reader(resp.body_mut().as_reader()).ok()?;
 
-    let expected_name = format!("wings-rs-{arch}-linux");
+    let release_arch = match arch {
+        "powerpc64" => "ppc64le",
+        arch => arch,
+    };
+
+    let expected_name = format!("wings-rs-{release_arch}-linux");
     let asset = release
         .assets
         .into_iter()

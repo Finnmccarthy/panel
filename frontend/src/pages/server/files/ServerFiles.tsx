@@ -257,7 +257,7 @@ function ServerFilesComponent() {
         },
       },
       {
-        id: 'files.undo',
+        id: 'general.undo',
         callback: () => void runLastUndoEntry(fileManagerUndoScope(server.uuid)),
       },
       {

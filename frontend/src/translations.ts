@@ -1172,6 +1172,10 @@ const baseTranslations = defineTranslations({
             importErrors: 'Ignored {unknown} and {invalid}.',
             resetAll: 'All shortcuts reset to defaults.',
           },
+          general: {
+            title: 'General',
+            undo: 'Undo the last action',
+          },
           fileManager: {
             title: 'File Manager',
             selectAll: 'Select all files',
@@ -1186,7 +1190,6 @@ const baseTranslations = defineTranslations({
             renameFile: 'Rename file',
             deselectAll: 'Deselect all files',
             deleteFiles: 'Delete selected files',
-            undo: 'Undo the last file operation',
           },
           table: {
             title: 'Table Navigation',

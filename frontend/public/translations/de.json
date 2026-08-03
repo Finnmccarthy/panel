@@ -1232,6 +1232,10 @@
             "importErrors": "{unknown} und {invalid} ignoriert.",
             "resetAll": "Alle Tastenkürzel auf Standard zurückgesetzt."
           },
+          "general": {
+            "title": "Allgemein",
+            "undo": "Letzte Aktion rückgängig machen"
+          },
           "fileManager": {
             "title": "Dateimanager",
             "selectAll": "Alle Dateien auswählen",
@@ -1245,8 +1249,7 @@
             "moveDownSelection": "Auswahl nach unten verschieben",
             "renameFile": "Datei umbenennen",
             "deselectAll": "Alle Dateien abwählen",
-            "deleteFiles": "Ausgewählte Dateien löschen",
-            "undo": "Letzten Dateivorgang rückgängig machen"
+            "deleteFiles": "Ausgewählte Dateien löschen"
           },
           "table": {
             "title": "Tabellen-Navigation",
