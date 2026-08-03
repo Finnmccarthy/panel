@@ -18,7 +18,7 @@ export default function StepWaitForConsoleLine({
     <Stack>
       <ScheduleDynamicParameterInput
         label={t('common.form.lineContains', {})}
-        value={form.getInputProps('contains.root').value}
+        value={form.getInputProps('action.contains').value}
         onChange={(v) => form.setFieldValue('action.contains', v)}
       />
       <Switch

@@ -26,7 +26,7 @@ export default function StepCreateDirectory({
         withAsterisk
         label={t('common.form.directoryName', {})}
         placeholder={t('common.form.directoryName', {})}
-        value={form.getInputProps('action.nane').value}
+        value={form.getInputProps('action.name').value}
         onChange={(v) => form.setFieldValue('action.name', v)}
       />
       <Switch
