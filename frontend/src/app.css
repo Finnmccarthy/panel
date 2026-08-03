@@ -19,6 +19,7 @@
   --color-neutral-850: oklch(25.4% 0 0);
 
   --animate-progress-indeterminate: progress-indeterminate 1.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  --animate-scrolling-text: scrolling-text 6s ease-in-out infinite;
 
   @keyframes progress-indeterminate {
     from {
@@ -26,6 +27,21 @@
     }
     to {
       transform: translateX(250%);
+    }
+  }
+
+  @keyframes scrolling-text {
+    0%,
+    10% {
+      transform: translateX(0);
+    }
+    45%,
+    55% {
+      transform: translateX(var(--scrolling-text-distance, 0));
+    }
+    90%,
+    100% {
+      transform: translateX(0);
     }
   }
 

@@ -8,6 +8,7 @@ import { useMemo, useState } from 'react';
 import loadDirectory from '@/api/server/files/loadDirectory.ts';
 import Badge from '@/elements/Badge.tsx';
 import Breadcrumbs from '@/elements/Breadcrumbs.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { useResource } from '@/plugins/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -74,7 +75,9 @@ export default function IgnoredFilesBrowser({ serverUuid, patterns }: { serverUu
             const content = (
               <>
                 <FontAwesomeIcon icon={entry.directory ? faFolder : faFile} className='text-(--mantine-color-dimmed)' />
-                <span className={classNames('truncate', { 'line-through': ignored })}>{entry.name}</span>
+                <span className={classNames('min-w-0 flex-1', { 'line-through': ignored })}>
+                  <ScrollingText>{entry.name}</ScrollingText>
+                </span>
                 {ignored && (
                   <Badge size='xs' color='red' variant='light' className='ml-auto shrink-0'>
                     {t('common.label.ignored', {})}

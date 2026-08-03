@@ -17,6 +17,7 @@ import loadDirectory from '@/api/server/files/loadDirectory.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Breadcrumbs from '@/elements/Breadcrumbs.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { useResource } from '@/plugins/useResource.ts';
@@ -158,7 +159,7 @@ export default function DirectoryBrowser({
               className='w-full flex items-center gap-3 px-3 py-1.5 text-sm text-left hover:bg-(--mantine-color-default-hover)'
             >
               <FontAwesomeIcon icon={faFolder} className='text-(--mantine-color-dimmed)' />
-              <span className='truncate'>{entry.name}</span>
+              <ScrollingText>{entry.name}</ScrollingText>
             </button>
           ))
         )}

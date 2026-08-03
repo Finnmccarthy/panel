@@ -5,6 +5,7 @@ import { FileOpenMode } from 'shared/src/registries/pages/server/files.ts';
 import { z } from 'zod';
 import { ContextMenuToggle } from '@/elements/ContextMenu.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import { TableData, TableRow } from '@/elements/Table.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
@@ -207,7 +208,7 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
                 onDragEnd={() => store.getState().clearDraggingFiles()}
               >
                 <FileRowIcon className='shrink-0 text-(--mantine-color-dimmed)' file={file} />
-                <span className='truncate'>{file.name}</span>
+                <ScrollingText>{file.name}</ScrollingText>
               </span>
             </Tooltip>
           </TableData>

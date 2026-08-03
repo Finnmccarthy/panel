@@ -16,6 +16,7 @@ import { useShallow } from 'zustand/react/shallow';
 import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { serverPowerAction } from '@/lib/schemas/server/server.ts';
@@ -134,8 +135,8 @@ export default function ServerStatusIndicator() {
     <>
       <Card p='xs' className='min-h-fit my-2'>
         <div className='h-5 flex items-center min-w-0'>
-          <span className='text-sm font-medium truncate' title={server.name}>
-            {server.name}
+          <span className='text-sm font-medium min-w-0 flex-1' title={server.name}>
+            <ScrollingText>{server.name}</ScrollingText>
           </span>
         </div>
 
