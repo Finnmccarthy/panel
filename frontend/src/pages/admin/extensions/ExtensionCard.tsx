@@ -9,6 +9,7 @@ import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
 import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import Divider from '@/elements/Divider.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { adminBackendExtensionSchema } from '@/lib/schemas/admin/backendExtension.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -38,9 +39,13 @@ export default function ExtensionCard({
           {extension?.cardIcon ?? <FontAwesomeIcon icon={faPuzzlePiece} className='text-sm' />}
         </div>
         <div className='min-w-0 flex-1'>
-          <h3 className='truncate text-md font-medium leading-tight'>{name}</h3>
+          <h3 className='text-md font-medium leading-tight'>
+            <ScrollingText>{name}</ScrollingText>
+          </h3>
           {packageName && (
-            <p className='mt-0.5 truncate font-mono text-[11px] text-(--mantine-color-dimmed)'>{packageName}</p>
+            <p className='mt-0.5 font-mono text-[11px] text-(--mantine-color-dimmed)'>
+              <ScrollingText>{packageName}</ScrollingText>
+            </p>
           )}
         </div>
       </div>
@@ -76,10 +81,10 @@ export default function ExtensionCard({
             <span className='text-xs text-zinc-500'>{t('pages.admin.extensions.card.version', {})}</span>
             <span className='font-mono text-xs text-zinc-300'>{backendExtension.version}</span>
           </div>
-          <div className='flex items-center justify-between'>
-            <span className='text-xs text-zinc-500'>{t('pages.admin.extensions.card.authors', {})}</span>
-            <span className='truncate text-xs text-zinc-300'>
-              {backendExtension.authors.join(', ') || t('common.unknown', {})}
+          <div className='flex items-center justify-between gap-2 min-w-0'>
+            <span className='text-xs text-zinc-500 shrink-0'>{t('pages.admin.extensions.card.authors', {})}</span>
+            <span className='text-xs text-zinc-300 min-w-0'>
+              <ScrollingText>{backendExtension.authors.join(', ') || t('common.unknown', {})}</ScrollingText>
             </span>
           </div>
         </div>

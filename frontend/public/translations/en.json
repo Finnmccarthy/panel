@@ -4841,7 +4841,8 @@
             "createFirstStep": "Create First Step",
             "addOutput": "Add Output",
             "addFile": "Add File",
-            "exitEditor": "Exit Editor"
+            "exitEditor": "Exit Editor",
+            "viewCalendar": "View Calendar"
           },
           "toast": {
             "imported": "Schedule imported.",
@@ -4897,6 +4898,10 @@
             },
             "duplicateSchedule": {
               "title": "Duplicate Schedule"
+            },
+            "calendar": {
+              "title": "Upcoming Runs Calendar",
+              "truncatedWarning": "Some upcoming runs have been left out to keep the calendar responsive."
             },
             "deleteSchedule": {
               "title": "Confirm Schedule Deletion",

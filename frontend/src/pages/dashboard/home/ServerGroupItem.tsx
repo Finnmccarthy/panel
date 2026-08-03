@@ -27,6 +27,7 @@ import { DndContainer, DndItem, SortableItem } from '@/elements/DragAndDrop.tsx'
 import TextInput from '@/elements/input/TextInput.tsx';
 import Menu from '@/elements/Menu.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { Pagination } from '@/elements/Table.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
@@ -214,7 +215,9 @@ export default function ServerGroupItem({
                     'transition duration-200 w-3 h-3 text-(--mantine-color-dimmed) shrink-0',
                   )}
                 />
-                <span className='font-medium truncate'>{serverGroup.name}</span>
+                <span className='font-medium flex-1 min-w-0 text-left'>
+                  <ScrollingText>{serverGroup.name}</ScrollingText>
+                </span>
                 <Badge variant={isDark ? 'light' : 'filled'} color='gray'>
                   {tItem('server', serverCount)}
                 </Badge>

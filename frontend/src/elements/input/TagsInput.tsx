@@ -16,6 +16,7 @@ import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
 import { DndContainer, DndItem, SortableItem } from '@/elements/DragAndDrop.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import { handleRawCopyToClipboard } from '@/lib/copy.ts';
 import { restrictToVerticalAxis } from '@/lib/dragAndDrop.ts';
 import { handleRawPasteFromClipboard } from '@/lib/paste.ts';
@@ -214,8 +215,8 @@ function TagsInput({
           <ActionIcon size='sm' variant='subtle' color='gray' {...dragHandleProps} hidden={!allowReordering}>
             <FontAwesomeIcon icon={faGripVertical} size='xs' />
           </ActionIcon>
-          <Text size='xs' truncate className='flex-1'>
-            {item.value}
+          <Text size='xs' className='flex-1 min-w-0'>
+            <ScrollingText>{item.value}</ScrollingText>
           </Text>
           <ActionIcon size='sm' variant='subtle' color='blue' onClick={() => handleStartEdit(index)}>
             <FontAwesomeIcon icon={faPencil} size='xs' />

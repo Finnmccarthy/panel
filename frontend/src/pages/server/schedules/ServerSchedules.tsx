@@ -1,4 +1,4 @@
-import { faPlus, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays, faPlus, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { load } from 'js-yaml';
 import { ChangeEvent, useRef, useState } from 'react';
@@ -17,6 +17,7 @@ import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTab
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
+import ScheduleCalendarModal from './modals/ScheduleCalendarModal.tsx';
 import ScheduleCreateOrUpdateModal from './modals/ScheduleCreateOrUpdateModal.tsx';
 import ScheduleImportOverlay from './ScheduleImportOverlay.tsx';
 import ScheduleRow from './ScheduleRow.tsx';
@@ -28,7 +29,7 @@ export default function ServerSchedules() {
 
   const canCreate = useServerCan('schedules.create');
 
-  const [openModal, setOpenModal] = useState<'create' | null>(null);
+  const [openModal, setOpenModal] = useState<'create' | 'calendar' | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -94,6 +95,13 @@ export default function ServerSchedules() {
       setSearch={setSearch}
       contentRight={
         <>
+          <ServerCan action='schedules.read'>
+            <Button variant='default' onClick={() => setOpenModal('calendar')}>
+              <FontAwesomeIcon icon={faCalendarDays} className='mr-2' />
+              {t('pages.server.schedules.button.viewCalendar', {})}
+            </Button>
+          </ServerCan>
+
           <ServerCan action='schedules.create'>
             <ConditionalTooltip
               enabled={(schedules?.total ?? 0) >= server.featureLimits.schedules}
@@ -134,6 +142,7 @@ export default function ServerSchedules() {
       }
     >
       <ScheduleCreateOrUpdateModal opened={openModal === 'create'} onClose={() => setOpenModal(null)} />
+      <ScheduleCalendarModal opened={openModal === 'calendar'} onClose={() => setOpenModal(null)} />
       <ScheduleImportOverlay visible={canCreate && isDragging} />
 
       <Table

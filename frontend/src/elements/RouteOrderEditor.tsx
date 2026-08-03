@@ -12,6 +12,7 @@ import { DndContainer, DndItem, SortableItem } from '@/elements/DragAndDrop.tsx'
 import LocalizedTextInput from '@/elements/input/LocalizedTextInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { eggConfigurationRouteItemSchema } from '@/lib/schemas/generic.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -149,8 +150,8 @@ export default function RouteOrderEditor({
             </Badge>
 
             {info?.icon && <FontAwesomeIcon icon={info.icon} style={{ fontSize: 14, opacity: 0.7, flexShrink: 0 }} />}
-            <Text size='sm' fw={500} truncate style={{ flex: 1 }}>
-              {name}
+            <Text size='sm' fw={500} style={{ flex: 1, minWidth: 0 }}>
+              <ScrollingText>{name}</ScrollingText>
             </Text>
             <Text size='xs' c='dimmed' truncate style={{ flexShrink: 0 }}>
               {item.path}

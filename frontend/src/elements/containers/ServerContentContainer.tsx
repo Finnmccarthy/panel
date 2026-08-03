@@ -140,16 +140,12 @@ function ServerContentContainer(props: Props) {
 
       {fullscreen || id ? null : server.isTransferring ? (
         <div className='mt-2 px-4 lg:px-6 mb-4'>
-          <Notification loading>
-            <div className='flex flex-row items-center'>
-              <div className='flex flex-col w-full'>
-                <span className='flex flex-row items-center'>
+          <Notification>
+            <div className='flex flex-col md:flex-row items-center gap-2'>
+              <div className='flex flex-col w-full gap-2 md:gap-0'>
+                <span className='flex flex-col md:flex-row md:items-center gap-1'>
                   {t('pages.server.console.notification.transferring', {})}
-                  <EstimatedTimeArrival
-                    className='ml-1'
-                    progress={transferProgressArchive}
-                    total={transferProgressTotal}
-                  />
+                  <EstimatedTimeArrival progress={transferProgressArchive} total={transferProgressTotal} />
                 </span>
 
                 <Tooltip
@@ -165,7 +161,7 @@ function ServerContentContainer(props: Props) {
 
               <AdminCan action='servers.transfer'>
                 <Button
-                  className='ml-4 min-w-fit'
+                  className='min-w-fit'
                   leftSection={<FontAwesomeIcon icon={faCancel} />}
                   variant='subtle'
                   loading={abortLoading === 'transfer'}

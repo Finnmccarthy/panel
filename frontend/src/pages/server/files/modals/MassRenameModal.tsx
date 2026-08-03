@@ -23,6 +23,7 @@ import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import SegmentedControl from '@/elements/SegmentedControl.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Table, { TableData, TableRow } from '@/elements/Table.tsx';
@@ -382,14 +383,16 @@ export default function MassRenameModal({ files, ...props }: Props) {
                           onChange={() => toggleExcluded(row.name)}
                         />
                       </TableData>
-                      <TableData className='max-w-xs truncate text-(--mantine-color-dimmed)'>{row.name}</TableData>
+                      <TableData className='max-w-xs text-(--mantine-color-dimmed)'>
+                        <ScrollingText>{row.name}</ScrollingText>
+                      </TableData>
                       <TableData className='w-px'>
                         <FontAwesomeIcon icon={faArrowRight} className='w-3 h-3 text-(--mantine-color-dimmed)' />
                       </TableData>
                       <TableData
-                        className={`max-w-xs truncate ${row.status === 'unchanged' ? 'text-(--mantine-color-dimmed)' : ''}`}
+                        className={`max-w-xs ${row.status === 'unchanged' ? 'text-(--mantine-color-dimmed)' : ''}`}
                       >
-                        {row.status === 'invalidRegex' ? row.name : row.newName}
+                        <ScrollingText>{row.status === 'invalidRegex' ? row.name : row.newName}</ScrollingText>
                       </TableData>
                       <TableData className='w-px whitespace-nowrap text-right'>
                         {blocking && statusLabel[row.status] ? (

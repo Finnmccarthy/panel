@@ -4882,6 +4882,7 @@ const baseTranslations = defineTranslations({
             addOutput: 'Add Output',
             addFile: 'Add File',
             exitEditor: 'Exit Editor',
+            viewCalendar: 'View Calendar',
           },
           toast: {
             imported: 'Schedule imported.',
@@ -4937,6 +4938,10 @@ const baseTranslations = defineTranslations({
             },
             duplicateSchedule: {
               title: 'Duplicate Schedule',
+            },
+            calendar: {
+              title: 'Upcoming Runs Calendar',
+              truncatedWarning: 'Some upcoming runs have been left out to keep the calendar responsive.',
             },
             deleteSchedule: {
               title: 'Confirm Schedule Deletion',

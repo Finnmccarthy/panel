@@ -8,6 +8,7 @@ import ActionIcon from '@/elements/ActionIcon.tsx';
 import Badge from '@/elements/Badge.tsx';
 import Button from '@/elements/Button.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Table, { Pagination } from '@/elements/Table.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
@@ -58,7 +59,9 @@ export default function BackupGroupItem({ group }: { group: z.infer<typeof serve
         storageKey={group.uuid}
         header={
           <>
-            <span className='font-medium truncate'>{group.name}</span>
+            <span className='font-medium min-w-0 flex-1 text-left'>
+              <ScrollingText>{group.name}</ScrollingText>
+            </span>
             {group.retentionCount !== null ? (
               <Tooltip
                 label={t('pages.server.backupGroups.badge.keepCount', {

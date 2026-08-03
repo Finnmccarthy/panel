@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
 import CopyOnClick from '@/elements/CopyOnClick.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import ThemeIcon from '@/elements/ThemeIcon.tsx';
 import { usageColor } from '@/lib/usage.ts';
 
@@ -53,17 +54,19 @@ export default function StatCard({
               </Popover>
             )}
           </div>
-          <span className='text-lg font-bold truncate max-w-full block'>
+          <span className='text-lg font-bold max-w-full'>
             {copyOnClick ? (
-              <CopyOnClick content={value} className='text-left truncate block'>
-                {value} {limit && <span className='text-sm text-(--mantine-color-dimmed)'>/ {limit}</span>}{' '}
-                {details && <span className='text-sm text-(--mantine-color-dimmed)'>({details})</span>}
-              </CopyOnClick>
+              <ScrollingText>
+                <CopyOnClick content={value} className='text-left block'>
+                  {value} {limit && <span className='text-sm text-(--mantine-color-dimmed)'>/ {limit}</span>}{' '}
+                  {details && <span className='text-sm text-(--mantine-color-dimmed)'>({details})</span>}
+                </CopyOnClick>
+              </ScrollingText>
             ) : (
-              <>
+              <ScrollingText>
                 {value} {limit && <span className='text-sm text-(--mantine-color-dimmed)'>/ {limit}</span>}{' '}
                 {details && <span className='text-sm text-(--mantine-color-dimmed)'>({details})</span>}
-              </>
+              </ScrollingText>
             )}
           </span>
         </div>

@@ -17,6 +17,7 @@ import Badge from '@/elements/Badge.tsx';
 import Flex from '@/elements/Flex.tsx';
 import Group from '@/elements/Group.tsx';
 import KbdKey from '@/elements/KbdKey.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import Text from '@/elements/Text.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import {
@@ -130,8 +131,8 @@ export default function EditableShortcutItem({
       style={{ borderBottom: hideBorder ? 'none' : '1px solid var(--mantine-color-default-border)' }}
     >
       <Group gap={6} wrap='nowrap' className='min-w-0'>
-        <Text size='sm' truncate>
-          {shortcutDescription(definition)}
+        <Text size='sm' style={{ minWidth: 0, flex: 1 }}>
+          <ScrollingText>{shortcutDescription(definition)}</ScrollingText>
         </Text>
         {overridden && (
           <Badge size='xs' variant='light' color='blue' style={{ flexShrink: 0 }}>

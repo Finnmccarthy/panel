@@ -46,7 +46,7 @@ export default function ServerConsole() {
           <Console />
         </div>
 
-        <div className='flex flex-col'>
+        <div className='flex flex-col min-w-0'>
           <ServerDetails />
         </div>
       </div>

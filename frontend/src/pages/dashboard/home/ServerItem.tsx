@@ -26,6 +26,7 @@ import ContextMenu from '@/elements/ContextMenu.tsx';
 import CopyOnClick from '@/elements/CopyOnClick.tsx';
 import Divider from '@/elements/Divider.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
+import ScrollingText from '@/elements/ScrollingText.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { serverPowerAction, serverSchema } from '@/lib/schemas/server/server.ts';
@@ -146,16 +147,18 @@ export default function ServerItem({
         ]}
       >
         {({ items, openMenu }) => (
-          <div>
+          <div className='min-w-0'>
             <div
               onClick={onClick}
               onContextMenu={(e) => {
                 e.preventDefault();
                 openMenu(e.clientX, e.clientY);
               }}
+              className='min-w-0'
             >
               <NavLink
                 to={to ?? `/server/${server.uuidShort}`}
+                className='block min-w-0'
                 onClick={(e) => {
                   if (sKeyPressedRef?.current) {
                     e.preventDefault();
@@ -163,7 +166,7 @@ export default function ServerItem({
                 }}
               >
                 <Card
-                  className='duration-200 h-full flex flex-col justify-between rounded-xl! overflow-hidden'
+                  className='duration-200 h-full flex flex-col justify-between rounded-xl! overflow-hidden min-w-0'
                   leftStripeClassName={statusToColor(stats?.state)}
                   hoverable
                 >
@@ -192,7 +195,7 @@ export default function ServerItem({
                         </Tooltip>
                       )}
                       <span className='text-xl font-medium flex items-center gap-2 min-w-0 flex-1' title={server.name}>
-                        <span className='truncate flex-1'>{server.name}</span>
+                        <ScrollingText className='flex-1'>{server.name}</ScrollingText>
                         {showForeignServerBadge && !server.isOwner && (
                           <Tooltip label={t('pages.account.home.tooltip.foreign', {})} className='shrink-0'>
                             <Badge color='yellow' variant='light'>
@@ -216,8 +219,8 @@ export default function ServerItem({
                               className='min-w-0'
                             >
                               <Card p='xs' hoverable className='leading-[100%] min-w-0 rounded-lg!'>
-                                <p className='text-sm text-(--mantine-color-dimmed) truncate'>
-                                  {server.allocation.ipAlias ?? server.allocation.ip}
+                                <p className='text-sm text-(--mantine-color-dimmed)'>
+                                  <ScrollingText>{server.allocation.ipAlias ?? server.allocation.ip}</ScrollingText>
                                 </p>
                               </Card>
                             </CopyOnClick>
@@ -232,8 +235,8 @@ export default function ServerItem({
                         ) : (
                           <CopyOnClick content={formatAllocation(server.allocation)} className='min-w-0'>
                             <Card p='xs' hoverable className='leading-[100%] min-w-0 rounded-lg!'>
-                              <p className='text-sm text-(--mantine-color-dimmed) truncate'>
-                                {formatAllocation(server.allocation)}
+                              <p className='text-sm text-(--mantine-color-dimmed)'>
+                                <ScrollingText>{formatAllocation(server.allocation)}</ScrollingText>
                               </p>
                             </Card>
                           </CopyOnClick>

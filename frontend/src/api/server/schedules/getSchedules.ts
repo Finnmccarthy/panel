@@ -7,9 +7,10 @@ export default async (
   uuid: string,
   page: number,
   search?: string,
+  perPage?: number,
 ): Promise<Pagination<z.infer<typeof serverScheduleSchema>>> => {
   const { data } = await axiosInstance.get(`/api/client/servers/${uuid}/schedules`, {
-    params: { page, search },
+    params: { page, search, per_page: perPage },
   });
   return parsePaginationFromApi(serverScheduleSchema, data.schedules);
 };

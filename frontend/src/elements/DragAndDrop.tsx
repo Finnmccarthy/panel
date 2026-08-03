@@ -71,11 +71,11 @@ export function SortableItem({
   );
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} style={style} className='min-w-0'>
       {renderItem ? (
         renderItem({ isDragging, dragHandleProps })
       ) : (
-        <div {...dragHandleProps} className='h-full'>
+        <div {...dragHandleProps} className='h-full min-w-0'>
           {children}
         </div>
       )}
