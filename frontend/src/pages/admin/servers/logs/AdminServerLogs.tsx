@@ -66,7 +66,7 @@ export default function AdminServerLogs({ server }: { server: z.infer<typeof adm
           </div>
 
           <div className='flex flex-row items-end'>
-            <Button className='ml-2' onClick={doView} variant='outline' loading={loading}>
+            <Button onClick={doView} variant='outline' loading={loading}>
               {t('common.button.loadLogs', {})}
             </Button>
           </div>

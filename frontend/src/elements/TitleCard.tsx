@@ -6,7 +6,7 @@ import Card from './Card.tsx';
 
 export interface TitleCardProps {
   title: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
   titleClassName?: string;
@@ -38,20 +38,25 @@ function TitleCard({
         py='sm'
       >
         {leftSection}
-        <Box
-          id='title-card-icon'
-          className={classNames('bg-(--mantine-color-default-hover) light:bg-(--mantine-color-gray-2)', iconClassName)}
-          style={{
-            width: 28,
-            height: 28,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 6,
-          }}
-        >
-          {icon}
-        </Box>
+        {icon && (
+          <Box
+            id='title-card-icon'
+            className={classNames(
+              'bg-(--mantine-color-default-hover) light:bg-(--mantine-color-gray-2)',
+              iconClassName,
+            )}
+            style={{
+              width: 28,
+              height: 28,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 6,
+            }}
+          >
+            {icon}
+          </Box>
+        )}
         <Title order={5} fw={600}>
           {title}
         </Title>

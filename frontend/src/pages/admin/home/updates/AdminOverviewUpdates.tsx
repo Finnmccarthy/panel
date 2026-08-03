@@ -141,7 +141,7 @@ export default function AdminOverviewUpdates() {
           title={t('pages.admin.home.tabs.updates.page.card.panelVersion', {})}
           icon={<FontAwesomeIcon icon={faInfoCircle} />}
         >
-          <div className='flex flex-row justify-between'>
+          <div className='flex flex-col md:flex-row gap-2 justify-between'>
             <span>
               <FontAwesomeIcon
                 icon={

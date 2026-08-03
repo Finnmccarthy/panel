@@ -271,7 +271,7 @@ export default function OAuthProviderCreateOrUpdate({
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, queryKeys.admin.oAuthProviders.all()))}>
         <FormEngine form={form} fields={fieldsTop} />
 
-        <Card className='flex flex-row! items-center justify-between mt-4'>
+        <Card className='flex flex-col md:flex-row! items-center justify-between mt-4'>
           <Title order={4}>{t('pages.admin.oAuthProviders.tabs.general.page.card.redirectUrl.title', {})}</Title>
           <Code>
             {contextOAuthProvider

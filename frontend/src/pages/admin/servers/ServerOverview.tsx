@@ -260,7 +260,7 @@ export default function ServerOverview({ server }: { server: Server }) {
           title={t('pages.admin.servers.tabs.overview.page.card.resourceLimits', {})}
           icon={<FontAwesomeIcon icon={faMicrochip} />}
         >
-          <SimpleGrid cols={{ base: 2, sm: 4 }} spacing='sm'>
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing='sm'>
             <StatBox
               label={t('pages.admin.servers.tabs.overview.page.label.cpu', {})}
               icon={<FontAwesomeIcon icon={faMicrochip} />}
@@ -329,7 +329,7 @@ export default function ServerOverview({ server }: { server: Server }) {
           title={t('pages.admin.servers.tabs.overview.page.card.featureLimits', {})}
           icon={<FontAwesomeIcon icon={faLayerGroup} />}
         >
-          <SimpleGrid cols={{ base: 2, sm: 4 }} spacing='sm'>
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing='sm'>
             <StatBox
               label={t('pages.admin.servers.tabs.overview.page.label.allocations', {})}
               icon={<FontAwesomeIcon icon={faNetworkWired} />}

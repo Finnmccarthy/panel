@@ -40,7 +40,7 @@ export default function AdminServerManagement({ server }: { server: z.infer<type
       <ServerClearStateModal server={server} opened={openModal === 'clear-state'} onClose={() => setOpenModal(null)} />
       <ServerDeleteModal server={server} opened={openModal === 'delete'} onClose={() => setOpenModal(null)} />
 
-      <div className='grid grid-cols-2 md:grid-cols-4 gap-2'>
+      <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2'>
         {window.extensionContext.extensionRegistry.pages.admin.servers.view.management.managementContainers.prependedComponents.map(
           (Component, i) => (
             <Component key={`management-managementContainer-prepended-${i}`} server={server} />

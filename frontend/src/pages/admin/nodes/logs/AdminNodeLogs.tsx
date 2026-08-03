@@ -139,7 +139,7 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
       ) : (
         <div className='flex flex-col'>
           <div className='grid md:grid-cols-4 grid-cols-2 grid-rows-1 gap-2'>
-            <div className='flex flex-row space-x-2 col-span-2'>
+            <div className='flex flex-col md:flex-row gap-2 col-span-2'>
               <Select
                 withAsterisk
                 label={t('pages.admin.nodes.tabs.logs.page.form.logFile', {})}
@@ -160,7 +160,7 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
               />
             </div>
 
-            <div className='flex flex-row items-end gap-2'>
+            <div className='flex flex-col md:flex-row md:items-end gap-2'>
               <Button onClick={doDownload} disabled={!selectedLog} loading={loading} className='min-w-fit'>
                 {t('pages.admin.nodes.tabs.logs.page.button.download', {})}
               </Button>
@@ -173,7 +173,7 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
               >
                 {t('common.button.loadLogs', {})}
               </Button>
-              <div className='flex h-9 items-center self-end'>
+              <div className='flex h-9 items-center md:self-end'>
                 <Switch
                   label={t('pages.admin.nodes.tabs.logs.page.form.follow', {})}
                   checked={following}

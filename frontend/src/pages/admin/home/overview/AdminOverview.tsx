@@ -18,7 +18,7 @@ import {
   faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { startTransition, useEffect, useState } from 'react';
+import { Fragment, startTransition, useEffect, useState } from 'react';
 import getBackupStats, { type BackupStats } from '@/api/admin/stats/getBackupStats.ts';
 import getGeneralStats, { type GeneralStats } from '@/api/admin/stats/getGeneralStats.ts';
 import getOverview, { AdminSystemOverview } from '@/api/admin/system/getOverview.ts';
@@ -138,7 +138,7 @@ export default function AdminOverview() {
                 </Card>
               </div>
 
-              <div className='grid grid-cols-2 xl:grid-cols-4 gap-4 mt-4'>
+              <div className='grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-4'>
                 <Card className='flex'>
                   <Title order={3}>
                     <FontAwesomeIcon icon={faServer} /> {systemOverview.kernelVersion}
@@ -178,7 +178,7 @@ export default function AdminOverview() {
                 </Card>
               </div>
 
-              <div className='grid grid-cols-2 xl:grid-cols-4 gap-4 mt-4'>
+              <div className='grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-4'>
                 <Card className='flex'>
                   <Title order={3}>{systemOverview.cache.totalCalls}</Title>
                   {t('pages.admin.home.tabs.overview.page.system.cacheCalls', {})}
@@ -212,7 +212,7 @@ export default function AdminOverview() {
           {!generalStats ? (
             <Spinner.Centered />
           ) : (
-            <div className='grid grid-cols-2 xl:grid-cols-4 gap-4'>
+            <div className='grid md:grid-cols-2 xl:grid-cols-4 gap-4'>
               <Card className='flex'>
                 <Title order={3}>
                   <FontAwesomeIcon icon={faUsers} /> {generalStats.users}
@@ -273,130 +273,44 @@ export default function AdminOverview() {
           {!backupStats ? (
             <Spinner.Centered />
           ) : (
-            <div className='grid grid-cols-2 xl:grid-cols-5 gap-4'>
-              <Card className='col-span-2 xl:col-span-1'>
-                <Title order={3}>{t('pages.admin.home.tabs.overview.page.backup.allTime', {})}</Title>
-              </Card>
+            <div className='flex flex-col 2xl:flex-row gap-4'>
+              {(['allTime', 'today', 'week', 'month'] as const).map((period) => {
+                const periodLabel = t(`pages.admin.backupConfigurations.tabs.stats.page.periodLabel.${period}`, {});
 
-              <Card className='flex'>
-                <Title order={3}>{backupStats.allTime.total}</Title>
-                {t('pages.admin.home.tabs.overview.page.backup.totalAllTime', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>
-                  {t('pages.admin.home.tabs.overview.page.backup.successfulValue', {
-                    count: backupStats.allTime.successful,
-                    size: bytesToString(backupStats.allTime.successfulBytes),
-                  })}
-                </Title>
-                {t('pages.admin.home.tabs.overview.page.backup.successfulAllTime', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>{backupStats.allTime.failed}</Title>
-                {t('pages.admin.home.tabs.overview.page.backup.failedAllTime', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>
-                  {t('pages.admin.home.tabs.overview.page.backup.deletedValue', {
-                    count: backupStats.allTime.deleted,
-                    size: bytesToString(backupStats.allTime.deletedBytes),
-                  })}
-                </Title>
-                {t('pages.admin.home.tabs.overview.page.backup.deletedAllTime', {})}
-              </Card>
-
-              <Card className='col-span-2 xl:col-span-1'>
-                <Title order={3}>{t('pages.admin.home.tabs.overview.page.backup.today', {})}</Title>
-              </Card>
-
-              <Card className='flex'>
-                <Title order={3}>{backupStats.today.total}</Title>
-                {t('pages.admin.home.tabs.overview.page.backup.totalToday', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>
-                  {t('pages.admin.home.tabs.overview.page.backup.successfulValue', {
-                    count: backupStats.today.successful,
-                    size: bytesToString(backupStats.today.successfulBytes),
-                  })}
-                </Title>
-                {t('pages.admin.home.tabs.overview.page.backup.successfulToday', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>{backupStats.today.failed}</Title>
-                {t('pages.admin.home.tabs.overview.page.backup.failedToday', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>
-                  {t('pages.admin.home.tabs.overview.page.backup.deletedValue', {
-                    count: backupStats.today.deleted,
-                    size: bytesToString(backupStats.today.deletedBytes),
-                  })}
-                </Title>
-                {t('pages.admin.home.tabs.overview.page.backup.deletedToday', {})}
-              </Card>
-
-              <Card className='col-span-2 xl:col-span-1'>
-                <Title order={3}>{t('pages.admin.home.tabs.overview.page.backup.week', {})}</Title>
-              </Card>
-
-              <Card className='flex'>
-                <Title order={3}>{backupStats.week.total}</Title>
-                {t('pages.admin.home.tabs.overview.page.backup.totalWeek', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>
-                  {t('pages.admin.home.tabs.overview.page.backup.successfulValue', {
-                    count: backupStats.week.successful,
-                    size: bytesToString(backupStats.week.successfulBytes),
-                  })}
-                </Title>
-                {t('pages.admin.home.tabs.overview.page.backup.successfulWeek', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>{backupStats.week.failed}</Title>
-                {t('pages.admin.home.tabs.overview.page.backup.failedWeek', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>
-                  {t('pages.admin.home.tabs.overview.page.backup.deletedValue', {
-                    count: backupStats.week.deleted,
-                    size: bytesToString(backupStats.week.deletedBytes),
-                  })}
-                </Title>
-                {t('pages.admin.home.tabs.overview.page.backup.deletedWeek', {})}
-              </Card>
-
-              <Card className='col-span-2 xl:col-span-1'>
-                <Title order={3}>{t('pages.admin.home.tabs.overview.page.backup.month', {})}</Title>
-              </Card>
-
-              <Card className='flex'>
-                <Title order={3}>{backupStats.month.total}</Title>
-                {t('pages.admin.home.tabs.overview.page.backup.totalMonth', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>
-                  {t('pages.admin.home.tabs.overview.page.backup.successfulValue', {
-                    count: backupStats.month.successful,
-                    size: bytesToString(backupStats.month.successfulBytes),
-                  })}
-                </Title>
-                {t('pages.admin.home.tabs.overview.page.backup.successfulMonth', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>{backupStats.month.failed}</Title>
-                {t('pages.admin.home.tabs.overview.page.backup.failedMonth', {})}
-              </Card>
-              <Card className='flex'>
-                <Title order={3}>
-                  {t('pages.admin.home.tabs.overview.page.backup.deletedValue', {
-                    count: backupStats.month.deleted,
-                    size: bytesToString(backupStats.month.deletedBytes),
-                  })}
-                </Title>
-                {t('pages.admin.home.tabs.overview.page.backup.deletedMonth', {})}
-              </Card>
+                return (
+                  <Fragment key={period}>
+                    <TitleCard
+                      title={t(`pages.admin.backupConfigurations.tabs.stats.page.period.${period}`, {})}
+                      className='flex-1 min-w-0'
+                    >
+                      <div className='flex flex-col gap-4'>
+                        <Card>
+                          <Title order={3}>{backupStats[period].total}</Title>
+                          {t('pages.admin.backupConfigurations.tabs.stats.page.stat.total', { period: periodLabel })}
+                        </Card>
+                        <Card>
+                          <Title order={3}>
+                            {backupStats[period].successful} ({bytesToString(backupStats[period].successfulBytes)})
+                          </Title>
+                          {t('pages.admin.backupConfigurations.tabs.stats.page.stat.successful', {
+                            period: periodLabel,
+                          })}
+                        </Card>
+                        <Card>
+                          <Title order={3}>{backupStats[period].failed}</Title>
+                          {t('pages.admin.backupConfigurations.tabs.stats.page.stat.failed', { period: periodLabel })}
+                        </Card>
+                        <Card>
+                          <Title order={3}>
+                            {backupStats[period].deleted} ({bytesToString(backupStats[period].deletedBytes)})
+                          </Title>
+                          {t('pages.admin.backupConfigurations.tabs.stats.page.stat.deleted', { period: periodLabel })}
+                        </Card>
+                      </div>
+                    </TitleCard>
+                  </Fragment>
+                );
+              })}
             </div>
           )}
         </TitleCard>
