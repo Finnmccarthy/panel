@@ -167,11 +167,10 @@ export const adminActivitiesTable = pgTable(
     created: timestamp().defaultNow().notNull(),
   },
   (cols) => [
-    index('admin_activities_user_uuid_idx').on(cols.user_uuid),
     index('admin_activities_impersonator_uuid_idx').on(cols.impersonator_uuid),
     index('admin_activities_api_key_uuid_idx').on(cols.api_key_uuid),
-    index('admin_activities_event_idx').on(cols.event),
-    index('admin_activities_user_uuid_event_idx').on(cols.user_uuid, cols.event),
+    index('admin_activities_created_idx').on(cols.created),
+    index('admin_activities_user_uuid_created_idx').on(cols.user_uuid, cols.created),
   ],
 );
 
@@ -189,10 +188,10 @@ export const userActivitiesTable = pgTable(
     created: timestamp().defaultNow().notNull(),
   },
   (cols) => [
-    index('user_activities_user_uuid_idx').on(cols.user_uuid),
     index('user_activities_impersonator_uuid_idx').on(cols.impersonator_uuid),
     index('user_activities_api_key_uuid_idx').on(cols.api_key_uuid),
-    index('user_activities_user_uuid_event_idx').on(cols.user_uuid, cols.event),
+    index('user_activities_created_idx').on(cols.created),
+    index('user_activities_user_uuid_created_idx').on(cols.user_uuid, cols.created),
   ],
 );
 
@@ -213,6 +212,8 @@ export const userSessionsTable = pgTable(
   (cols) => [
     index('user_sessions_user_uuid_idx').on(cols.user_uuid),
     uniqueIndex('user_sessions_key_idx').on(cols.key),
+    index('user_sessions_key_id_idx').on(cols.key_id),
+    index('user_sessions_last_used_idx').on(cols.last_used),
   ],
 );
 
@@ -265,6 +266,7 @@ export const userSecurityKeysTable = pgTable(
     index('user_security_keys_user_uuid_idx').on(cols.user_uuid),
     uniqueIndex('user_security_keys_user_uuid_name_idx').on(cols.user_uuid, cols.name),
     uniqueIndex('user_security_keys_user_uuid_credential_id_idx').on(cols.user_uuid, cols.credential_id),
+    index('user_security_keys_created_idx').on(cols.created),
   ],
 );
 
@@ -310,6 +312,7 @@ export const userApiKeysTable = pgTable(
     uniqueIndex('user_api_keys_user_uuid_name_idx').on(cols.user_uuid, cols.name),
     uniqueIndex('user_api_keys_user_uuid_key_start_idx').on(cols.user_uuid, cols.key_start),
     uniqueIndex('user_api_keys_key_idx').on(cols.key),
+    index('user_api_keys_expires_idx').on(cols.expires),
   ],
 );
 
@@ -942,12 +945,11 @@ export const serverActivitiesTable = pgTable(
   },
   (cols) => [
     index('server_activities_server_uuid_idx').on(cols.server_uuid),
-    index('server_activities_user_uuid_idx').on(cols.user_uuid),
     index('server_activities_impersonator_uuid_idx').on(cols.impersonator_uuid),
     index('server_activities_api_key_uuid_idx').on(cols.api_key_uuid),
     index('server_activities_schedule_uuid_idx').on(cols.schedule_uuid),
-    index('server_activities_server_uuid_event_idx').on(cols.server_uuid, cols.event),
-    index('server_activities_user_uuid_event_idx').on(cols.user_uuid, cols.event),
+    index('server_activities_created_idx').on(cols.created),
+    index('server_activities_user_uuid_created_idx').on(cols.user_uuid, cols.created),
   ],
 );
 
@@ -1042,6 +1044,7 @@ export const serverBackupsTable = pgTable(
     index('server_backups_backup_configuration_uuid_idx').on(cols.backup_configuration_uuid),
     index('server_backups_backup_group_uuid_idx').on(cols.backup_group_uuid),
     index('server_backups_successful_idx').on(cols.successful),
+    index('server_backups_deleting_idx').on(cols.deleting),
   ],
 );
 
