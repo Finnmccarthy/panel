@@ -139,7 +139,7 @@ export default function DashboardRouter({ isNormal }: { isNormal: boolean }) {
 
       <div
         id='dashboard-root'
-        className={isNormal ? 'max-w-[100vw] flex-1 lg:ml-0' : 'flex-1 lg:ml-0 overflow-auto h-full'}
+        className={isNormal ? 'max-w-[100vw] min-w-0 flex-1 lg:ml-0' : 'flex-1 lg:ml-0 overflow-auto h-full'}
       >
         <Container isNormal={isNormal}>
           {user?.suspended ? (
