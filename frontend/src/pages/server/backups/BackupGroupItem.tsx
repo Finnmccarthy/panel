@@ -152,6 +152,7 @@ export default function BackupGroupItem({ group }: { group: z.infer<typeof serve
               t('pages.server.backups.table.columns.locked', {}),
               '',
             ]}
+            pagination={backups}
           >
             {backups.data.map((backup) => (
               <BackupRow backup={backup} key={backup.uuid} />
