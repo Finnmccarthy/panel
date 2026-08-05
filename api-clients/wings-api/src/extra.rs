@@ -326,6 +326,10 @@ pub enum ScheduleActionInner {
         backup_group_uuid: Option<uuid::Uuid>,
         #[garde(skip)]
         ignored_files: Vec<compact_str::CompactString>,
+
+        #[garde(dive)]
+        #[serde(default)]
+        output_into: Option<ScheduleVariable>,
     },
     RestoreBackup {
         #[garde(skip)]

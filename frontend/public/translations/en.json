@@ -5212,7 +5212,8 @@
               "title": "Create Backup",
               "description": "Create a backup of the server files.",
               "form": {
-                "backupName": "Backup Name"
+                "backupName": "Backup Name",
+                "outputInto": "Output Backup UUID Into"
               },
               "renderer": {
                 "compact": "Create {name}",
@@ -5220,6 +5221,7 @@
                 "detail": {
                   "backupName": "Backup Name: {name}",
                   "backupNameAuto": "Backup Name: Auto-generated",
+                  "outputInto": "Backup UUID into: {variable}",
                   "ignoredFiles": "Ignored Files: {files}"
                 }
               }

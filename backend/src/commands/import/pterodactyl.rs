@@ -1600,6 +1600,7 @@ impl shared::extensions::commands::CliCommand<PterodactylArgs> for PterodactylCo
                                             .collect::<Vec<_>>(),
                                         foreground: true,
                                         ignore_failure: continue_on_failure,
+                                        output_into: None,
                                     })
                                 }
                                 _ => continue,

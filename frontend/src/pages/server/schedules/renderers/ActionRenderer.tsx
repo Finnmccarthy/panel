@@ -348,6 +348,13 @@ function renderDetailed(action: Action, { t, tReact, tItem }: Translations): Rea
           <Text size='xs' c='dimmed'>
             {t('pages.server.schedules.renderer.ignoreFailure', { value: yesNo(action.ignoreFailure) })}
           </Text>
+          {action.outputInto && (
+            <Text size='sm'>
+              {tReact('pages.server.schedules.steps.createBackup.renderer.detail.outputInto', {
+                variable: <ScheduleDynamicParameterRenderer value={action.outputInto} />,
+              })}
+            </Text>
+          )}
           {action.ignoredFiles.length > 0 && (
             <Text size='xs' c='dimmed'>
               {t('pages.server.schedules.steps.createBackup.renderer.detail.ignoredFiles', {

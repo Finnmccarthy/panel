@@ -582,6 +582,7 @@ export const scheduleStepDefaultMapping: Record<
     foreground: false,
     name: null,
     ignoredFiles: [],
+    outputInto: null,
   },
   restore_backup: {
     type: 'restore_backup',

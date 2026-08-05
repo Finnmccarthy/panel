@@ -1713,6 +1713,7 @@ impl shared::extensions::commands::CliCommand<PelicanArgs> for PelicanCommand {
                                             .collect::<Vec<_>>(),
                                         foreground: true,
                                         ignore_failure: continue_on_failure,
+                                        output_into: None,
                                     })
                                 }
                                 _ => continue,

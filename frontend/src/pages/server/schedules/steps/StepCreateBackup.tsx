@@ -67,6 +67,13 @@ export default function StepCreateBackup({
         value={form.getInputProps('action.ignoredFiles').value ?? []}
         onChange={(value) => form.setFieldValue('action.ignoredFiles', value)}
       />
+      <ScheduleDynamicParameterInput
+        label={t('pages.server.schedules.steps.createBackup.form.outputInto', {})}
+        allowNull
+        allowString={false}
+        value={form.getInputProps('action.outputInto').value}
+        onChange={(v) => form.setFieldValue('action.outputInto', v)}
+      />
     </Stack>
   );
 }

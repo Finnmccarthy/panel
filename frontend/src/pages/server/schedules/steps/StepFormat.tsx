@@ -18,7 +18,7 @@ export default function StepFormat({
       <TextArea
         withAsterisk
         label={t('pages.server.schedules.steps.format.form.formatString', {})}
-        description={t('pages.server.schedules.steps.format.form.formatStringDescription', { wrapper: '{...}' })}
+        description={t('pages.server.schedules.steps.format.form.formatStringDescription', { wrapper: '{{...}}' })}
         placeholder={t('pages.server.schedules.steps.format.form.formatString', {})}
         {...form.getInputProps('action.format')}
       />

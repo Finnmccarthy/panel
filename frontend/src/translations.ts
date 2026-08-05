@@ -5249,6 +5249,7 @@ const baseTranslations = defineTranslations({
               description: 'Create a backup of the server files.',
               form: {
                 backupName: 'Backup Name',
+                outputInto: 'Output Backup UUID Into',
               },
               renderer: {
                 compact: 'Create {name}',
@@ -5256,6 +5257,7 @@ const baseTranslations = defineTranslations({
                 detail: {
                   backupName: 'Backup Name: {name}',
                   backupNameAuto: 'Backup Name: Auto-generated',
+                  outputInto: 'Backup UUID into: {variable}',
                   ignoredFiles: 'Ignored Files: {files}',
                 },
               },

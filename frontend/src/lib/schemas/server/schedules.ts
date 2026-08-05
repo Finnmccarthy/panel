@@ -296,6 +296,7 @@ export const serverScheduleStepCreateBackupSchema = z.object({
   name: serverScheduleStepDynamicSchema.nullable(),
   backupGroupUuid: z.uuid().nullable().optional(),
   ignoredFiles: z.array(z.string()),
+  outputInto: serverScheduleStepVariableSchema.nullable(),
 });
 
 export const serverScheduleStepBackupSelectorSchema = z.discriminatedUnion('mode', [
