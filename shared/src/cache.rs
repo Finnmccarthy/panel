@@ -84,7 +84,7 @@ impl Cache {
             } => Some(Arc::new(
                 Client::connect(
                     format!(
-                        "redis-sentinel://{}/{cluster_name}/0",
+                        "redis-sentinel://{}/{cluster_name}/0?read_preference=prefer_replica",
                         redis_sentinels.join(",")
                     )
                     .as_str(),
