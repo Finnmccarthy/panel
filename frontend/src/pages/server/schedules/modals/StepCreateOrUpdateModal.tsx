@@ -41,6 +41,7 @@ import StepDeleteFiles from '../steps/StepDeleteFiles.tsx';
 import StepEnsure from '../steps/StepEnsure.tsx';
 import StepExit from '../steps/StepExit.tsx';
 import StepFormat from '../steps/StepFormat.tsx';
+import StepHttpRequest from '../steps/StepHttpRequest.tsx';
 import StepIf from '../steps/StepIf.tsx';
 import StepMatchRegex from '../steps/StepMatchRegex.tsx';
 import StepMoveBackup from '../steps/StepMoveBackup.tsx';
@@ -119,7 +120,7 @@ export default function StepCreateOrUpdateModal({
       form.setValues(values);
       form.resetDirty(values);
     }
-  }, [propStep, props.opened]);
+  }, [props.opened]);
 
   return (
     <FormModal
@@ -216,6 +217,8 @@ export default function StepCreateOrUpdateModal({
           <StepUpdateStartupCommand form={form} />
         ) : form.values.action.type === 'update_startup_docker_image' ? (
           <StepUpdateStartupDockerImage form={form} />
+        ) : form.values.action.type === 'http_request' ? (
+          <StepHttpRequest form={form} />
         ) : (
           <Text c='dimmed'>{t('pages.server.schedules.form.actionType', {})}</Text>
         )}

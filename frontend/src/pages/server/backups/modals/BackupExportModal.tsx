@@ -70,6 +70,11 @@ export default function BackupExportModal({ backup, ...props }: Props) {
       return;
     }
 
+    const values = { directory: '/', name: backup.name, format: 'tar_gz' as const };
+
+    form.setValues(values);
+    form.resetDirty(values);
+
     queryBackup(server.uuid, backup.uuid)
       .then((query) => setForcedFormat(query.archiveFormat))
       .catch((msg) => addToast(httpErrorToHuman(msg), 'error'));

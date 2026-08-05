@@ -195,6 +195,15 @@ function renderCompact(action: Action, { t, tReact, tItem }: Translations): Reac
           })}
         </span>
       );
+    case 'http_request':
+      return (
+        <span>
+          {tReact('pages.server.schedules.steps.httpRequest.renderer.compact', {
+            method: <Code>{action.method.toUpperCase()}</Code>,
+            url: <Code>{action.url}</Code>,
+          })}
+        </span>
+      );
     default:
       return <span>{t('pages.server.schedules.renderer.noActionSelected', {})}</span>;
   }
@@ -572,6 +581,58 @@ function renderDetailed(action: Action, { t, tReact, tItem }: Translations): Rea
           <Text size='sm'>
             {tReact('pages.server.schedules.steps.updateStartupDockerImage.renderer.detail.image', {
               image: <ScheduleDynamicParameterRenderer value={action.image} />,
+            })}
+          </Text>
+          <Text size='xs' c='dimmed'>
+            {t('pages.server.schedules.renderer.ignoreFailure', { value: yesNo(action.ignoreFailure) })}
+          </Text>
+        </Stack>
+      );
+    case 'http_request':
+      return (
+        <Stack gap='xs'>
+          <Text size='sm'>
+            {tReact('pages.server.schedules.steps.httpRequest.renderer.detail.request', {
+              method: <Code>{action.method.toUpperCase()}</Code>,
+              url: <Code>{action.url}</Code>,
+            })}
+          </Text>
+          {action.headers.length > 0 && (
+            <Text size='sm'>
+              {t('pages.server.schedules.steps.httpRequest.renderer.detail.headers', {
+                headers: tItem('header', action.headers.length),
+              })}
+            </Text>
+          )}
+          {action.body && (
+            <Text size='sm'>
+              {tReact('pages.server.schedules.steps.httpRequest.renderer.detail.body', {
+                body: <ScheduleDynamicParameterRenderer value={action.body} />,
+              })}
+            </Text>
+          )}
+          <Text size='sm'>
+            {tReact('pages.server.schedules.steps.httpRequest.renderer.detail.timeout', {
+              timeout: <Code>{action.timeout}ms</Code>,
+            })}
+          </Text>
+          {action.outputStatusInto && (
+            <Text size='sm'>
+              {tReact('pages.server.schedules.steps.httpRequest.renderer.detail.outputStatusInto', {
+                variable: <ScheduleDynamicParameterRenderer value={action.outputStatusInto} />,
+              })}
+            </Text>
+          )}
+          {action.outputBodyInto && (
+            <Text size='sm'>
+              {tReact('pages.server.schedules.steps.httpRequest.renderer.detail.outputBodyInto', {
+                variable: <ScheduleDynamicParameterRenderer value={action.outputBodyInto} />,
+              })}
+            </Text>
+          )}
+          <Text size='xs' c='dimmed'>
+            {t('pages.server.schedules.steps.httpRequest.renderer.detail.ignoreErrorStatus', {
+              value: yesNo(action.ignoreErrorStatus),
             })}
           </Text>
           <Text size='xs' c='dimmed'>

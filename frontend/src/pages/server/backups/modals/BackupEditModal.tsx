@@ -1,6 +1,7 @@
 import { ModalProps } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import getBackupGroups from '@/api/server/backups/groups/getBackupGroups.ts';
 import updateBackup from '@/api/server/backups/updateBackup.ts';
@@ -69,6 +70,19 @@ export default function BackupEditModal({ backup, ...props }: Props) {
       addToast(t('pages.server.backups.modal.editBackup.toast.updated', {}), 'success');
     },
   });
+
+  useEffect(() => {
+    if (props.opened) {
+      const values = {
+        name: backup.name,
+        locked: backup.isLocked,
+        backupGroupUuid: backup.backupGroupUuid,
+      };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
+  }, [props.opened]);
 
   return (
     <FormModal

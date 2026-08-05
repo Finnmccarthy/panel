@@ -1,6 +1,7 @@
 import { ModalProps } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import updateSshKey from '@/api/me/ssh-keys/updateSshKey.ts';
 import Button from '@/elements/Button.tsx';
@@ -39,6 +40,15 @@ export default function SshKeyEditModal({ sshKey, ...props }: Props) {
       addToast(t('pages.account.sshKeys.modal.editSshKey.toast.updated', {}), 'success');
     },
   });
+
+  useEffect(() => {
+    if (props.opened) {
+      const values = { name: sshKey.name };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
+  }, [props.opened]);
 
   return (
     <FormModal

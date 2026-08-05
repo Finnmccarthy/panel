@@ -27,7 +27,7 @@ export enum SocketEvent {
   SCHEDULE_STARTED = 'schedule started',
   SCHEDULE_STEP_STATUS = 'schedule step status',
   SCHEDULE_STEP_ERROR = 'schedule step error',
-  SCHEDULE_COMPLETED = 'schedule status',
+  SCHEDULE_COMPLETED = 'schedule completed',
   OPERATION_PROGRESS = 'operation progress',
   OPERATION_COMPLETED = 'operation completed',
   OPERATION_ERROR = 'operation error',

@@ -1,5 +1,6 @@
 import { ModalProps } from '@mantine/core';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import updateDatabase from '@/api/server/databases/updateDatabase.ts';
 import Button from '@/elements/Button.tsx';
@@ -34,6 +35,15 @@ export default function DatabaseEditModal({ database, ...props }: Props) {
       addToast(t('pages.server.databases.modal.editDatabase.toast.updated', {}), 'success');
     },
   });
+
+  useEffect(() => {
+    if (props.opened) {
+      const values = { locked: database.isLocked };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
+  }, [props.opened]);
 
   return (
     <FormModal

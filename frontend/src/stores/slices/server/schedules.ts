@@ -20,9 +20,11 @@ export const createSchedulesSlice: StateCreator<ServerStore, [], [], SchedulesSl
 
   setRunningScheduleStep: (schedule, step) =>
     set((state) => {
-      state.runningScheduleSteps.set(schedule, step);
+      if (state.runningScheduleSteps.get(schedule) === step) {
+        return state;
+      }
 
-      return { ...state };
+      return { ...state, runningScheduleSteps: new Map(state.runningScheduleSteps).set(schedule, step) };
     }),
 
   schedule: null,

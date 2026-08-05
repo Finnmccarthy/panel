@@ -32,6 +32,7 @@ import {
   faFolder,
   faFolderOpen,
   faGear,
+  faGlobe,
   faHourglass,
   faInfoCircle,
   faKey,
@@ -388,6 +389,15 @@ export const serverBackupStatusLabelMapping: Record<z.infer<typeof serverBackupS
   failed: () => getTranslations().t('common.enum.serverBackupStatus.failed', {}),
 };
 
+export const scheduleHttpMethodLabelMapping: Record<string, string> = {
+  get: 'GET',
+  post: 'POST',
+  put: 'PUT',
+  patch: 'PATCH',
+  delete: 'DELETE',
+  head: 'HEAD',
+};
+
 export const scheduleStepLabelMapping: Record<z.infer<typeof serverScheduleStepActionSchema>['type'], () => string> = {
   sleep: () => getTranslations().t('pages.server.schedules.steps.sleep.title', {}),
   ensure: () => getTranslations().t('pages.server.schedules.steps.ensure.title', {}),
@@ -417,6 +427,7 @@ export const scheduleStepLabelMapping: Record<z.infer<typeof serverScheduleStepA
   update_startup_command: () => getTranslations().t('pages.server.schedules.steps.updateStartupCommand.title', {}),
   update_startup_docker_image: () =>
     getTranslations().t('pages.server.schedules.steps.updateStartupDockerImage.title', {}),
+  http_request: () => getTranslations().t('pages.server.schedules.steps.httpRequest.title', {}),
 };
 
 export type ScheduleStepGroup = 'server' | 'backups' | 'files' | 'startup' | 'advanced';
@@ -460,6 +471,7 @@ export const scheduleStepGroupMapping: Record<
   update_startup_variable: 'startup',
   update_startup_command: 'startup',
   update_startup_docker_image: 'startup',
+  http_request: 'advanced',
 };
 
 export const scheduleStepDescriptionMapping: Record<
@@ -496,6 +508,7 @@ export const scheduleStepDescriptionMapping: Record<
     getTranslations().t('pages.server.schedules.steps.updateStartupCommand.description', {}),
   update_startup_docker_image: () =>
     getTranslations().t('pages.server.schedules.steps.updateStartupDockerImage.description', {}),
+  http_request: () => getTranslations().t('pages.server.schedules.steps.httpRequest.description', {}),
 };
 
 export const scheduleStepDefaultMapping: Record<
@@ -652,6 +665,18 @@ export const scheduleStepDefaultMapping: Record<
     ignoreFailure: false,
     image: '',
   },
+  http_request: {
+    type: 'http_request',
+    ignoreFailure: false,
+    method: 'post',
+    url: '',
+    headers: [],
+    body: null,
+    timeout: 10000,
+    ignoreErrorStatus: false,
+    outputStatusInto: null,
+    outputBodyInto: null,
+  },
 };
 
 export const scheduleStepIconMapping: Record<z.infer<typeof serverScheduleStepActionSchema>['type'], IconDefinition> = {
@@ -682,6 +707,7 @@ export const scheduleStepIconMapping: Record<z.infer<typeof serverScheduleStepAc
   update_startup_variable: faGear,
   update_startup_command: faCode,
   update_startup_docker_image: faDocker,
+  http_request: faGlobe,
 };
 
 export const sshKeyProviderLabelMapping: Record<z.infer<typeof userSshKeyProvider>, string> = {

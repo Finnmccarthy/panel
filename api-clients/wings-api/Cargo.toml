@@ -12,6 +12,7 @@ reqwest = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
 indexmap = { workspace = true }
+url = { workspace = true }
 urlencoding = { workspace = true }
 anyhow = { workspace = true }
 croner = { workspace = true }

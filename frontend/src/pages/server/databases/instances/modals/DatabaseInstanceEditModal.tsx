@@ -1,6 +1,7 @@
 import { ModalProps } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import updateDatabaseInstance from '@/api/server/databases/instances/updateDatabaseInstance.ts';
 import Button from '@/elements/Button.tsx';
@@ -47,6 +48,18 @@ export default function DatabaseInstanceEditModal({ instance, ...props }: Props)
       });
     },
   });
+
+  useEffect(() => {
+    if (props.opened) {
+      const values = {
+        name: instance.name,
+        locked: instance.isLocked,
+      };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
+  }, [props.opened]);
 
   return (
     <FormModal

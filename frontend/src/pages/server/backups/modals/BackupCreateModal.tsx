@@ -60,11 +60,16 @@ export default function BackupCreateModal({ groupUuid, ...props }: ModalProps & 
   });
 
   useEffect(() => {
-    form.setValues({
-      name: generateBackupName(),
-      backupGroupUuid: groupUuid ?? null,
-      ignoredFiles: [],
-    });
+    if (props.opened) {
+      const values = {
+        name: generateBackupName(),
+        backupGroupUuid: groupUuid ?? null,
+        ignoredFiles: [],
+      };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
   }, [props.opened]);
 
   return (

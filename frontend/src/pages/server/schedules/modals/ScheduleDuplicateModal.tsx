@@ -44,8 +44,13 @@ export default function ScheduleDuplicateModal({ schedule, ...props }: Props) {
   });
 
   useEffect(() => {
-    form.setValues({ name: `${schedule.name} (copy)` });
-  }, [props.opened, schedule]);
+    if (props.opened) {
+      const values = { name: `${schedule.name} (copy)` };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
+  }, [props.opened]);
 
   return (
     <FormModal

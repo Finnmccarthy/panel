@@ -67,14 +67,18 @@ export default function ScheduleCreateOrUpdateModal({ propSchedule, onScheduleUp
   });
 
   useEffect(() => {
-    if (propSchedule) {
-      form.setValues({
+    if (propSchedule && props.opened) {
+      const values = {
         name: propSchedule.name,
         enabled: propSchedule.enabled,
         triggers: propSchedule.triggers,
-      });
+        condition: propSchedule.condition,
+      };
+
+      form.setValues(values);
+      form.resetDirty(values);
     }
-  }, [propSchedule]);
+  }, [props.opened]);
 
   const removeTrigger = (index: number) => {
     form.removeListItem('triggers', index);

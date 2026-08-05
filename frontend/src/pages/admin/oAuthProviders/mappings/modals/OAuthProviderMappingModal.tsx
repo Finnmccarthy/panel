@@ -110,7 +110,7 @@ export default function OAuthProviderMappingModal({
     }
 
     if (mapping) {
-      form.setValues({
+      const values = {
         matcher: mapping.matcher,
         type: mapping.mapping.type,
         roleUuid: mapping.mapping.type === 'role' ? mapping.mapping.roleUuid : '',
@@ -118,11 +118,14 @@ export default function OAuthProviderMappingModal({
         permissions: mapping.mapping.type === 'server_subuser' ? mapping.mapping.permissions : [],
         ignoredFiles: mapping.mapping.type === 'server_subuser' ? mapping.mapping.ignoredFiles : [],
         revokeUnmatched: mapping.mapping.revokeUnmatched,
-      });
+      };
+
+      form.setValues(values);
+      form.resetDirty(values);
     } else {
       form.reset();
     }
-  }, [props.opened, mapping]);
+  }, [props.opened]);
 
   const roleOptions = roles.items.map((role) => ({ label: role.name, value: role.uuid }));
   if (form.values.roleUuid && !roleOptions.some((o) => o.value === form.values.roleUuid)) {

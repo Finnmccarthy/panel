@@ -1,5 +1,6 @@
 import { ModalProps } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import updateDatabaseAgentHostInstance from '@/api/admin/database-agent-hosts/updateDatabaseAgentHostInstance.ts';
 import Button from '@/elements/Button.tsx';
@@ -64,6 +65,23 @@ export default function DatabaseAgentHostInstanceEditModal({ hostUuid, serverUui
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.servers.databaseInstances(serverUuid) });
     },
   });
+
+  useEffect(() => {
+    if (props.opened) {
+      const initial = {
+        image: instance.imageOverride ?? '',
+        env: instance.envOverrides ?? {},
+        memory: instance.memoryOverride,
+        swap: instance.swapOverride,
+        disk: instance.diskOverride,
+        ioWeight: instance.ioWeightOverride,
+        cpu: instance.cpuOverride,
+      };
+
+      form.setValues(initial);
+      form.resetDirty(initial);
+    }
+  }, [props.opened]);
 
   const values = form.getValues();
 

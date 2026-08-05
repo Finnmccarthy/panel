@@ -1,5 +1,5 @@
 import { ZodType, z } from 'zod';
-import { archiveFormatLabelMapping } from '@/lib/enums.ts';
+import { archiveFormatLabelMapping, scheduleHttpMethodLabelMapping } from '@/lib/enums.ts';
 
 export const serverScheduleStepVariableSchema = z.object({
   variable: z.string(),
@@ -419,6 +419,27 @@ export const serverScheduleStepUpdateStartupDockerImageSchema = z.object({
   image: serverScheduleStepDynamicSchema,
 });
 
+export const serverScheduleStepHttpHeaderSchema = z.object({
+  name: z.string(),
+  value: serverScheduleStepDynamicSchema,
+});
+
+export const serverScheduleStepHttpRequestSchema = z.object({
+  type: z.literal('http_request'),
+  ignoreFailure: z.boolean(),
+  method: z.enum(Object.keys(scheduleHttpMethodLabelMapping)),
+  url: z.string(),
+  headers: z.array(serverScheduleStepHttpHeaderSchema),
+  body: serverScheduleStepDynamicSchema.nullable(),
+  timeout: z
+    .number()
+    .min(1)
+    .max(60 * 1000),
+  ignoreErrorStatus: z.boolean(),
+  outputStatusInto: serverScheduleStepVariableSchema.nullable(),
+  outputBodyInto: serverScheduleStepVariableSchema.nullable(),
+});
+
 export const serverScheduleStepActionSchema = z.discriminatedUnion('type', [
   serverScheduleStepSleepSchema,
   serverScheduleStepEnsureSchema,
@@ -447,6 +468,7 @@ export const serverScheduleStepActionSchema = z.discriminatedUnion('type', [
   serverScheduleStepUpdateStartupVariableSchema,
   serverScheduleStepUpdateStartupCommandSchema,
   serverScheduleStepUpdateStartupDockerImageSchema,
+  serverScheduleStepHttpRequestSchema,
 ]);
 
 export const serverScheduleStepSchema = z.looseObject({

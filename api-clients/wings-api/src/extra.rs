@@ -165,8 +165,28 @@ pub struct ScheduleVariable {
 #[derive(ToSchema, Clone, Deserialize, Serialize, Validate)]
 #[serde(untagged)]
 pub enum ScheduleDynamicParameter {
-    Raw(#[garde(length(chars, min = 1, max = 1024))] compact_str::CompactString),
+    Raw(#[garde(length(chars, min = 1, max = 16384))] compact_str::CompactString),
     Variable(#[garde(dive)] ScheduleVariable),
+}
+
+#[derive(ToSchema, Deserialize, Serialize, Clone, Copy)]
+#[serde(rename_all = "snake_case")]
+pub enum ScheduleHttpMethod {
+    Get,
+    Post,
+    Put,
+    Patch,
+    Delete,
+    Head,
+}
+
+#[derive(ToSchema, Clone, Deserialize, Serialize, Validate)]
+pub struct ScheduleHttpHeader {
+    #[garde(length(chars, min = 1, max = 128))]
+    #[schema(min_length = 1, max_length = 128)]
+    pub name: compact_str::CompactString,
+    #[garde(dive)]
+    pub value: ScheduleDynamicParameter,
 }
 
 #[derive(ToSchema, Deserialize, Serialize)]
@@ -245,8 +265,8 @@ pub enum ScheduleActionInner {
         timeout: u64,
     },
     Format {
-        #[garde(length(chars, min = 1, max = 2048))]
-        #[schema(min_length = 1, max_length = 2048)]
+        #[garde(length(chars, min = 1, max = 16384))]
+        #[schema(min_length = 1, max_length = 16384)]
         format: String,
         #[garde(dive)]
         output_into: ScheduleVariable,
@@ -439,6 +459,35 @@ pub enum ScheduleActionInner {
         #[garde(dive)]
         image: ScheduleDynamicParameter,
     },
+    HttpRequest {
+        #[garde(skip)]
+        ignore_failure: bool,
+
+        #[garde(skip)]
+        method: ScheduleHttpMethod,
+        #[garde(skip)]
+        #[schema(value_type = String, format = "uri")]
+        url: reqwest::Url,
+        #[garde(length(max = 32), dive)]
+        #[serde(default)]
+        headers: Vec<ScheduleHttpHeader>,
+        #[garde(dive)]
+        #[serde(default)]
+        body: Option<ScheduleDynamicParameter>,
+        #[garde(range(min = 1, max = 60 * 1000))]
+        #[schema(minimum = 1, maximum = 60000)]
+        timeout: u64,
+        #[garde(skip)]
+        #[serde(default)]
+        ignore_error_status: bool,
+
+        #[garde(dive)]
+        #[serde(default)]
+        output_status_into: Option<ScheduleVariable>,
+        #[garde(dive)]
+        #[serde(default)]
+        output_body_into: Option<ScheduleVariable>,
+    },
 }
 
 impl ScheduleActionInner {
@@ -476,6 +525,7 @@ impl ScheduleActionInner {
             ScheduleActionInner::UpdateStartupVariable { .. } => Some("startup.update"),
             ScheduleActionInner::UpdateStartupCommand { .. } => Some("startup.command"),
             ScheduleActionInner::UpdateStartupDockerImage { .. } => Some("startup.docker-image"),
+            ScheduleActionInner::HttpRequest { .. } => None,
         }
     }
 }

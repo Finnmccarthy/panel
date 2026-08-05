@@ -104,6 +104,14 @@
       "many": "{count} Lines",
       "other": "{count} Lines"
     },
+    "header": {
+      "zero": "{count} Headers",
+      "one": "{count} Header",
+      "two": "{count} Headers",
+      "few": "{count} Headers",
+      "many": "{count} Headers",
+      "other": "{count} Headers"
+    },
     "backup": {
       "zero": "{count} Backups",
       "one": "{count} Backup",
@@ -4841,6 +4849,7 @@
             "createFirstStep": "Create First Step",
             "addOutput": "Add Output",
             "addFile": "Add File",
+            "addHeader": "Add Header",
             "exitEditor": "Exit Editor",
             "viewCalendar": "View Calendar"
           },
@@ -5395,6 +5404,34 @@
                 "compact": "Set to {image}",
                 "detail": {
                   "image": "Image: {image}"
+                }
+              }
+            },
+            "httpRequest": {
+              "title": "HTTP Request",
+              "description": "Send an HTTP request, for example to a webhook.",
+              "form": {
+                "method": "Method",
+                "url": "URL",
+                "headers": "Headers",
+                "headerName": "Header Name",
+                "headerValue": "Header Value",
+                "body": "Body",
+                "timeout": "Timeout (milliseconds)",
+                "ignoreErrorStatus": "Ignore Error Status Codes",
+                "outputStatusInto": "Output Status Code Into",
+                "outputBodyInto": "Output Response Body Into"
+              },
+              "renderer": {
+                "compact": "Send {method} to {url}",
+                "detail": {
+                  "request": "Request: {method} {url}",
+                  "headers": "Headers: {headers}",
+                  "body": "Body: {body}",
+                  "timeout": "Timeout: {timeout}",
+                  "outputStatusInto": "Status code into: {variable}",
+                  "outputBodyInto": "Response body into: {variable}",
+                  "ignoreErrorStatus": "Ignore error status codes: {value}"
                 }
               }
             }

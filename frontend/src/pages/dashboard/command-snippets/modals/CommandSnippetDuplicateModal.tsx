@@ -44,8 +44,13 @@ export default function CommandSnippetDuplicateModal({ commandSnippet, ...props 
   });
 
   useEffect(() => {
-    form.setValues({ name: `${commandSnippet.name} (copy)`.slice(0, 31) });
-  }, [props.opened, commandSnippet]);
+    if (props.opened) {
+      const values = { name: `${commandSnippet.name} (copy)`.slice(0, 31) };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
+  }, [props.opened]);
 
   return (
     <FormModal

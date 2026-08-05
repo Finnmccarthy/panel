@@ -1,6 +1,7 @@
 import { ModalProps } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import updateSecurityKey from '@/api/me/security-keys/updateSecurityKey.ts';
 import Button from '@/elements/Button.tsx';
@@ -39,6 +40,15 @@ export default function SecurityKeyEditModal({ securityKey, ...props }: Props) {
       addToast(t('pages.account.securityKeys.modal.editSecurityKey.toast.updated', {}), 'success');
     },
   });
+
+  useEffect(() => {
+    if (props.opened) {
+      const values = { name: securityKey.name };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
+  }, [props.opened]);
 
   return (
     <FormModal

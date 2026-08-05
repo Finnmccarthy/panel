@@ -96,12 +96,13 @@ export default function FileRenameModal({ file, ...props }: Props) {
   });
 
   useEffect(() => {
-    if (file) {
-      form.setValues({
-        name: file.name,
-      });
+    if (file && props.opened) {
+      const values = { name: file.name };
+
+      form.setValues(values);
+      form.resetDirty(values);
     }
-  }, [file]);
+  }, [file, props.opened]);
 
   return (
     <FormModal

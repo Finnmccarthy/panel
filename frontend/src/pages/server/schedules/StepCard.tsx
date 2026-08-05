@@ -84,101 +84,103 @@ export default function StepCard({
   const isBranchStart = step.action.type === 'if' || step.action.type === 'else_if';
 
   return (
-    <ContextMenu
-      items={[
-        {
-          type: 'action',
-          icon: faPencil,
-          label: t('common.button.edit', {}),
-          onClick: () => handleOpenModal('update'),
-          color: 'gray',
-        },
-        {
-          type: 'action',
-          icon: faCodeBranch,
-          label: t('pages.server.schedules.button.addElseIf', {}),
-          hidden: !onStepAddBranch || !isBranchStart,
-          onClick: () => onStepAddBranch?.(step, 'else_if'),
-          color: 'gray',
-        },
-        {
-          type: 'action',
-          icon: faCodeBranch,
-          label: t('pages.server.schedules.button.addElse', {}),
-          hidden: !onStepAddBranch || !isBranchStart || !canAddElse,
-          onClick: () => onStepAddBranch?.(step, 'else'),
-          color: 'gray',
-        },
-        {
-          type: 'action',
-          icon: faClone,
-          label: t('common.button.duplicate', {}),
-          onClick: doDuplicate,
-          color: 'gray',
-        },
-        {
-          type: 'action',
-          icon: faTrash,
-          label: t('common.button.delete', {}),
-          onClick: () => handleOpenModal('delete'),
-          color: 'red',
-        },
-      ]}
-    >
-      {({ openMenu }) => (
-        <Card
-          onContextMenu={(e) => {
-            e.preventDefault();
-            openMenu(e.clientX, e.clientY);
-          }}
-        >
-          <StepCreateOrUpdateModal
-            opened={openModal === 'update'}
-            onClose={() => handleOpenModal(null)}
-            schedule={schedule}
-            propStep={step}
-            onStepUpdate={onStepUpdate}
-          />
+    <>
+      <StepCreateOrUpdateModal
+        opened={openModal === 'update'}
+        onClose={() => handleOpenModal(null)}
+        schedule={schedule}
+        propStep={step}
+        onStepUpdate={onStepUpdate}
+      />
 
-          <ConfirmationModal
-            opened={openModal === 'delete'}
-            onClose={() => handleOpenModal(null)}
-            title={t('pages.server.schedules.modal.deleteStep.title', {})}
-            confirm={t('common.button.delete', {})}
-            onConfirmed={doDelete}
+      <ConfirmationModal
+        opened={openModal === 'delete'}
+        onClose={() => handleOpenModal(null)}
+        title={t('pages.server.schedules.modal.deleteStep.title', {})}
+        confirm={t('common.button.delete', {})}
+        onConfirmed={doDelete}
+      >
+        {t('pages.server.schedules.modal.deleteStep.content', {})}
+      </ConfirmationModal>
+
+      <ContextMenu
+        items={[
+          {
+            type: 'action',
+            icon: faPencil,
+            label: t('common.button.edit', {}),
+            onClick: () => handleOpenModal('update'),
+            color: 'gray',
+          },
+          {
+            type: 'action',
+            icon: faCodeBranch,
+            label: t('pages.server.schedules.button.addElseIf', {}),
+            hidden: !onStepAddBranch || !isBranchStart,
+            onClick: () => onStepAddBranch?.(step, 'else_if'),
+            color: 'gray',
+          },
+          {
+            type: 'action',
+            icon: faCodeBranch,
+            label: t('pages.server.schedules.button.addElse', {}),
+            hidden: !onStepAddBranch || !isBranchStart || !canAddElse,
+            onClick: () => onStepAddBranch?.(step, 'else'),
+            color: 'gray',
+          },
+          {
+            type: 'action',
+            icon: faClone,
+            label: t('common.button.duplicate', {}),
+            onClick: doDuplicate,
+            color: 'gray',
+          },
+          {
+            type: 'action',
+            icon: faTrash,
+            label: t('common.button.delete', {}),
+            onClick: () => handleOpenModal('delete'),
+            color: 'red',
+          },
+        ]}
+      >
+        {({ openMenu }) => (
+          <Card
+            onContextMenu={(e) => {
+              e.preventDefault();
+              openMenu(e.clientX, e.clientY);
+            }}
           >
-            {t('pages.server.schedules.modal.deleteStep.content', {})}
-          </ConfirmationModal>
+            <Group justify='space-between' align='flex-start'>
+              <Group gap='md' align='flex-start'>
+                <ThemeIcon size='lg' color='gray'>
+                  <FontAwesomeIcon icon={scheduleStepIconMapping[step.action.type] || faGear} />
+                </ThemeIcon>
+                <Stack gap={4}>
+                  <Text fw={600}>{scheduleStepLabelMapping[step.action.type]()}</Text>
+                  <Text size='sm' c='dimmed'>
+                    <ActionRenderer action={step.action} mode='compact' />
+                  </Text>
+                </Stack>
+              </Group>
 
-          <Group justify='space-between' align='flex-start'>
-            <Group gap='md' align='flex-start'>
-              <ThemeIcon size='lg' color='gray'>
-                <FontAwesomeIcon icon={scheduleStepIconMapping[step.action.type] || faGear} />
-              </ThemeIcon>
-              <Stack gap={4}>
-                <Text fw={600}>{scheduleStepLabelMapping[step.action.type]()}</Text>
-                <Text size='sm' c='dimmed'>
-                  <ActionRenderer action={step.action} mode='compact' />
-                </Text>
-              </Stack>
+              <ActionIcon
+                size='input-sm'
+                variant='light'
+                color='gray'
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  openMenu(rect.left, rect.bottom);
+                }}
+              >
+                <FontAwesomeIcon icon={faEllipsisVertical} />
+              </ActionIcon>
             </Group>
-
-            <ActionIcon
-              size='input-sm'
-              variant='light'
-              color='gray'
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const rect = e.currentTarget.getBoundingClientRect();
-                openMenu(rect.left, rect.bottom);
-              }}
-            >
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </ActionIcon>
-          </Group>
-        </Card>
-      )}
-    </ContextMenu>
+          </Card>
+        )}
+      </ContextMenu>
+    </>
   );
 }

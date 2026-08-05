@@ -52,12 +52,17 @@ export default function CommandSnippetEditModal({ commandSnippet, ...props }: Pr
   });
 
   useEffect(() => {
-    form.setValues({
-      name: commandSnippet.name,
-      eggs: commandSnippet.eggs,
-      command: commandSnippet.command,
-    });
-  }, [commandSnippet]);
+    if (props.opened) {
+      const values = {
+        name: commandSnippet.name,
+        eggs: commandSnippet.eggs,
+        command: commandSnippet.command,
+      };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
+  }, [props.opened]);
 
   return (
     <FormModal

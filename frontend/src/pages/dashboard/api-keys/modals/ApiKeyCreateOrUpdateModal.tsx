@@ -61,19 +61,26 @@ export default function ApiKeyCreateOrUpdateModal({ contextApiKey, onCreated, ..
   });
 
   useEffect(() => {
+    if (!props.opened) {
+      return;
+    }
+
     if (contextApiKey) {
-      form.setValues({
+      const values = {
         name: contextApiKey.name,
         allowedIps: contextApiKey.allowedIps,
         userPermissions: contextApiKey.userPermissions,
         serverPermissions: contextApiKey.serverPermissions,
         adminPermissions: contextApiKey.adminPermissions,
         expires: contextApiKey.expires ? new Date(contextApiKey.expires) : null,
-      });
+      };
+
+      form.setValues(values);
+      form.resetDirty(values);
     } else {
       form.reset();
     }
-  }, [contextApiKey]);
+  }, [props.opened]);
 
   useEffect(() => {
     getPermissions()

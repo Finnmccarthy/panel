@@ -1,5 +1,6 @@
 import { ModalProps } from '@mantine/core';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import updateSubuser from '@/api/server/subusers/updateSubuser.ts';
 import Button from '@/elements/Button.tsx';
@@ -46,6 +47,18 @@ export default function SubuserUpdateModal({ subuser, ...props }: Props) {
       },
     },
   );
+
+  useEffect(() => {
+    if (props.opened) {
+      const values = {
+        permissions: subuser.permissions,
+        ignoredFiles: subuser.ignoredFiles,
+      };
+
+      form.setValues(values);
+      form.resetDirty(values);
+    }
+  }, [props.opened]);
 
   return (
     <FormModal
