@@ -129,6 +129,9 @@ export default function ServerActivity() {
                   {activity.event === 'server:file.write' && fileWriteData?.file && fileWriteData?.revision_id ? (
                     <NavLink
                       to={`/server/${server.uuidShort}/files/diff?file=${encodeURIComponent(fileWriteData.file)}&revision=${fileWriteData.revision_id}`}
+                      state={{
+                        backTo: `/server/${server.uuidShort}/activity${searchParams.size > 0 ? `?${searchParams.toString()}` : ''}`,
+                      }}
                     >
                       <ActionIcon>
                         <FontAwesomeIcon icon={faCodeBranch} />

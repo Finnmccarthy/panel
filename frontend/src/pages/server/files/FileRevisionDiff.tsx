@@ -156,15 +156,21 @@ function FileRevisionDiffComponent() {
           <ActionIcon
             variant='subtle'
             color='gray'
-            onClick={() =>
+            onClick={() => {
+              const backTo = (location.state as { backTo?: string } | null)?.backTo;
+              if (backTo) {
+                navigate(backTo);
+                return;
+              }
+
               navigate(
                 `/server/${server.uuidShort}/files/edit?${createSearchParams({
                   directory: dirname(filePath),
                   file: basename(filePath),
                 })}`,
                 { state: { openRevisions: true } },
-              )
-            }
+              );
+            }}
           >
             <FontAwesomeIcon icon={faArrowLeft} />
           </ActionIcon>
