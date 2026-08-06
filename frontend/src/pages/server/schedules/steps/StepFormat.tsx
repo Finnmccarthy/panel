@@ -26,8 +26,10 @@ export default function StepFormat({
       <ScheduleDynamicParameterInput
         label={t('pages.server.schedules.form.outputInto', {})}
         placeholder={t('pages.server.schedules.form.outputInto', {})}
+        output
         allowString={false}
         value={form.getInputProps('action.outputInto').value}
+        error={form.getInputProps('action.outputInto').error}
         onChange={(v) => form.setFieldValue('action.outputInto', v)}
       />
     </Stack>

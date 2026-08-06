@@ -376,6 +376,20 @@ const baseTranslations = defineTranslations({
         hide: 'Hide {series}',
         show: 'Show {series}',
       },
+      dragAndDrop: {
+        item: {
+          labelled: '{label} (position {position})',
+          unlabelled: 'item at position {position}',
+        },
+        announcement: {
+          pickedUp: 'Picked up {item}.',
+          movedOver: '{item} was moved over {target}.',
+          leftTarget: '{item} is no longer over a drop target.',
+          droppedOn: '{item} was dropped on {target}.',
+          dropped: '{item} was dropped.',
+          cancelled: 'Dragging {item} was cancelled.',
+        },
+      },
       routeOrderEditor: {
         title: 'Route Configuration',
         label: {
@@ -524,6 +538,7 @@ const baseTranslations = defineTranslations({
         none: 'None',
         variable: 'Variable',
         enterVariable: 'Reading from a variable.',
+        writeVariable: 'The result is stored in this variable.',
         useVariable: 'Use a variable instead of plain text',
         usePlainText: 'Use plain text instead of a variable',
         optionalPlaceholder: 'None (optional)',
@@ -4883,7 +4898,6 @@ const baseTranslations = defineTranslations({
             addOutput: 'Add Output',
             addFile: 'Add File',
             addHeader: 'Add Header',
-            exitEditor: 'Exit Editor',
             viewCalendar: 'View Calendar',
           },
           toast: {
@@ -4957,7 +4971,7 @@ const baseTranslations = defineTranslations({
             },
             deleteStep: {
               title: 'Confirm Schedule Step Deletion',
-              content: 'Are you sure you want to delete this schedule step?',
+              content: 'Are you sure you want to delete this "{step}" step?',
             },
             unsavedChanges: {
               title: 'Unsaved Changes',
@@ -4987,6 +5001,14 @@ const baseTranslations = defineTranslations({
               noTriggers: 'No triggers configured for this schedule',
             },
           },
+          step: {
+            aria: {
+              reorder: 'Reorder {step} step',
+              expand: 'Show {step} details',
+              collapse: 'Hide {step} details',
+              actions: '{step} step actions',
+            },
+          },
           form: {
             scheduleName: 'Schedule Name',
             triggersList: 'Triggers',
@@ -5011,6 +5033,19 @@ const baseTranslations = defineTranslations({
             allMustBeTrue: 'All conditions must be true:',
             anyMustBeTrue: 'Any condition must be true:',
             mustNotBeTrue: 'Condition must not be true:',
+            renderer: {
+              none: 'No condition — this always matches.',
+              empty: 'No conditions added yet.',
+              serverState: 'Server state is {state}',
+              uptime: 'Uptime {comparator} {value}',
+              resourceUsage: '{metric} {comparator} {value}',
+              fileExists: 'File {file} exists',
+              variableExists: 'Variable {variable} is set',
+              equals: 'Variable {variable} equals {value}',
+              contains: 'Variable {variable} contains {value}',
+              startsWith: 'Variable {variable} starts with {value}',
+              endsWith: 'Variable {variable} ends with {value}',
+            },
           },
           preCondition: {
             valueSeconds: 'Value (seconds)',
@@ -5125,7 +5160,7 @@ const baseTranslations = defineTranslations({
                 duration: 'Duration (milliseconds)',
               },
               renderer: {
-                compact: 'Sleep for {duration}ms',
+                compact: 'Sleep for {duration}',
               },
             },
             ensure: {
@@ -5299,6 +5334,7 @@ const baseTranslations = defineTranslations({
               title: 'Delete Backup',
               description: 'Delete a backup selected by the backup selector.',
               form: {
+                backupSelector: 'Backup to Delete',
                 warning:
                   'This permanently deletes the selected backup, including its files on the node. Locked backups are skipped.',
               },
@@ -5307,6 +5343,7 @@ const baseTranslations = defineTranslations({
               title: 'Move Backup',
               description: 'Move a backup selected by the backup selector into a backup group.',
               form: {
+                backupSelector: 'Backup to Move',
                 targetGroup: 'Target Backup Group',
               },
               renderer: {

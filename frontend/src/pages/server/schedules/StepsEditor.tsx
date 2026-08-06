@@ -1,7 +1,7 @@
 import { arrayMove } from '@dnd-kit/sortable';
 import { faExclamationTriangle, faGear, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { memo, startTransition, useCallback, useMemo, useState } from 'react';
+import { ComponentProps, CSSProperties, memo, startTransition, useCallback, useMemo, useState } from 'react';
 import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import createScheduleStep from '@/api/server/schedules/steps/createScheduleStep.ts';
@@ -16,13 +16,13 @@ import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
 import ThemeIcon from '@/elements/ThemeIcon.tsx';
 import Title from '@/elements/Title.tsx';
-import { scheduleStepDefaultMapping } from '@/lib/enums.ts';
+import { scheduleStepDefaultMapping, scheduleStepLabelMapping } from '@/lib/enums.ts';
 import { serverScheduleSchema, serverScheduleStepSchema } from '@/lib/schemas/server/schedules.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore, useServerStoreApi } from '@/stores/server.ts';
 import StepCreateOrUpdateModal from './modals/StepCreateOrUpdateModal.tsx';
-import StepCard from './StepCard.tsx';
+import StepCard, { StepCardBody } from './StepCard.tsx';
 
 interface DndScheduleStep extends z.infer<typeof serverScheduleStepSchema>, DndItem {
   id: string;
@@ -31,6 +31,13 @@ interface DndScheduleStep extends z.infer<typeof serverScheduleStepSchema>, DndI
 const MemoizedStepCard = memo(StepCard);
 
 const maxStepIndent = 8;
+
+export function stepIndentStyle(indent: number): CSSProperties {
+  return {
+    marginLeft: indent > 0 ? `calc(${indent} * clamp(10px, 3vw, 28px))` : undefined,
+    transition: 'margin-left 150ms ease',
+  };
+}
 
 export function stepIndents(steps: z.infer<typeof serverScheduleStepSchema>[]): number[] {
   let depth = 0;
@@ -71,6 +78,7 @@ export default function StepsEditor({ schedule }: { schedule: z.infer<typeof ser
   const server = useServerStore((state) => state.server);
   const scheduleSteps = useServerStore((state) => state.scheduleSteps);
   const setScheduleSteps = useServerStore((state) => state.setScheduleSteps);
+  const runningStepUuid = useServerStore((state) => state.runningScheduleSteps.get(schedule.uuid));
   const storeApi = useServerStoreApi();
   const { addToast } = useToast();
 
@@ -79,10 +87,7 @@ export default function StepsEditor({ schedule }: { schedule: z.infer<typeof ser
   const [dragProjection, setDragProjection] = useState<{ activeId: string; overId: string } | null>(null);
 
   const nextStepOrder = useMemo(
-    () =>
-      Number.isFinite(Math.max(...scheduleSteps.map((s) => s.order)))
-        ? Math.max(...scheduleSteps.map((s) => s.order))
-        : 1,
+    () => scheduleSteps.reduce((max, step) => Math.max(max, step.order), 0) + 1,
     [scheduleSteps],
   );
 
@@ -232,15 +237,15 @@ export default function StepsEditor({ schedule }: { schedule: z.infer<typeof ser
     (activeStep: DndScheduleStep | null) =>
       activeStep ? (
         <div style={{ cursor: 'grabbing' }}>
-          <MemoizedStepCard
-            schedule={schedule}
+          <StepCardBody
             step={activeStep}
-            onStepUpdate={handleStepUpdate}
-            onStepDelete={handleStepDelete}
+            label={scheduleStepLabelMapping[activeStep.action.type]()}
+            isActive={activeStep.uuid === runningStepUuid}
+            editable
           />
         </div>
       ) : null,
-    [schedule, handleStepUpdate, handleStepDelete],
+    [runningStepUuid],
   );
 
   if (!schedule || !scheduleSteps) {
@@ -282,6 +287,7 @@ export default function StepsEditor({ schedule }: { schedule: z.infer<typeof ser
             items={dndSteps}
             callbacks={{ onDragEnd: handleDragEnd, onDragOver: handleDragOver, onDragCancel: handleDragCancel }}
             renderOverlay={renderOverlay}
+            getItemLabel={(item) => scheduleStepLabelMapping[item.action.type]()}
           >
             {(items) => {
               let projectedItems = items;
@@ -305,18 +311,14 @@ export default function StepsEditor({ schedule }: { schedule: z.infer<typeof ser
                       id={step.id}
                       disabled={openModal !== null || childModalOpen}
                       renderItem={({ dragHandleProps }) => (
-                        <div
-                          {...dragHandleProps}
-                          style={{
-                            ...dragHandleProps.style,
-                            marginLeft: (indents.get(step.id) ?? 0) * 28,
-                            transition: 'margin-left 150ms ease',
-                          }}
-                        >
+                        <div style={stepIndentStyle(indents.get(step.id) ?? 0)}>
                           <MemoizedStepCard
+                            editable
+                            dragHandleProps={dragHandleProps as unknown as ComponentProps<'button'>}
                             onStepToggle={setChildModalOpen}
                             schedule={schedule}
                             step={step}
+                            isActive={step.uuid === runningStepUuid}
                             onStepUpdate={handleStepUpdate}
                             onStepDelete={handleStepDelete}
                             onStepDuplicate={handleStepCreate}

@@ -20,6 +20,7 @@ export default function StepCopyFile({
         label={t('pages.server.schedules.steps.copyFile.form.sourceFile', {})}
         placeholder={t('pages.server.schedules.steps.copyFile.form.sourceFile', {})}
         value={form.getInputProps('action.file').value}
+        error={form.getInputProps('action.file').error}
         onChange={(v) => form.setFieldValue('action.file', v)}
       />
       <ScheduleDynamicParameterInput
@@ -27,6 +28,7 @@ export default function StepCopyFile({
         label={t('common.form.destination', {})}
         placeholder={t('common.form.destination', {})}
         value={form.getInputProps('action.destination').value}
+        error={form.getInputProps('action.destination').error}
         onChange={(v) => form.setFieldValue('action.destination', v)}
       />
       <Switch

@@ -78,9 +78,13 @@ export default function ScheduleRow({ schedule }: { schedule: z.infer<typeof ser
   };
 
   const doTriggerSchedule = (skipCondition: boolean) => {
-    triggerSchedule(server.uuid, schedule.uuid, skipCondition).then(() => {
-      addToast(t('pages.server.schedules.toast.triggered', {}), 'success');
-    });
+    triggerSchedule(server.uuid, schedule.uuid, skipCondition)
+      .then(() => {
+        addToast(t('pages.server.schedules.toast.triggered', {}), 'success');
+      })
+      .catch((msg) => {
+        addToast(httpErrorToHuman(msg), 'error');
+      });
   };
 
   return (

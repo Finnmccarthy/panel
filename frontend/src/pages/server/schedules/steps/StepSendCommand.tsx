@@ -20,6 +20,7 @@ export default function StepSendCommand({
         label={t('common.form.command', {})}
         placeholder={t('common.form.command', {})}
         value={form.getInputProps('action.command').value}
+        error={form.getInputProps('action.command').error}
         onChange={(v) => form.setFieldValue('action.command', v)}
       />
       <Switch

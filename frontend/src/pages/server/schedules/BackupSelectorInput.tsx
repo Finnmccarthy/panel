@@ -20,9 +20,11 @@ type BackupSelector = Extract<
 export default function BackupSelectorInput({
   form,
   backup,
+  label,
 }: {
   form: UseFormReturnType<z.infer<typeof serverScheduleStepUpdateSchema>>;
   backup: BackupSelector;
+  label: string;
 }) {
   const { t } = useTranslations();
   const server = useServerStore((state) => state.server);
@@ -38,7 +40,7 @@ export default function BackupSelectorInput({
     <Stack>
       <Select
         withAsterisk
-        label={t('pages.server.schedules.steps.restoreBackup.form.backupSelector', {})}
+        label={label}
         data={(['latest', 'oldest', 'uuid', 'name'] as const).map((mode) => ({
           value: mode,
           label: t(`pages.server.schedules.steps.restoreBackup.form.selector.${mode}`, {}),
@@ -61,6 +63,7 @@ export default function BackupSelectorInput({
           label={t('pages.server.schedules.steps.restoreBackup.form.backupUuid', {})}
           placeholder={t('pages.server.schedules.steps.restoreBackup.form.backupUuid', {})}
           value={backup.uuid}
+          error={form.getInputProps('action.backup.uuid').error}
           onChange={(v) => form.setFieldValue('action.backup.uuid', v)}
         />
       ) : backup.mode === 'name' ? (
@@ -69,6 +72,7 @@ export default function BackupSelectorInput({
           label={t('pages.server.schedules.steps.restoreBackup.form.backupName', {})}
           placeholder={t('pages.server.schedules.steps.restoreBackup.form.backupName', {})}
           value={backup.name}
+          error={form.getInputProps('action.backup.name').error}
           onChange={(v) => form.setFieldValue('action.backup.name', v)}
         />
       ) : null}
@@ -82,6 +86,7 @@ export default function BackupSelectorInput({
             label: group.name,
           }))}
           value={backup.backupGroupUuid ?? null}
+          error={form.getInputProps('action.backup.backupGroupUuid').error}
           onChange={(v) => form.setFieldValue('action.backup.backupGroupUuid', v)}
         />
       )}

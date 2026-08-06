@@ -1,6 +1,6 @@
 import { faDollarSign, faFont } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useMemo, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { z } from 'zod';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Autocomplete from '@/elements/input/Autocomplete.tsx';
@@ -23,6 +23,8 @@ interface ScheduleDynamicParameterInputProps<
   label?: string;
   placeholder?: string;
   className?: string;
+  error?: ReactNode;
+  output?: boolean;
   allowNull?: N;
   allowString?: S;
   value: N extends true ? Param | null : Param;
@@ -32,6 +34,7 @@ interface ScheduleDynamicParameterInputProps<
 export default function ScheduleDynamicParameterInput<N extends boolean = false, S extends boolean = true>({
   textArea = false,
   className,
+  output = false,
   allowNull = false as never,
   allowString = true as never,
   value,
@@ -136,7 +139,11 @@ export default function ScheduleDynamicParameterInput<N extends boolean = false,
     return (
       <Autocomplete
         className={className}
-        description={t('elements.scheduleDynamicInput.enterVariable', {})}
+        description={
+          output
+            ? t('elements.scheduleDynamicInput.writeVariable', {})
+            : t('elements.scheduleDynamicInput.enterVariable', {})
+        }
         value={displayedValue}
         onChange={handleChange}
         data={outputVariables}

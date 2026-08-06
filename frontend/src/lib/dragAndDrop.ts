@@ -4,13 +4,14 @@ import {
   DragStartEvent,
   DropAnimation,
   defaultDropAnimationSideEffects,
+  KeyboardSensor,
   Modifier,
   MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect, useMemo, useState } from 'react';
 import { DndCallbacks, DndConfig, DndItem } from '@/elements/DragAndDrop.tsx';
 
@@ -37,7 +38,11 @@ export function useDndSensors(config: DndConfig = {}) {
     [touchActivationDelay, touchActivationTolerance],
   );
 
-  return useSensors(useSensor(MouseSensor, mouseOptions), useSensor(TouchSensor, touchOptions));
+  return useSensors(
+    useSensor(MouseSensor, mouseOptions),
+    useSensor(TouchSensor, touchOptions),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 }
 
 export function useDndState<T extends DndItem>(items: T[], callbacks: DndCallbacks<T>) {

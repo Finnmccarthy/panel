@@ -104,6 +104,14 @@
       "many": "{count} Zeilen",
       "other": "{count} Zeilen"
     },
+    "header": {
+      "zero": "{count} Header",
+      "one": "{count} Header",
+      "two": "{count} Header",
+      "few": "{count} Header",
+      "many": "{count} Header",
+      "other": "{count} Header"
+    },
     "backup": {
       "zero": "{count} Backups",
       "one": "{count} Backup",
@@ -197,6 +205,18 @@
           "textMode": "Text",
           "jsonMode": "JSON",
           "invalidJson": "Ungültiges JSON"
+        },
+        "tagsInput": {
+          "copyAll": "Alle kopieren",
+          "pasteReplace": "Einfügen (ersetzen)"
+        },
+        "ignoredFilesInput": {
+          "onePatternPerLine": "Ein Muster pro Zeile.",
+          "countMatches": "Treffer zählen",
+          "matches": "{count} Treffer",
+          "noMatches": "Keine Treffer",
+          "exception": "Ausnahme",
+          "tooManyPatterns": "Bei mehr als {max} Mustern werden Treffer nicht automatisch gezählt."
         }
       },
       "modal": {
@@ -455,6 +475,20 @@
         "hide": "{series} ausblenden",
         "show": "{series} einblenden"
       },
+      "dragAndDrop": {
+        "item": {
+          "labelled": "{label} (Position {position})",
+          "unlabelled": "Element an Position {position}"
+        },
+        "announcement": {
+          "pickedUp": "{item} aufgenommen.",
+          "movedOver": "{item} wurde über {target} bewegt.",
+          "leftTarget": "{item} befindet sich nicht mehr über einem Ablageziel.",
+          "droppedOn": "{item} wurde auf {target} abgelegt.",
+          "dropped": "{item} wurde abgelegt.",
+          "cancelled": "Das Ziehen von {item} wurde abgebrochen."
+        }
+      },
       "routeOrderEditor": {
         "title": "Routen-Konfiguration",
         "label": {
@@ -596,6 +630,7 @@
         "none": "Keine",
         "variable": "Variable",
         "enterVariable": "Liest aus einer Variable.",
+        "writeVariable": "Das Ergebnis wird in dieser Variable gespeichert.",
         "useVariable": "Eine Variable anstelle von Text verwenden",
         "usePlainText": "Text anstelle einer Variable verwenden",
         "optionalPlaceholder": "Keine (optional)"
@@ -4829,7 +4864,8 @@
             "createFirstStep": "Ersten Schritt erstellen",
             "addOutput": "Ausgabe hinzufügen",
             "addFile": "Datei hinzufügen",
-            "exitEditor": "Editor verlassen"
+            "addHeader": "Header hinzufügen",
+            "viewCalendar": "Kalender anzeigen"
           },
           "toast": {
             "imported": "Zeitplan importiert.",
@@ -4886,6 +4922,10 @@
             "duplicateSchedule": {
               "title": "Zeitplan duplizieren"
             },
+            "calendar": {
+              "title": "Kalender der anstehenden Ausführungen",
+              "truncatedWarning": "Einige anstehende Ausführungen wurden weggelassen, damit der Kalender reaktionsfähig bleibt."
+            },
             "deleteSchedule": {
               "title": "Löschen des Zeitplans bestätigen",
               "content": "Bist du sicher, dass du {name} von diesem Server löschen möchtest?"
@@ -4898,7 +4938,7 @@
             },
             "deleteStep": {
               "title": "Löschen des Zeitplan-Schritts bestätigen",
-              "content": "Bist du sicher, dass du diesen Zeitplan-Schritt löschen möchtest?"
+              "content": "Bist du sicher, dass du diesen Schritt \"{step}\" löschen möchtest?"
             },
             "unsavedChanges": {
               "title": "Ungespeicherte Änderungen",
@@ -4927,6 +4967,14 @@
               "noTriggers": "Keine Auslöser für diesen Zeitplan konfiguriert"
             }
           },
+          "step": {
+            "aria": {
+              "reorder": "Schritt {step} neu anordnen",
+              "expand": "Details zu {step} anzeigen",
+              "collapse": "Details zu {step} ausblenden",
+              "actions": "Aktionen für Schritt {step}"
+            }
+          },
           "form": {
             "scheduleName": "Zeitplan-Name",
             "triggersList": "Auslöser",
@@ -4950,7 +4998,20 @@
             "metric": "Metrik",
             "allMustBeTrue": "Alle Bedingungen müssen wahr sein:",
             "anyMustBeTrue": "Mindestens eine Bedingung muss wahr sein:",
-            "mustNotBeTrue": "Bedingung darf nicht wahr sein:"
+            "mustNotBeTrue": "Bedingung darf nicht wahr sein:",
+            "renderer": {
+              "none": "Keine Bedingung – trifft immer zu.",
+              "empty": "Noch keine Bedingungen hinzugefügt.",
+              "serverState": "Serverstatus ist {state}",
+              "uptime": "Betriebszeit {comparator} {value}",
+              "resourceUsage": "{metric} {comparator} {value}",
+              "fileExists": "Datei {file} existiert",
+              "variableExists": "Variable {variable} ist gesetzt",
+              "equals": "Variable {variable} ist gleich {value}",
+              "contains": "Variable {variable} enthält {value}",
+              "startsWith": "Variable {variable} beginnt mit {value}",
+              "endsWith": "Variable {variable} endet mit {value}"
+            }
           },
           "preCondition": {
             "valueSeconds": "Wert (Sekunden)",
@@ -5065,7 +5126,7 @@
                 "duration": "Dauer (Millisekunden)"
               },
               "renderer": {
-                "compact": "Pausieren für {duration}ms"
+                "compact": "Pausieren für {duration}"
               }
             },
             "ensure": {
@@ -5186,7 +5247,8 @@
               "title": "Backup erstellen",
               "description": "Erstellt ein Backup der Server-Dateien.",
               "form": {
-                "backupName": "Backup-Name"
+                "backupName": "Backup-Name",
+                "outputInto": "Backup-UUID ausgeben in"
               },
               "renderer": {
                 "compact": "Erstelle {name}",
@@ -5194,6 +5256,7 @@
                 "detail": {
                   "backupName": "Backup-Name: {name}",
                   "backupNameAuto": "Backup-Name: Automatisch generiert",
+                  "outputInto": "Backup-UUID in: {variable}",
                   "ignoredFiles": "Ignorierte Dateien: {files}"
                 }
               }
@@ -5234,6 +5297,7 @@
               "title": "Backup löschen",
               "description": "Lösche ein durch die Backup-Auswahl ausgewähltes Backup.",
               "form": {
+                "backupSelector": "Zu löschendes Backup",
                 "warning": "Dadurch wird das ausgewählte Backup einschließlich seiner Dateien auf dem Node dauerhaft gelöscht. Gesperrte Backups werden übersprungen."
               }
             },
@@ -5241,6 +5305,7 @@
               "title": "Backup verschieben",
               "description": "Verschiebe ein durch die Backup-Auswahl ausgewähltes Backup in eine Backup-Gruppe.",
               "form": {
+                "backupSelector": "Zu verschiebendes Backup",
                 "targetGroup": "Ziel-Backup-Gruppe"
               },
               "renderer": {
@@ -5378,6 +5443,34 @@
                 "compact": "Setze auf {image}",
                 "detail": {
                   "image": "Image: {image}"
+                }
+              }
+            },
+            "httpRequest": {
+              "title": "HTTP-Anfrage",
+              "description": "Sendet eine HTTP-Anfrage, zum Beispiel an einen Webhook.",
+              "form": {
+                "method": "Methode",
+                "url": "URL",
+                "headers": "Header",
+                "headerName": "Header-Name",
+                "headerValue": "Header-Wert",
+                "body": "Body",
+                "timeout": "Zeitüberschreitung (Millisekunden)",
+                "ignoreErrorStatus": "Fehler-Statuscodes ignorieren",
+                "outputStatusInto": "Statuscode ausgeben in",
+                "outputBodyInto": "Antwort-Body ausgeben in"
+              },
+              "renderer": {
+                "compact": "Sende {method} an {url}",
+                "detail": {
+                  "request": "Anfrage: {method} {url}",
+                  "headers": "Header: {headers}",
+                  "body": "Body: {body}",
+                  "timeout": "Zeitüberschreitung: {timeout}",
+                  "outputStatusInto": "Statuscode in: {variable}",
+                  "outputBodyInto": "Antwort-Body in: {variable}",
+                  "ignoreErrorStatus": "Fehler-Statuscodes ignorieren: {value}"
                 }
               }
             }

@@ -24,6 +24,7 @@ export default function StepRenameFiles({
         label={t('pages.server.schedules.form.rootPath', {})}
         placeholder={t('pages.server.schedules.form.rootPath', {})}
         value={form.getInputProps('action.root').value}
+        error={form.getInputProps('action.root').error}
         onChange={(v) => form.setFieldValue('action.root', v)}
       />
 
@@ -48,6 +49,11 @@ export default function StepRenameFiles({
               />
             </Group>
           ),
+        )}
+        {form.getInputProps('action.files').error && (
+          <Text size='xs' c='red' mt={4}>
+            {form.getInputProps('action.files').error}
+          </Text>
         )}
       </Stack>
 

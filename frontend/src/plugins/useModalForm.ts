@@ -20,7 +20,7 @@ export function useModalForm<T extends Record<string, unknown>>({
   onClose,
   onSubmit,
   onError,
-  validateInputOnBlur = false,
+  validateInputOnBlur = true,
   ...formInput
 }: UseModalFormOptions<T>) {
   const { addToast } = useToast();

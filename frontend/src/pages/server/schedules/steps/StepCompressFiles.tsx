@@ -23,6 +23,7 @@ export default function StepCompressFiles({
         label={t('pages.server.schedules.form.rootPath', {})}
         placeholder={t('pages.server.schedules.form.rootPath', {})}
         value={form.getInputProps('action.root').value}
+        error={form.getInputProps('action.root').error}
         onChange={(v) => form.setFieldValue('action.root', v)}
       />
       <TagsInput
@@ -45,6 +46,7 @@ export default function StepCompressFiles({
         label={t('common.form.archiveName', {})}
         placeholder={t('common.form.archiveName', {})}
         value={form.getInputProps('action.name').value}
+        error={form.getInputProps('action.name').error}
         onChange={(v) => form.setFieldValue('action.name', v)}
       />
       <Switch

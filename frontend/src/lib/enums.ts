@@ -517,7 +517,7 @@ export const scheduleStepDefaultMapping: Record<
 > = {
   sleep: {
     type: 'sleep',
-    duration: 0,
+    duration: 1000,
   },
   ensure: {
     type: 'ensure',
@@ -612,15 +612,15 @@ export const scheduleStepDefaultMapping: Record<
     type: 'write_file',
     ignoreFailure: false,
     append: false,
-    file: '/file.txt',
+    file: '',
     content: '',
   },
   copy_file: {
     type: 'copy_file',
     ignoreFailure: false,
     foreground: false,
-    file: '/source.txt',
-    destination: '/destination.txt',
+    file: '',
+    destination: '',
   },
   delete_files: {
     type: 'delete_files',
@@ -648,7 +648,7 @@ export const scheduleStepDefaultMapping: Record<
     ignoreFailure: false,
     foreground: false,
     root: '/',
-    file: 'backup.tar.gz',
+    file: '',
   },
   update_startup_variable: {
     type: 'update_startup_variable',

@@ -21,6 +21,7 @@ export default function StepWriteFile({
         label={t('common.form.filePath', {})}
         placeholder={t('common.form.filePath', {})}
         value={form.getInputProps('action.file').value}
+        error={form.getInputProps('action.file').error}
         onChange={(v) => form.setFieldValue('action.file', v)}
       />
       <ScheduleDynamicParameterInput
@@ -29,6 +30,7 @@ export default function StepWriteFile({
         placeholder={t('pages.server.schedules.steps.writeFile.form.content', {})}
         textArea
         value={form.getInputProps('action.content').value}
+        error={form.getInputProps('action.content').error}
         onChange={(v) => form.setFieldValue('action.content', v)}
       />
       <Group>

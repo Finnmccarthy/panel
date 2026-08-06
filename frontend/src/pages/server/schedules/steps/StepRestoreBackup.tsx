@@ -22,7 +22,11 @@ export default function StepRestoreBackup({
 
   return (
     <Stack>
-      <BackupSelectorInput form={form} backup={action.backup} />
+      <BackupSelectorInput
+        form={form}
+        backup={action.backup}
+        label={t('pages.server.schedules.steps.restoreBackup.form.backupSelector', {})}
+      />
       <Group>
         <Switch
           label={t('pages.server.schedules.steps.restoreBackup.form.truncateDirectory', {})}

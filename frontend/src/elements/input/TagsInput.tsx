@@ -33,6 +33,7 @@ function splitTagLines(text: string): string[] {
 interface TagsInputProps {
   label?: ReactNode;
   description?: string;
+  error?: ReactNode;
   withAsterisk?: boolean;
   allowReordering?: boolean;
   value?: string[];
@@ -51,6 +52,7 @@ interface DndTag extends DndItem {
 function TagsInput({
   label,
   description,
+  error,
   withAsterisk,
   allowReordering = true,
   value,
@@ -244,6 +246,7 @@ function TagsInput({
             placeholder={placeholder}
             size='sm'
             className='flex-1'
+            error={!!error}
           />
           <Button onClick={handleAdd} size='sm' disabled={!newTag.trim()}>
             {t('common.button.add', {})}
@@ -271,6 +274,7 @@ function TagsInput({
             </Menu.Dropdown>
           </Menu>
         </Group>
+        {error && <Input.Error>{error}</Input.Error>}
       </Stack>
 
       {selectedTags.length > 0 && (

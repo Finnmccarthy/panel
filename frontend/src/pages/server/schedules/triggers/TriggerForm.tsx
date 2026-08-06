@@ -20,7 +20,11 @@ import {
   serverPowerActionLabelMapping,
   serverPowerStateLabelMapping,
 } from '@/lib/enums.ts';
-import { serverScheduleTriggerSchema, serverScheduleUpdateSchema } from '@/lib/schemas/server/schedules.ts';
+import {
+  isValidCronExpression,
+  serverScheduleTriggerSchema,
+  serverScheduleUpdateSchema,
+} from '@/lib/schemas/server/schedules.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 import ScheduleDynamicParameterInput from '../ScheduleDynamicParameterInput.tsx';
@@ -220,12 +224,8 @@ function CronTriggerExtraForm({ form, index }: TriggerFormProps) {
     setSimple({ ...simple, hour, minute });
   };
 
-  let description: string;
-  try {
-    description = cronstrue.toString(schedule, { locale: language });
-  } catch {
-    description = t('pages.server.schedules.triggers.cron.invalidCron', {});
-  }
+  const cronValid = isValidCronExpression(schedule);
+  const description = cronValid ? cronstrue.toString(schedule, { locale: language }) : null;
 
   const timeValue =
     simple && 'hour' in simple
@@ -241,6 +241,7 @@ function CronTriggerExtraForm({ form, index }: TriggerFormProps) {
               withAsterisk
               label={t('pages.server.schedules.triggers.cron.form.cronSchedule', {})}
               {...form.getInputProps(`triggers.${index}.schedule`)}
+              error={cronValid ? undefined : t('pages.server.schedules.triggers.cron.invalidCron', {})}
             />
           </Popover.Target>
           <Popover.Dropdown>
@@ -321,7 +322,7 @@ function CronTriggerExtraForm({ form, index }: TriggerFormProps) {
       )}
 
       <Text c='dimmed' size='sm'>
-        {description} &middot;{' '}
+        {description && `${description} · `}
         {t('pages.server.schedules.triggers.cron.timezoneHint', { timezone: server.timezone || 'UTC' })}
       </Text>
 
@@ -532,8 +533,10 @@ function ConsoleLineExtraForm({ form, index }: TriggerFormProps) {
       <ScheduleDynamicParameterInput
         label={t('pages.server.schedules.form.outputInto', {})}
         allowNull
+        output
         allowString={false}
         value={form.values.triggers[index].outputInto}
+        error={form.getInputProps(`triggers.${index}.outputInto`).error}
         onChange={(v) => form.setFieldValue(`triggers.${index}.outputInto`, v)}
       />
       <Switch

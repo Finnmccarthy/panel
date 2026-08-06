@@ -24,6 +24,7 @@ export default function StepMatchRegex({
         label={t('pages.server.schedules.steps.matchRegex.form.input', {})}
         placeholder={t('pages.server.schedules.steps.matchRegex.form.input', {})}
         value={form.getInputProps('action.input').value}
+        error={form.getInputProps('action.input').error}
         onChange={(v) => form.setFieldValue('action.input', v)}
       />
 
@@ -43,8 +44,10 @@ export default function StepMatchRegex({
               <ScheduleDynamicParameterInput
                 label={t('pages.server.schedules.steps.matchRegex.form.outputNumber', { number: index + 1 })}
                 allowNull
+                output
                 allowString={false}
                 value={form.getInputProps(`action.outputInto.${index}`).value}
+                error={form.getInputProps(`action.outputInto.${index}`).error}
                 onChange={(v) => form.setFieldValue(`action.outputInto.${index}`, v)}
               />
 

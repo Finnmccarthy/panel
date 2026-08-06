@@ -5,12 +5,12 @@ import {
   faPencil,
   faPlay,
   faPlayCircle,
-  faReply,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { useShallow } from 'zustand/react/shallow';
+import { httpErrorToHuman } from '@/api/axios.ts';
 import getSchedule from '@/api/server/schedules/getSchedule.ts';
 import getScheduleSteps from '@/api/server/schedules/steps/getScheduleSteps.ts';
 import triggerSchedule from '@/api/server/schedules/triggerSchedule.ts';
@@ -26,7 +26,6 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Tabs from '@/elements/Tabs.tsx';
-import Timeline from '@/elements/Timeline.tsx';
 import Title from '@/elements/Title.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
@@ -36,11 +35,11 @@ import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 import ScheduleCreateOrUpdateModal from './modals/ScheduleCreateOrUpdateModal.tsx';
-import ActionStep from './renderers/ActionStep.tsx';
 import DetailCard from './renderers/DetailCard.tsx';
 import TriggerCard from './renderers/TriggerCard.tsx';
 import ScheduleConditionBuilder from './ScheduleConditionBuilder.tsx';
-import StepsEditor, { stepIndents } from './StepsEditor.tsx';
+import StepCard from './StepCard.tsx';
+import StepsEditor, { stepIndentStyle, stepIndents } from './StepsEditor.tsx';
 
 export default function ScheduleView() {
   const params = useParams<'id'>();
@@ -57,7 +56,7 @@ export default function ScheduleView() {
     })),
   );
 
-  const [openModal, setOpenModal] = useState<'actions' | 'update' | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [date, setDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [conditionsDirty, setConditionsDirty] = useState(false);
@@ -72,13 +71,7 @@ export default function ScheduleView() {
   useEffect(() => {
     if (params.id) {
       getSchedule(server.uuid, params.id).then(setSchedule);
-      getScheduleSteps(server.uuid, params.id).then((steps) => {
-        setScheduleSteps(steps);
-
-        if (steps.length === 0 && canUpdate) {
-          setOpenModal('actions');
-        }
-      });
+      getScheduleSteps(server.uuid, params.id).then(setScheduleSteps);
     }
   }, [params.id]);
 
@@ -90,6 +83,7 @@ export default function ScheduleView() {
         .then(() => {
           addToast(t('pages.server.schedules.toast.triggered', {}), 'success');
         })
+        .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
         .finally(() => setLoading(false));
     }
   };
@@ -103,6 +97,7 @@ export default function ScheduleView() {
           addToast(t('pages.server.schedules.toast.updated', {}), 'success');
           setConditionsDirty(false);
         })
+        .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
         .finally(() => setLoading(false));
     }
   };
@@ -122,8 +117,8 @@ export default function ScheduleView() {
       <ScheduleCreateOrUpdateModal
         propSchedule={schedule}
         onScheduleUpdate={(s) => setSchedule({ ...schedule, ...s })}
-        opened={openModal === 'update'}
-        onClose={() => setOpenModal(null)}
+        opened={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
       />
 
       <ConfirmationModal
@@ -200,7 +195,7 @@ export default function ScheduleView() {
                 </ContextMenu>
               )}
               <Button
-                onClick={() => setOpenModal('update')}
+                onClick={() => setSettingsOpen(true)}
                 color='blue'
                 leftSection={<FontAwesomeIcon icon={faPencil} />}
               >
@@ -235,51 +230,28 @@ export default function ScheduleView() {
           </Tabs.List>
 
           <Tabs.Panel value='actions' pt='md'>
-            <Group justify='space-between' align='start' mb='md'>
-              <Title order={2}>{t('pages.server.schedules.view.sections.actions', {})}</Title>
-              <ServerCan action='schedules.update'>
-                <Button
-                  onClick={() => setOpenModal(openModal === 'actions' ? null : 'actions')}
-                  variant='outline'
-                  leftSection={<FontAwesomeIcon icon={openModal === 'actions' ? faReply : faPencil} />}
-                >
-                  {openModal === 'actions'
-                    ? t('pages.server.schedules.button.exitEditor', {})
-                    : t('common.button.edit', {})}
-                </Button>
-              </ServerCan>
-            </Group>
+            <Title order={2} mb='md'>
+              {t('pages.server.schedules.view.sections.actions', {})}
+            </Title>
 
-            {openModal === 'actions' ? (
+            {canUpdate ? (
               <StepsEditor schedule={schedule} />
             ) : scheduleSteps.length === 0 ? (
               <Alert icon={<FontAwesomeIcon icon={faExclamationTriangle} />} color='yellow'>
-                <Group justify='space-between'>
-                  {t('pages.server.schedules.view.alert.noActions', {})}
-                  <ServerCan action='schedules.update'>
-                    <Button size='xs' variant='light' onClick={() => setOpenModal('actions')}>
-                      {t('pages.server.schedules.button.addStep', {})}
-                    </Button>
-                  </ServerCan>
-                </Group>
+                {t('pages.server.schedules.view.alert.noActions', {})}
               </Alert>
             ) : (
-              <Timeline
-                active={scheduleSteps.findIndex((step) => step.uuid === runningScheduleSteps.get(schedule.uuid)) ?? -1}
-                color='blue'
-                bulletSize={40}
-                lineWidth={2}
-              >
+              <Stack gap='md'>
                 {scheduleSteps.map((step, index) => (
-                  <ActionStep
-                    key={step.uuid}
-                    step={step}
-                    indent={indents[index]}
-                    nextIndent={indents[index + 1] ?? indents[index]}
-                    isActive={step.uuid === runningScheduleSteps.get(schedule.uuid)}
-                  />
+                  <div key={step.uuid} style={stepIndentStyle(indents[index])}>
+                    <StepCard
+                      schedule={schedule}
+                      step={step}
+                      isActive={step.uuid === runningScheduleSteps.get(schedule.uuid)}
+                    />
+                  </div>
                 ))}
-              </Timeline>
+              </Stack>
             )}
           </Tabs.Panel>
 

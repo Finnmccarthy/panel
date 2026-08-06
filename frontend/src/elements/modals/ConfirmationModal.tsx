@@ -1,6 +1,8 @@
 import { DefaultMantineColor, ModalProps } from '@mantine/core';
 import { MouseEvent as ReactMouseEvent, ReactNode, useCallback, useState } from 'react';
 import { makeComponentHookable } from 'shared';
+import { httpErrorToHuman } from '@/api/axios.ts';
+import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import Button from '../Button.tsx';
 import { Modal, ModalFooter } from './Modal.tsx';
@@ -14,6 +16,7 @@ type ConfirmationProps = Omit<ModalProps, 'children'> & {
 
 function ConfirmationModal({ confirm, confirmColor = 'red', onConfirmed, children, ...props }: ConfirmationProps) {
   const { t } = useTranslations();
+  const { addToast } = useToast();
 
   const [loading, setLoading] = useState(false);
 
@@ -24,10 +27,12 @@ function ConfirmationModal({ confirm, confirmColor = 'red', onConfirmed, childre
       if (res instanceof Promise) {
         setLoading(true);
 
-        Promise.resolve(res).finally(() => setLoading(false));
+        Promise.resolve(res)
+          .catch((error) => addToast(httpErrorToHuman(error), 'error'))
+          .finally(() => setLoading(false));
       }
     },
-    [onConfirmed],
+    [onConfirmed, addToast],
   );
 
   return (

@@ -124,6 +124,7 @@ export default function StepCreateOrUpdateModal({
 
   return (
     <FormModal
+      size='lg'
       isDirty={isDirty}
       loading={loading}
       title={

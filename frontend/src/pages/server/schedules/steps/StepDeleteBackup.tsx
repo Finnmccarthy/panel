@@ -21,7 +21,11 @@ export default function StepDeleteBackup({
 
   return (
     <Stack>
-      <BackupSelectorInput form={form} backup={action.backup} />
+      <BackupSelectorInput
+        form={form}
+        backup={action.backup}
+        label={t('pages.server.schedules.steps.deleteBackup.form.backupSelector', {})}
+      />
       <Switch
         label={t('pages.server.schedules.form.ignoreFailure', {})}
         {...form.getInputProps('action.ignoreFailure', { type: 'checkbox' })}

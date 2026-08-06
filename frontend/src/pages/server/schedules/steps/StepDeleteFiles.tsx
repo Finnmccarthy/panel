@@ -21,13 +21,14 @@ export default function StepDeleteFiles({
         label={t('pages.server.schedules.form.rootPath', {})}
         placeholder={t('pages.server.schedules.form.rootPath', {})}
         value={form.getInputProps('action.root').value}
+        error={form.getInputProps('action.root').error}
         onChange={(v) => form.setFieldValue('action.root', v)}
       />
       <TagsInput
         withAsterisk
         label={t('pages.server.schedules.steps.deleteFiles.form.filesToDelete', {})}
         placeholder={t('pages.server.schedules.steps.deleteFiles.form.filesToDelete', {})}
-        {...form.getInputProps('action.files', { type: 'checkbox' })}
+        {...form.getInputProps('action.files')}
       />
       <Switch
         label={t('pages.server.schedules.form.ignoreFailure', {})}

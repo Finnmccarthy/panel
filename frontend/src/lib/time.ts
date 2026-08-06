@@ -8,8 +8,16 @@ export function formatMilliseconds(uptime: number, short = true, withSeconds = t
   const minutes = Math.floor((uptimeSeconds % 3600) / 60);
   const seconds = Math.floor(uptimeSeconds % 60);
 
+  const style = short ? 'narrow' : 'long';
+
+  if (withSeconds && uptimeSeconds === 0 && uptime >= 1) {
+    return new Intl.DurationFormat(getTranslations().language, { style }).format({
+      milliseconds: Math.floor(uptime),
+    });
+  }
+
   const formatter = new Intl.DurationFormat(getTranslations().language, {
-    style: short ? 'narrow' : 'long',
+    style,
     secondsDisplay: withSeconds ? 'always' : 'auto',
     minutesDisplay: withSeconds ? 'auto' : 'always',
   });

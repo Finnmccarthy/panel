@@ -36,6 +36,7 @@ export default function StepCreateBackup({
         placeholder={t('pages.server.schedules.steps.createBackup.form.backupName', {})}
         allowNull
         value={form.getInputProps('action.name').value}
+        error={form.getInputProps('action.name').error}
         onChange={(v) => form.setFieldValue('action.name', v)}
       />
       {groups && groups.length > 0 && (
@@ -48,6 +49,7 @@ export default function StepCreateBackup({
             label: group.name,
           }))}
           value={form.getInputProps('action.backupGroupUuid').value ?? null}
+          error={form.getInputProps('action.backupGroupUuid').error}
           onChange={(v) => form.setFieldValue('action.backupGroupUuid', v)}
         />
       )}
@@ -70,8 +72,10 @@ export default function StepCreateBackup({
       <ScheduleDynamicParameterInput
         label={t('pages.server.schedules.steps.createBackup.form.outputInto', {})}
         allowNull
+        output
         allowString={false}
         value={form.getInputProps('action.outputInto').value}
+        error={form.getInputProps('action.outputInto').error}
         onChange={(v) => form.setFieldValue('action.outputInto', v)}
       />
     </Stack>

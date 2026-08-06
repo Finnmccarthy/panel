@@ -20,6 +20,7 @@ export default function StepDecompressFile({
         label={t('pages.server.schedules.form.rootPath', {})}
         placeholder={t('pages.server.schedules.form.rootPath', {})}
         value={form.getInputProps('action.root').value}
+        error={form.getInputProps('action.root').error}
         onChange={(v) => form.setFieldValue('action.root', v)}
       />
       <ScheduleDynamicParameterInput
@@ -27,6 +28,7 @@ export default function StepDecompressFile({
         label={t('pages.server.schedules.steps.decompressFile.form.file', {})}
         placeholder={t('pages.server.schedules.steps.decompressFile.form.file', {})}
         value={form.getInputProps('action.file').value}
+        error={form.getInputProps('action.file').error}
         onChange={(v) => form.setFieldValue('action.file', v)}
       />
       <Switch

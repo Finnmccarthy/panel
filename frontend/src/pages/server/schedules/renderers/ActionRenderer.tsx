@@ -6,6 +6,7 @@ import { serverScheduleStepActionSchema } from '@/lib/schemas/server/schedules.t
 import { formatMilliseconds } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import ScheduleDynamicParameterRenderer from '../ScheduleDynamicParameterRenderer.tsx';
+import ConditionRenderer from './ConditionRenderer.tsx';
 
 type ActionRendererMode = 'compact' | 'detailed';
 type Action = z.infer<typeof serverScheduleStepActionSchema>;
@@ -14,7 +15,11 @@ type Translations = ReturnType<typeof useTranslations>;
 function renderCompact(action: Action, { t, tReact, tItem }: Translations): React.ReactNode {
   switch (action.type) {
     case 'sleep':
-      return <span>{t('pages.server.schedules.steps.sleep.renderer.compact', { duration: action.duration })}</span>;
+      return (
+        <span>
+          {t('pages.server.schedules.steps.sleep.renderer.compact', { duration: formatMilliseconds(action.duration) })}
+        </span>
+      );
     case 'ensure':
       return <span>{t('pages.server.schedules.steps.ensure.renderer.compact', {})}</span>;
     case 'if':
@@ -232,14 +237,14 @@ function renderDetailed(action: Action, { t, tReact, tItem }: Translations): Rea
   switch (action.type) {
     case 'sleep':
       return (
-        <Text size='sm'>{t('pages.server.schedules.steps.sleep.renderer.compact', { duration: action.duration })}</Text>
+        <Text size='sm'>
+          {t('pages.server.schedules.steps.sleep.renderer.compact', { duration: formatMilliseconds(action.duration) })}
+        </Text>
       );
     case 'ensure':
-      return <Text size='sm'>{t('pages.server.schedules.steps.ensure.renderer.compact', {})}</Text>;
     case 'if':
-      return <Text size='sm'>{t('pages.server.schedules.steps.if.renderer.compact', {})}</Text>;
     case 'else_if':
-      return <Text size='sm'>{t('pages.server.schedules.steps.elseIf.renderer.compact', {})}</Text>;
+      return <ConditionRenderer condition={action.condition} />;
     case 'else':
       return <Text size='sm'>{t('pages.server.schedules.steps.else.renderer.compact', {})}</Text>;
     case 'end_if':
@@ -293,7 +298,7 @@ function renderDetailed(action: Action, { t, tReact, tItem }: Translations): Rea
           </Text>
           <Text size='sm'>
             {tReact('pages.server.schedules.steps.waitForConsoleLine.renderer.detail.timeout', {
-              timeout: <Code>{action.timeout}ms</Code>,
+              timeout: <Code>{formatMilliseconds(action.timeout)}</Code>,
             })}
           </Text>
           <Text size='xs' c='dimmed'>
@@ -620,7 +625,7 @@ function renderDetailed(action: Action, { t, tReact, tItem }: Translations): Rea
           )}
           <Text size='sm'>
             {tReact('pages.server.schedules.steps.httpRequest.renderer.detail.timeout', {
-              timeout: <Code>{action.timeout}ms</Code>,
+              timeout: <Code>{formatMilliseconds(action.timeout)}</Code>,
             })}
           </Text>
           {action.outputStatusInto && (

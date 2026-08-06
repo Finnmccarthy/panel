@@ -20,6 +20,7 @@ export default function StepCreateDirectory({
         label={t('pages.server.schedules.form.rootPath', {})}
         placeholder={t('pages.server.schedules.form.rootPath', {})}
         value={form.getInputProps('action.root').value}
+        error={form.getInputProps('action.root').error}
         onChange={(v) => form.setFieldValue('action.root', v)}
       />
       <ScheduleDynamicParameterInput
@@ -27,6 +28,7 @@ export default function StepCreateDirectory({
         label={t('common.form.directoryName', {})}
         placeholder={t('common.form.directoryName', {})}
         value={form.getInputProps('action.name').value}
+        error={form.getInputProps('action.name').error}
         onChange={(v) => form.setFieldValue('action.name', v)}
       />
       <Switch

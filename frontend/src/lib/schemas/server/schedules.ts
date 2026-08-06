@@ -1,11 +1,27 @@
+import cronstrue from 'cronstrue';
 import { ZodType, z } from 'zod';
 import { archiveFormatLabelMapping, scheduleHttpMethodLabelMapping } from '@/lib/enums.ts';
 
+export function isValidCronExpression(schedule: string): boolean {
+  const fields = schedule.trim().split(/\s+/).length;
+  if (fields < 5 || fields > 7) return false;
+
+  try {
+    cronstrue.toString(schedule);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export const serverScheduleStepVariableSchema = z.object({
-  variable: z.string(),
+  variable: z.string().min(1).max(255),
 });
 
-export const serverScheduleStepDynamicSchema = z.union([z.string(), serverScheduleStepVariableSchema]);
+export const serverScheduleStepDynamicSchema = z.union([
+  z.string().min(1).max(16384),
+  serverScheduleStepVariableSchema,
+]);
 
 export const serverScheduleComparator = z.enum([
   'smaller_than',
@@ -17,7 +33,7 @@ export const serverScheduleComparator = z.enum([
 
 export const serverScheduleTriggerCronSchema = z.object({
   type: z.literal('cron'),
-  schedule: z.string(),
+  schedule: z.string().refine(isValidCronExpression, { message: 'Invalid cron expression' }),
 });
 
 export const serverScheduleTriggerPowerActionSchema = z.object({
@@ -210,7 +226,7 @@ export const serverScheduleStepSleepSchema = z.object({
   type: z.literal('sleep'),
   duration: z
     .number()
-    .min(0)
+    .min(1)
     .max(24 * 60 * 60 * 1000),
 });
 
@@ -254,14 +270,14 @@ export const serverScheduleStepWaitForStateSchema = z.object({
 
 export const serverScheduleStepFormatSchema = z.object({
   type: z.literal('format'),
-  format: z.string(),
+  format: z.string().min(1).max(16384),
   outputInto: serverScheduleStepVariableSchema,
 });
 
 export const serverScheduleStepMatchRegexSchema = z.object({
   type: z.literal('match_regex'),
   input: serverScheduleStepDynamicSchema,
-  regex: z.string(),
+  regex: z.string().min(1),
   outputInto: z.array(serverScheduleStepVariableSchema.nullable()),
 });
 
@@ -272,7 +288,7 @@ export const serverScheduleStepWaitForConsoleLineSchema = z.object({
   caseInsensitive: z.boolean(),
   timeout: z
     .number()
-    .min(0)
+    .min(1)
     .max(24 * 60 * 60 * 1000),
   outputInto: serverScheduleStepVariableSchema.nullable(),
 });
@@ -368,19 +384,21 @@ export const serverScheduleStepDeleteFilesSchema = z.object({
   type: z.literal('delete_files'),
   ignoreFailure: z.boolean(),
   root: serverScheduleStepDynamicSchema,
-  files: z.array(z.string()),
+  files: z.array(z.string().min(1)).min(1),
 });
 
 export const serverScheduleStepRenameFilesSchema = z.object({
   type: z.literal('rename_files'),
   ignoreFailure: z.boolean(),
   root: serverScheduleStepDynamicSchema,
-  files: z.array(
-    z.object({
-      from: z.string(),
-      to: z.string(),
-    }),
-  ),
+  files: z
+    .array(
+      z.object({
+        from: z.string().min(1),
+        to: z.string().min(1),
+      }),
+    )
+    .min(1),
 });
 
 export const serverScheduleStepCompressFilesSchema = z.object({
@@ -388,7 +406,7 @@ export const serverScheduleStepCompressFilesSchema = z.object({
   ignoreFailure: z.boolean(),
   foreground: z.boolean(),
   root: serverScheduleStepDynamicSchema,
-  files: z.array(z.string()),
+  files: z.array(z.string().min(1)).min(1),
   format: z.enum(Object.keys(archiveFormatLabelMapping)),
   name: serverScheduleStepDynamicSchema,
 });
@@ -421,7 +439,7 @@ export const serverScheduleStepUpdateStartupDockerImageSchema = z.object({
 });
 
 export const serverScheduleStepHttpHeaderSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1).max(128),
   value: serverScheduleStepDynamicSchema,
 });
 
@@ -429,8 +447,8 @@ export const serverScheduleStepHttpRequestSchema = z.object({
   type: z.literal('http_request'),
   ignoreFailure: z.boolean(),
   method: z.enum(Object.keys(scheduleHttpMethodLabelMapping)),
-  url: z.string(),
-  headers: z.array(serverScheduleStepHttpHeaderSchema),
+  url: z.url().max(16384),
+  headers: z.array(serverScheduleStepHttpHeaderSchema).max(32),
   body: serverScheduleStepDynamicSchema.nullable(),
   timeout: z
     .number()

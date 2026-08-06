@@ -34,7 +34,11 @@ export default function StepMoveBackup({
 
   return (
     <Stack>
-      <BackupSelectorInput form={form} backup={action.backup} />
+      <BackupSelectorInput
+        form={form}
+        backup={action.backup}
+        label={t('pages.server.schedules.steps.moveBackup.form.backupSelector', {})}
+      />
       <Select
         label={t('pages.server.schedules.steps.moveBackup.form.targetGroup', {})}
         placeholder={t('pages.server.backups.modal.createBackup.noGroup', {})}
@@ -44,6 +48,7 @@ export default function StepMoveBackup({
           label: group.name,
         }))}
         value={form.getInputProps('action.backupGroupUuid').value ?? null}
+        error={form.getInputProps('action.backupGroupUuid').error}
         onChange={(v) => form.setFieldValue('action.backupGroupUuid', v)}
       />
       <Switch

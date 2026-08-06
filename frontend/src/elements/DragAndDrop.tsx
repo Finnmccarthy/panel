@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { ComponentProps, CSSProperties, ReactNode, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { createDropAnimation, useDndSensors, useDndState } from '@/lib/dragAndDrop.ts';
+import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export type DndItem = {
   id: string;
@@ -92,6 +93,7 @@ export interface DndContainerProps<T extends DndItem> {
   children: (items: T[]) => ReactNode;
   renderOverlay?: (activeItem: T | null) => ReactNode;
   modifiers?: Modifier[];
+  getItemLabel?: (item: T) => string;
 }
 
 const defaultConfig: DndConfig = {};
@@ -105,7 +107,10 @@ export function DndContainer<T extends DndItem>({
   children,
   renderOverlay,
   modifiers,
+  getItemLabel,
 }: DndContainerProps<T>) {
+  const { t } = useTranslations();
+
   const sensors = useDndSensors(config);
   const dropAnimation = useMemo(() => createDropAnimation(config), [config]);
 
@@ -116,10 +121,44 @@ export function DndContainer<T extends DndItem>({
 
   const itemIds = useMemo(() => localItems.map((item) => item.id), [localItems]);
 
+  const accessibility = useMemo(() => {
+    const describe = (id: string | number) => {
+      const index = localItems.findIndex((item) => item.id === id);
+      if (index === -1) return String(id);
+
+      const label = getItemLabel?.(localItems[index]);
+      return label
+        ? t('elements.dragAndDrop.item.labelled', { label, position: index + 1 })
+        : t('elements.dragAndDrop.item.unlabelled', { position: index + 1 });
+    };
+
+    return {
+      announcements: {
+        onDragStart: ({ active }) => t('elements.dragAndDrop.announcement.pickedUp', { item: describe(active.id) }),
+        onDragOver: ({ active, over }) =>
+          over
+            ? t('elements.dragAndDrop.announcement.movedOver', {
+                item: describe(active.id),
+                target: describe(over.id),
+              })
+            : t('elements.dragAndDrop.announcement.leftTarget', { item: describe(active.id) }),
+        onDragEnd: ({ active, over }) =>
+          over
+            ? t('elements.dragAndDrop.announcement.droppedOn', {
+                item: describe(active.id),
+                target: describe(over.id),
+              })
+            : t('elements.dragAndDrop.announcement.dropped', { item: describe(active.id) }),
+        onDragCancel: ({ active }) => t('elements.dragAndDrop.announcement.cancelled', { item: describe(active.id) }),
+      },
+    } satisfies ComponentProps<typeof DndContext>['accessibility'];
+  }, [localItems, getItemLabel, t]);
+
   return (
     <DndContext
       sensors={sensors}
       modifiers={modifiers}
+      accessibility={accessibility}
       collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}

@@ -19,12 +19,14 @@ export default function StepUpdateStartupVariable({
         withAsterisk
         label={t('common.form.envVariable', {})}
         value={form.getInputProps('action.envVariable').value}
+        error={form.getInputProps('action.envVariable').error}
         onChange={(v) => form.setFieldValue('action.envVariable', v)}
       />
       <ScheduleDynamicParameterInput
         withAsterisk
         label={t('common.form.value', {})}
         value={form.getInputProps('action.value').value}
+        error={form.getInputProps('action.value').error}
         onChange={(v) => form.setFieldValue('action.value', v)}
       />
       <Switch

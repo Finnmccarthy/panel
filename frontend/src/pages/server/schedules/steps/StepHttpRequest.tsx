@@ -58,6 +58,7 @@ export default function StepHttpRequest({
               label={t('pages.server.schedules.steps.httpRequest.form.headerValue', {})}
               placeholder={t('pages.server.schedules.steps.httpRequest.form.headerValue', {})}
               value={form.getInputProps(`action.headers.${index}.value`).value}
+              error={form.getInputProps(`action.headers.${index}.value`).error}
               onChange={(v) => form.setFieldValue(`action.headers.${index}.value`, v)}
             />
 
@@ -86,6 +87,7 @@ export default function StepHttpRequest({
         allowNull
         label={t('pages.server.schedules.steps.httpRequest.form.body', {})}
         value={form.getInputProps('action.body').value}
+        error={form.getInputProps('action.body').error}
         onChange={(v) => form.setFieldValue('action.body', v)}
       />
 
@@ -100,17 +102,21 @@ export default function StepHttpRequest({
 
       <ScheduleDynamicParameterInput
         allowNull
+        output
         allowString={false}
         label={t('pages.server.schedules.steps.httpRequest.form.outputStatusInto', {})}
         value={form.getInputProps('action.outputStatusInto').value}
+        error={form.getInputProps('action.outputStatusInto').error}
         onChange={(v) => form.setFieldValue('action.outputStatusInto', v)}
       />
 
       <ScheduleDynamicParameterInput
         allowNull
+        output
         allowString={false}
         label={t('pages.server.schedules.steps.httpRequest.form.outputBodyInto', {})}
         value={form.getInputProps('action.outputBodyInto').value}
+        error={form.getInputProps('action.outputBodyInto').error}
         onChange={(v) => form.setFieldValue('action.outputBodyInto', v)}
       />
 

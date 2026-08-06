@@ -19,6 +19,7 @@ export default function StepWaitForConsoleLine({
       <ScheduleDynamicParameterInput
         label={t('common.form.lineContains', {})}
         value={form.getInputProps('action.contains').value}
+        error={form.getInputProps('action.contains').error}
         onChange={(v) => form.setFieldValue('action.contains', v)}
       />
       <Switch
@@ -35,8 +36,10 @@ export default function StepWaitForConsoleLine({
       <ScheduleDynamicParameterInput
         label={t('pages.server.schedules.form.outputInto', {})}
         allowNull
+        output
         allowString={false}
         value={form.getInputProps('action.outputInto').value}
+        error={form.getInputProps('action.outputInto').error}
         onChange={(v) => form.setFieldValue('action.outputInto', v)}
       />
       <Switch

@@ -20,6 +20,7 @@ export default function StepUpdateStartupCommand({
         label={t('common.form.startupCommand', {})}
         placeholder={t('common.form.startupCommand', {})}
         value={form.getInputProps('action.command').value}
+        error={form.getInputProps('action.command').error}
         onChange={(v) => form.setFieldValue('action.command', v)}
       />
       <Switch
