@@ -57,7 +57,7 @@ mod post {
             )
             .await?;
 
-        let Some((user, server)) = data.username.split_once('.') else {
+        let Some((user, server)) = data.username.rsplit_once('.') else {
             return ApiResponse::error("invalid username")
                 .with_status(StatusCode::EXPECTATION_FAILED)
                 .ok();
