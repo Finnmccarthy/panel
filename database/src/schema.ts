@@ -265,7 +265,7 @@ export const userSecurityKeysTable = pgTable(
   (cols) => [
     index('user_security_keys_user_uuid_idx').on(cols.user_uuid),
     uniqueIndex('user_security_keys_user_uuid_name_idx').on(cols.user_uuid, cols.name),
-    uniqueIndex('user_security_keys_user_uuid_credential_id_idx').on(cols.user_uuid, cols.credential_id),
+    uniqueIndex('user_security_keys_credential_id_idx').on(cols.credential_id),
     index('user_security_keys_created_idx').on(cols.created),
   ],
 );

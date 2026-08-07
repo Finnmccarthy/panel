@@ -847,6 +847,8 @@ const baseTranslations = defineTranslations({
               securityError: 'Passkeys can only be used over HTTPS and with a valid domain.',
               authenticatorError: 'Something went wrong with the authenticator.',
               constraintError: 'The authenticator could not meet the required constraints.',
+              noUsernamelessKey:
+                'No passkey that can be used without a username was found on this device. If you have one that was set up without "Allow signing in without a username", enter your username first and it will work as usual.',
             },
           },
           step: {
@@ -862,6 +864,7 @@ const baseTranslations = defineTranslations({
                 createAccount: 'Create account',
               },
               button: {
+                passkeyLogin: 'Sign in with a Passkey',
                 oauthLogin: 'OAuth Login',
               },
             },
@@ -1127,6 +1130,9 @@ const baseTranslations = defineTranslations({
           modal: {
             createSecurityKey: {
               title: 'Create Security Key',
+              allowUsernamelessLogin: 'Allow signing in without a username',
+              allowUsernamelessLoginDescription:
+                'Saves the passkey onto the device so you can pick it from a list instead of typing your username. Hardware security keys have limited storage and may refuse it - if setup fails, turn this off and try again.',
               toast: {
                 created: 'Security key created successfully.',
                 aborted: 'Security key creation aborted.',

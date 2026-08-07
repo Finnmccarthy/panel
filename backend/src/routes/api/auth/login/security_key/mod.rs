@@ -1,5 +1,14 @@
 use super::State;
+use serde::{Deserialize, Serialize};
 use utoipa_axum::{router::OpenApiRouter, routes};
+
+mod discoverable;
+
+#[derive(Serialize, Deserialize)]
+struct SecurityKeyAuthentication {
+    user_uuids: Vec<uuid::Uuid>,
+    authentication: webauthn_rs::prelude::PasskeyAuthentication,
+}
 
 mod get {
     use axum::extract::Query;
@@ -33,11 +42,29 @@ mod get {
             example = "/",
         ),
     ))]
-    pub async fn route(state: GetState, Query(data): Query<Params>) -> ApiResponseResult {
+    pub async fn route(
+        state: GetState,
+        ip: shared::GetIp,
+        Query(data): Query<Params>,
+    ) -> ApiResponseResult {
+        let ratelimit = state
+            .settings
+            .get_as(|s| s.ratelimits.auth_login_security_key)
+            .await?;
+        state
+            .cache
+            .ratelimit(
+                "auth/login/security-key:challenge",
+                ratelimit.hits,
+                ratelimit.window_seconds,
+                ip.to_string(),
+            )
+            .await?;
+
         let webauthn = state.settings.get_webauthn().await?;
 
         let raw_passkeys = sqlx::query!(
-            "SELECT user_security_keys.passkey
+            "SELECT user_security_keys.user_uuid, user_security_keys.passkey
             FROM user_security_keys
             JOIN users ON users.uuid = user_security_keys.user_uuid
             WHERE user_security_keys.passkey IS NOT NULL AND (lower(users.email) = lower($1) OR lower(users.username) = lower($1))",
@@ -47,6 +74,7 @@ mod get {
         .await?;
 
         let mut passkeys = Vec::new();
+        let mut user_uuids = Vec::new();
         passkeys.reserve_exact(raw_passkeys.len());
 
         for raw_passkey in raw_passkeys {
@@ -54,6 +82,10 @@ mod get {
                 && let Ok(passkey) = serde_json::from_value::<Passkey>(passkey)
             {
                 passkeys.push(passkey);
+
+                if !user_uuids.contains(&raw_passkey.user_uuid) {
+                    user_uuids.push(raw_passkey.user_uuid);
+                }
             }
         }
 
@@ -65,7 +97,10 @@ mod get {
             .set(
                 &format!("security_key_authentication::{uuid}"),
                 options.public_key.timeout.unwrap_or(300000) as u64 / 1000,
-                &authentication,
+                &super::SecurityKeyAuthentication {
+                    user_uuids,
+                    authentication,
+                },
             )
             .await?;
 
@@ -85,7 +120,7 @@ mod post {
     };
     use tower_cookies::Cookies;
     use utoipa::ToSchema;
-    use webauthn_rs::prelude::{PasskeyAuthentication, PublicKeyCredential};
+    use webauthn_rs::prelude::PublicKeyCredential;
 
     #[derive(ToSchema, Deserialize)]
     pub struct Payload {
@@ -126,18 +161,18 @@ mod post {
 
         let webauthn = state.settings.get_webauthn().await?;
 
-        let authentication: PasskeyAuthentication = match state
+        let challenge: super::SecurityKeyAuthentication = match state
             .cache
             .get(&format!("security_key_authentication::{}", data.uuid))
             .await
         {
-            Ok(Some(authentication)) => {
+            Ok(Some(challenge)) => {
                 state
                     .cache
                     .invalidate(&format!("security_key_authentication::{}", data.uuid))
                     .await?;
 
-                authentication
+                challenge
             }
             _ => {
                 return ApiResponse::error("invalid or expired challenge")
@@ -147,18 +182,15 @@ mod post {
         };
 
         let passkey = match webauthn
-            .finish_passkey_authentication(&data.public_key_credential, &authentication)
+            .finish_passkey_authentication(&data.public_key_credential, &challenge.authentication)
         {
             Ok(passkey) => passkey,
             Err(err) => {
                 tracing::error!("failed to finish security key authentication: {:?}", err);
 
-                return ApiResponse::error(format!(
-                    "failed to finish security key authentication: {}",
-                    err
-                ))
-                .with_status(StatusCode::BAD_REQUEST)
-                .ok();
+                return ApiResponse::error("failed to finish security key authentication")
+                    .with_status(StatusCode::BAD_REQUEST)
+                    .ok();
             }
         };
 
@@ -171,6 +203,12 @@ mod post {
                         .ok();
                 }
             };
+
+        if !challenge.user_uuids.contains(&user.uuid) {
+            return ApiResponse::error("failed to finish security key authentication")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
 
         if let Some(mut db_passkey) = security_key.passkey {
             db_passkey.update_credential(&passkey);
@@ -244,5 +282,6 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
     OpenApiRouter::new()
         .routes(routes!(get::route))
         .routes(routes!(post::route))
+        .nest("/discoverable", discoverable::router(state))
         .with_state(state.clone())
 }

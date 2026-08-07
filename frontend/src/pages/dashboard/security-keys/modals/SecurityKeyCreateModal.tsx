@@ -7,28 +7,30 @@ import createSecurityKey from '@/api/me/security-keys/createSecurityKey.ts';
 import deleteSecurityKey from '@/api/me/security-keys/deleteSecurityKey.ts';
 import postSecurityKeyChallenge from '@/api/me/security-keys/postSecurityKeyChallenge.ts';
 import Button from '@/elements/Button.tsx';
+import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
+import Stack from '@/elements/Stack.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
+import { userSecurityKeyCreateSchema } from '@/lib/schemas/user/securityKeys.ts';
 import { useModalForm } from '@/plugins/useModalForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-
-const schema = z.object({
-  name: z.string().min(3).max(31),
-});
 
 export default function SecurityKeyCreateModal({ ...props }: ModalProps) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
-  const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<z.infer<typeof schema>>({
+  const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<
+    z.infer<typeof userSecurityKeyCreateSchema>
+  >({
     initialValues: {
       name: '',
+      allowUsernamelessLogin: true,
     },
-    validate: zod4Resolver(schema),
+    validate: zod4Resolver(userSecurityKeyCreateSchema),
     onClose: props.onClose,
     onSubmit: async (values) => {
       const [key, options] = await createSecurityKey(values);
@@ -88,16 +90,25 @@ export default function SecurityKeyCreateModal({ ...props }: ModalProps) {
       onClose={handleClose}
       onSubmit={handleSubmit}
     >
-      <TextInput withAsterisk label={t('common.form.name', {})} {...form.getInputProps('name')} />
+      <Stack>
+        <TextInput withAsterisk label={t('common.form.name', {})} {...form.getInputProps('name')} />
 
-      <ModalFooter>
-        <Button type='submit' loading={loading} disabled={!form.isValid()}>
-          {t('common.button.create', {})}
-        </Button>
-        <Button variant='default' onClick={handleClose}>
-          {t('common.button.close', {})}
-        </Button>
-      </ModalFooter>
+        <Switch
+          label={t('pages.account.securityKeys.modal.createSecurityKey.allowUsernamelessLogin', {})}
+          description={t('pages.account.securityKeys.modal.createSecurityKey.allowUsernamelessLoginDescription', {})}
+          name='allowUsernamelessLogin'
+          {...form.getInputProps('allowUsernamelessLogin', { type: 'checkbox' })}
+        />
+
+        <ModalFooter>
+          <Button type='submit' loading={loading} disabled={!form.isValid()}>
+            {t('common.button.create', {})}
+          </Button>
+          <Button variant='default' onClick={handleClose}>
+            {t('common.button.close', {})}
+          </Button>
+        </ModalFooter>
+      </Stack>
     </FormModal>
   );
 }

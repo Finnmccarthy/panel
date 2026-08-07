@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { axiosInstance } from '@/api/axios.ts';
-import { parseFromApi } from '@/lib/api-transform.ts';
-import { userSecurityKeySchema } from '@/lib/schemas/user/securityKeys.ts';
+import { parseFromApi, serializeForApi } from '@/lib/api-transform.ts';
+import { userSecurityKeyCreateSchema, userSecurityKeySchema } from '@/lib/schemas/user/securityKeys.ts';
 import { base64ToArrayBuffer } from '@/lib/transformers.ts';
 
 function prepareCredentialOptions(options: CredentialCreationOptions): CredentialCreationOptions {
@@ -41,12 +41,13 @@ function prepareCredentialOptions(options: CredentialCreationOptions): Credentia
   };
 }
 
-interface Data {
-  name: string;
-}
-
-export default async (data: Data): Promise<[z.infer<typeof userSecurityKeySchema>, CredentialCreationOptions]> => {
-  const { data: responseData } = await axiosInstance.post('/api/client/account/security-keys', data);
+export default async (
+  data: z.infer<typeof userSecurityKeyCreateSchema>,
+): Promise<[z.infer<typeof userSecurityKeySchema>, CredentialCreationOptions]> => {
+  const { data: responseData } = await axiosInstance.post(
+    '/api/client/account/security-keys',
+    serializeForApi(userSecurityKeyCreateSchema, data),
+  );
   return [
     parseFromApi(userSecurityKeySchema, responseData.security_key),
     prepareCredentialOptions(responseData.options),

@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+export const userSecurityKeyCreateSchema = z.object({
+  name: z.string().min(3).max(31),
+  allowUsernamelessLogin: z.boolean(),
+});
+
 export const userSecurityKeySchema = z.looseObject({
   uuid: z.string(),
   name: z.string(),

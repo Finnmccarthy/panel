@@ -77,16 +77,13 @@ mod post {
             Err(err) => {
                 tracing::error!("failed to finish security key registration: {:?}", err);
 
-                return ApiResponse::error(format!(
-                    "failed to finish security key registration: {}",
-                    err
-                ))
-                .with_status(StatusCode::BAD_REQUEST)
-                .ok();
+                return ApiResponse::error("failed to finish security key registration")
+                    .with_status(StatusCode::BAD_REQUEST)
+                    .ok();
             }
         };
 
-        sqlx::query!(
+        let result = sqlx::query!(
             "UPDATE user_security_keys
             SET credential_id = $2, passkey = $3, registration = NULL
             WHERE user_security_keys.uuid = $1",
@@ -95,7 +92,19 @@ mod post {
             serde_json::to_value(&passkey)?
         )
         .execute(state.database.write())
-        .await?;
+        .await;
+
+        if let Err(err) = result {
+            if shared::database::DatabaseError::from(err).is_unique_violation() {
+                return ApiResponse::error("security key is already registered")
+                    .with_status(StatusCode::CONFLICT)
+                    .ok();
+            }
+
+            return ApiResponse::error("failed to finish security key registration")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
 
         activity_logger
             .log(

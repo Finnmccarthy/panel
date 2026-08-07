@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT user_security_keys.uuid, user_security_keys.passkey\n            FROM user_security_keys\n            WHERE user_security_keys.user_uuid = $1 AND user_security_keys.passkey IS NOT NULL",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "uuid",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_security_keys",
+            "name": "uuid"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "passkey",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "user_security_keys",
+            "name": "passkey"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "c8fe224ec45342454ca7d60650d2ed4311fb769025a758c06d0df236bf8ea858"
+}

@@ -931,7 +931,8 @@
               "notSupportedType": "Dein Browser oder Gerät unterstützt diesen Passkey-Typ nicht.",
               "securityError": "Passkeys können nur über HTTPS und mit einer gültigen Domain verwendet werden.",
               "authenticatorError": "Mit dem Authenticator ist etwas schiefgelaufen.",
-              "constraintError": "Der Authenticator konnte die erforderlichen Bedingungen nicht erfüllen."
+              "constraintError": "Der Authenticator konnte die erforderlichen Bedingungen nicht erfüllen.",
+              "noUsernamelessKey": "Auf diesem Gerät wurde kein Passkey gefunden, der ohne Benutzernamen verwendet werden kann. Falls du einen hast, der ohne \"Anmeldung ohne Benutzernamen erlauben\" eingerichtet wurde, gib zuerst deinen Benutzernamen ein - dann funktioniert er wie gewohnt."
             }
           },
           "step": {
@@ -947,6 +948,7 @@
                 "createAccount": "Account erstellen"
               },
               "button": {
+                "passkeyLogin": "Mit Passkey anmelden",
                 "oauthLogin": "OAuth-Anmeldung"
               }
             },
@@ -1206,6 +1208,8 @@
           "modal": {
             "createSecurityKey": {
               "title": "Sicherheitsschlüssel erstellen",
+              "allowUsernamelessLogin": "Anmeldung ohne Benutzernamen erlauben",
+              "allowUsernamelessLoginDescription": "Speichert den Passkey auf dem Gerät, sodass du ihn aus einer Liste auswählen kannst, statt deinen Benutzernamen einzugeben. Hardware-Sicherheitsschlüssel haben begrenzten Speicher und lehnen es möglicherweise ab - schalte es in dem Fall aus und versuche es erneut.",
               "toast": {
                 "created": "Sicherheitsschlüssel erfolgreich erstellt.",
                 "aborted": "Erstellung des Sicherheitsschlüssels abgebrochen."

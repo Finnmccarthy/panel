@@ -94,6 +94,10 @@ mod post {
         #[garde(length(chars, min = 3, max = 31))]
         #[schema(min_length = 3, max_length = 31)]
         name: compact_str::CompactString,
+
+        #[garde(skip)]
+        #[serde(default)]
+        allow_usernameless_login: bool,
     }
 
     #[derive(ToSchema, Serialize)]
@@ -133,7 +137,7 @@ mod post {
         .fetch_all(state.database.read())
         .await?;
 
-        let (webauthn_options, registration) = webauthn.start_passkey_registration(
+        let (mut webauthn_options, registration) = webauthn.start_passkey_registration(
             user.uuid,
             &user.email,
             &user.username,
@@ -144,6 +148,13 @@ mod post {
                     .collect(),
             ),
         )?;
+
+        if data.allow_usernameless_login
+            && let Some(selection) = webauthn_options.public_key.authenticator_selection.as_mut()
+        {
+            selection.resident_key = Some(webauthn_rs_proto::ResidentKeyRequirement::Required);
+            selection.require_resident_key = true;
+        }
 
         UserSecurityKey::delete_unconfigured_by_user_uuid_name(
             &state.database,

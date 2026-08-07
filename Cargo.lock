@@ -1069,6 +1069,7 @@ dependencies = [
  "utoipa-axum",
  "uuid",
  "webauthn-rs",
+ "webauthn-rs-proto",
  "which",
  "wings-api",
 ]

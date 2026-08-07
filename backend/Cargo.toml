@@ -47,6 +47,7 @@ clap = { workspace = true }
 dialoguer = { workspace = true }
 croner = { workspace = true }
 webauthn-rs = { workspace = true }
+webauthn-rs-proto = { workspace = true }
 base64 = { workspace = true }
 aws-sdk-s3 = { workspace = true }
 dotenvy = { workspace = true }

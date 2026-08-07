@@ -5,9 +5,11 @@ import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { startTransition, useEffect, useRef, useState } from 'react';
 import { NavLink, useNavigate, useSearchParams } from 'react-router';
 import { z } from 'zod';
+import getDiscoverableSecurityKeyChallenge from '@/api/auth/getDiscoverableSecurityKeyChallenge.ts';
 import getOAuthProviders from '@/api/auth/getOAuthProviders.ts';
 import getSecurityKeys from '@/api/auth/getSecurityKeys.ts';
 import login from '@/api/auth/login.ts';
+import postDiscoverableSecurityKeyChallenge from '@/api/auth/postDiscoverableSecurityKeyChallenge.ts';
 import postSecurityKeyChallenge from '@/api/auth/postSecurityKeyChallenge.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Alert from '@/elements/Alert.tsx';
@@ -111,26 +113,33 @@ export default function Login() {
       .finally(() => setLoading(false));
   };
 
-  const doPasskeyAuth = () => {
+  const runPasskeyAuth = (
+    getChallenge: () => Promise<{ uuid: string; options?: CredentialRequestOptions }>,
+    submit: (uuid: string, credential: PublicKeyCredential) => Promise<{ user: Parameters<typeof doLogin>[0] }>,
+    dismissedMessage: string,
+  ) => {
     if (!window.navigator.credentials) {
       setError(t('pages.auth.login.passkey.error.notSupported', {}));
       return;
     }
 
     setLoading(true);
+    setError('');
 
-    window.navigator.credentials
-      .get(passkeyOptions)
-      .then((credential) => {
-        postSecurityKeyChallenge(passkeyUuid, credential as PublicKeyCredential)
-          .then((response) => {
+    getChallenge()
+      .then(({ uuid, options }) =>
+        window.navigator.credentials.get(options).then((credential) =>
+          submit(uuid, credential as PublicKeyCredential).then((response) => {
             doLogin(response.user);
-          })
-          .catch((msg) => {
-            setError(httpErrorToHuman(msg));
-          });
-      })
-      .catch((err: DOMException) => {
+          }),
+        ),
+      )
+      .catch((err) => {
+        if (!(err instanceof DOMException)) {
+          setError(httpErrorToHuman(err));
+          return;
+        }
+
         let message = t('pages.auth.login.passkey.error.unexpected', {});
 
         switch (err.name) {
@@ -138,7 +147,7 @@ export default function Login() {
             message = t('pages.auth.login.passkey.error.cancelled', {});
             break;
           case 'NotAllowedError':
-            message = t('pages.auth.login.passkey.error.dismissed', {});
+            message = dismissedMessage;
             break;
           case 'InvalidStateError':
             message = t('pages.auth.login.passkey.error.invalidState', {});
@@ -164,6 +173,20 @@ export default function Login() {
       })
       .finally(() => setLoading(false));
   };
+
+  const doPasskeyAuth = () =>
+    runPasskeyAuth(
+      () => Promise.resolve({ uuid: passkeyUuid, options: passkeyOptions }),
+      postSecurityKeyChallenge,
+      t('pages.auth.login.passkey.error.dismissed', {}),
+    );
+
+  const doDiscoverablePasskeyAuth = () =>
+    runPasskeyAuth(
+      getDiscoverableSecurityKeyChallenge,
+      postDiscoverableSecurityKeyChallenge,
+      t('pages.auth.login.passkey.error.noUsernamelessKey', {}),
+    );
 
   const doSubmitPassword = () => {
     setLoading(true);
@@ -280,11 +303,18 @@ export default function Login() {
                   {t('common.button.continue', {})}
                 </Button>
 
-                <Divider
-                  label={t('common.divider.or', {})}
-                  labelPosition='center'
-                  hidden={oAuthProviders.length === 0 && !settings.app.registrationEnabled}
-                />
+                <Divider label={t('common.divider.or', {})} labelPosition='center' />
+
+                <Button
+                  variant='light'
+                  onClick={doDiscoverablePasskeyAuth}
+                  loading={loading}
+                  leftSection={<FontAwesomeIcon icon={faFingerprint} />}
+                  size='md'
+                  fullWidth
+                >
+                  {t('pages.auth.login.step.username.button.passkeyLogin', {})}
+                </Button>
 
                 {oAuthProviders.length > 3 ? (
                   <Button
