@@ -1,7 +1,8 @@
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import getSecurityKeys from '@/api/me/security-keys/getSecurityKeys.ts';
+import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
@@ -43,15 +44,25 @@ export default function DashboardSecurityKeys() {
       contentRight={
         <ConditionalTooltip
           label={
-            (securityKeys?.total ?? 0) >= settings.user.maxSecurityKeyCount
-              ? t('pages.account.securityKeys.tooltip.limitReached', { max: settings.user.maxSecurityKeyCount })
-              : t('pages.account.securityKeys.tooltip.secureContextRequired', {})
+            settings.webauthn?.enabled === false
+              ? t('pages.account.securityKeys.tooltip.disabled', {})
+              : (securityKeys?.total ?? 0) >= settings.user.maxSecurityKeyCount
+                ? t('pages.account.securityKeys.tooltip.limitReached', { max: settings.user.maxSecurityKeyCount })
+                : t('pages.account.securityKeys.tooltip.secureContextRequired', {})
           }
-          enabled={!window.navigator.credentials || (securityKeys?.total ?? 0) >= settings.user.maxSecurityKeyCount}
+          enabled={
+            settings.webauthn?.enabled === false ||
+            !window.navigator.credentials ||
+            (securityKeys?.total ?? 0) >= settings.user.maxSecurityKeyCount
+          }
         >
           <Button
             onClick={() => setOpenModal('create')}
-            disabled={!window.navigator.credentials || (securityKeys?.total ?? 0) >= settings.user.maxSecurityKeyCount}
+            disabled={
+              settings.webauthn?.enabled === false ||
+              !window.navigator.credentials ||
+              (securityKeys?.total ?? 0) >= settings.user.maxSecurityKeyCount
+            }
             color='blue'
             leftSection={<FontAwesomeIcon icon={faPlus} />}
           >
@@ -62,6 +73,17 @@ export default function DashboardSecurityKeys() {
       registry={window.extensionContext.extensionRegistry.pages.dashboard.securityKeys.container}
     >
       <SecurityKeyCreateModal opened={openModal === 'create'} onClose={() => setOpenModal(null)} />
+
+      {settings.webauthn?.enabled === false && (
+        <Alert
+          icon={<FontAwesomeIcon icon={faExclamationTriangle} />}
+          color='yellow'
+          title={t('common.alert.warning', {})}
+          className='mb-4'
+        >
+          {t('pages.account.securityKeys.alert.disabled', {})}
+        </Alert>
+      )}
 
       <Table
         columns={[

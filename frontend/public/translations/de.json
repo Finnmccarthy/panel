@@ -840,7 +840,9 @@
             "applicationUrl": "Anwendungs-URL",
             "applicationUrlPlaceholder": "https://calagop.us",
             "registration": "Registrierung aktivieren",
-            "registrationDescription": "Erlaube neuen Benutzern, ihren eigenen Account zu registrieren."
+            "registrationDescription": "Erlaube neuen Benutzern, ihren eigenen Account zu registrieren.",
+            "securityKeys": "Sicherheitsschlüssel aktivieren",
+            "securityKeysDescription": "Erlaube Benutzern, sich mit Passkeys und Hardware-Sicherheitsschlüsseln anzumelden, beschränkt auf {rpId}. Du kannst dies später in den Admin-Einstellungen ändern."
           },
           "button": {
             "submit": "Einstellungen aktualisieren & Weiter"
@@ -1203,7 +1205,11 @@
           },
           "tooltip": {
             "secureContextRequired": "Ein sicherer Kontext (HTTPS) ist erforderlich, um Sicherheitsschlüssel zu verwenden.",
-            "limitReached": "Du bist auf {max} Sicherheitsschlüssel limitiert."
+            "limitReached": "Du bist auf {max} Sicherheitsschlüssel limitiert.",
+            "disabled": "Sicherheitsschlüssel wurden von einem Administrator deaktiviert."
+          },
+          "alert": {
+            "disabled": "Sicherheitsschlüssel wurden von einem Administrator deaktiviert. Deine bestehenden Schlüssel werden unten aufgelistet und können weiterhin entfernt werden, sie können jedoch nicht zur Anmeldung verwendet werden und es können keine neuen Schlüssel erstellt werden."
           },
           "modal": {
             "createSecurityKey": {
@@ -1831,8 +1837,14 @@
               "page": {
                 "title": "Webauthn-Einstellungen",
                 "form": {
+                  "enabled": "Sicherheitsschlüssel aktivieren",
+                  "enabledDescription": "Erlaube Benutzern, sich mit Sicherheitsschlüsseln zu registrieren und anzumelden. Bestehende Schlüssel bleiben erhalten und sichtbar, können aber zur Anmeldung nicht verwendet werden, solange dies deaktiviert ist.",
+                  "allowDiscoverable": "Anmeldung ohne Benutzernamen erlauben",
+                  "allowDiscoverableDescription": "Erlaube Benutzern, Passkeys auf ihrem Gerät zu speichern und einen aus einer Liste auszuwählen, statt einen Benutzernamen einzugeben.",
                   "rpId": "RP-Id",
-                  "rpOrigin": "RP-Origin"
+                  "rpOrigin": "RP-Origin",
+                  "authenticationTimeoutSeconds": "Zeitüberschreitung der Authentifizierung (Sekunden)",
+                  "registrationTimeoutSeconds": "Zeitüberschreitung der Registrierung (Sekunden)"
                 },
                 "button": {
                   "autofill": "Automatisch ausfüllen"

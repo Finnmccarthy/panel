@@ -7,6 +7,7 @@ mod extensions;
 mod import;
 mod nests;
 mod nodes;
+mod oobe;
 mod service_install;
 mod users;
 mod version;
@@ -40,6 +41,7 @@ pub fn commands(cli: CliCommandGroupBuilder) -> CliCommandGroupBuilder {
         "Manage backups within the Panel.",
         backups::commands,
     )
+    .add_group("oobe", "Manage the OOBE for the Panel.", oobe::commands)
     .add_group(
         "import",
         "Import data from other panel software into Calagopus.",

@@ -121,8 +121,16 @@ pub async fn define_background_tasks(
             "delete_unconfigured_security_keys",
             croner::Cron::from_str("0 */30 * * * *").unwrap(),
             async |state| {
-                let deleted_security_keys =
-                    UserSecurityKey::delete_unconfigured(&state.database).await?;
+                let registration_timeout = state
+                    .settings
+                    .get_as(|s| s.webauthn.registration_timeout_seconds)
+                    .await?;
+
+                let deleted_security_keys = UserSecurityKey::delete_unconfigured(
+                    &state.database,
+                    registration_timeout as i64,
+                )
+                .await?;
                 if deleted_security_keys > 0 {
                     tracing::info!(
                         "deleted {} unconfigured user security keys",

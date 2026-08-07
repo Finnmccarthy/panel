@@ -2,6 +2,7 @@ use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod get {
+    use axum::http::StatusCode;
     use serde::Serialize;
     use shared::{
         ApiError, GetState,
@@ -22,10 +23,20 @@ mod get {
         (status = BAD_REQUEST, body = ApiError),
     ))]
     pub async fn route(state: GetState, ip: shared::GetIp) -> ApiResponseResult {
-        let ratelimit = state
-            .settings
-            .get_as(|s| s.ratelimits.auth_login_security_key)
-            .await?;
+        let settings = state.settings.get().await?;
+        if !settings.webauthn.enabled {
+            return ApiResponse::error("security keys are disabled")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+        if !settings.webauthn.allow_discoverable {
+            return ApiResponse::error("usernameless security key login is disabled")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+        let ratelimit = settings.ratelimits.auth_login_security_key;
+        drop(settings);
+
         state
             .cache
             .ratelimit(
@@ -40,9 +51,6 @@ mod get {
 
         let (mut options, authentication) = webauthn.start_discoverable_authentication()?;
 
-        // webauthn-rs pins this to `conditional`, which would make the browser silently do
-        // nothing outside of an autofill context. The panel drives this from an explicit
-        // button, so the client must get the normal modal picker.
         options.mediation = None;
 
         let uuid = uuid::Uuid::new_v4();
@@ -98,10 +106,20 @@ mod post {
         cookies: tower_cookies::Cookies,
         shared::Payload(data): shared::Payload<Payload>,
     ) -> ApiResponseResult {
-        let ratelimit = state
-            .settings
-            .get_as(|s| s.ratelimits.auth_login_security_key)
-            .await?;
+        let settings = state.settings.get().await?;
+        if !settings.webauthn.enabled {
+            return ApiResponse::error("security keys are disabled")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+        if !settings.webauthn.allow_discoverable {
+            return ApiResponse::error("usernameless security key login is disabled")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+        let ratelimit = settings.ratelimits.auth_login_security_key;
+        drop(settings);
+
         state
             .cache
             .ratelimit(
@@ -197,8 +215,6 @@ mod post {
             }
         };
 
-        // `update_credential` returns None when the credential id does not match, which
-        // doubles as the check that the asserted credential really belongs to this user.
         let mut matched = None;
         for (uuid, passkey) in passkeys.iter_mut() {
             if passkey.update_credential(&result).is_some() {

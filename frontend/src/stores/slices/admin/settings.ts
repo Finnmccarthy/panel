@@ -63,8 +63,12 @@ export const createSettingsSlice: StateCreator<AdminStore, [], [], SettingsSlice
     routeOrder: null,
   },
   webauthn: {
+    enabled: true,
+    allowDiscoverable: true,
     rpId: '',
     rpOrigin: '',
+    authenticationTimeoutSeconds: 300,
+    registrationTimeoutSeconds: 300,
   },
   activity: {
     adminLogRetentionDays: 180,

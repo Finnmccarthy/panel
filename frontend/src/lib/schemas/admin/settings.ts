@@ -198,8 +198,12 @@ export const adminSettingsStorageSchema = z.discriminatedUnion('type', [
 ]);
 
 export const adminSettingsWebauthnSchema = z.object({
+  enabled: z.boolean(),
+  allowDiscoverable: z.boolean(),
   rpId: z.string().min(1).max(255),
   rpOrigin: z.url({ protocol: /^https?$/ }).max(255),
+  authenticationTimeoutSeconds: z.number().min(30).max(600),
+  registrationTimeoutSeconds: z.number().min(30).max(600),
 });
 
 export const twoFactorRequirement = z.enum(['admins', 'all_users', 'none']);

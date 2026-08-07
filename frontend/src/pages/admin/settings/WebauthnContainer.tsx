@@ -13,6 +13,7 @@ import { adminSettingsWebauthnSchema } from '@/lib/schemas/admin/settings.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
+import { useGlobalStore } from '@/stores/global.ts';
 
 type WebauthnFormValues = z.infer<typeof adminSettingsWebauthnSchema>;
 
@@ -20,7 +21,9 @@ export default function WebauthnContainer() {
   const { addToast } = useToast();
   const { t } = useTranslations();
   const webauthn = useAdminStore((state) => state.webauthn);
-  const updateSettings = useAdminStore((state) => state.updateSettings);
+  const updateAdminSettings = useAdminStore((state) => state.updateSettings);
+  const settings = useGlobalStore((state) => state.settings);
+  const updateSettings = useGlobalStore((state) => state.updateSettings);
 
   const [openModal, setOpenModal] = useState<'changeRpId' | null>(null);
   const [loading, setLoading] = useState(false);
@@ -28,8 +31,12 @@ export default function WebauthnContainer() {
   const form = useFormEngine<WebauthnFormValues>('admin.settings.webauthn', {
     schema: adminSettingsWebauthnSchema,
     initialValues: {
+      enabled: true,
+      allowDiscoverable: true,
       rpId: '',
       rpOrigin: '',
+      authenticationTimeoutSeconds: 300,
+      registrationTimeoutSeconds: 300,
     },
     validateInputOnBlur: true,
   });
@@ -43,7 +50,8 @@ export default function WebauthnContainer() {
     updateWebauthnSettings(adminSettingsWebauthnSchema.parse(form.getValues()))
       .then(() => {
         addToast(t('pages.admin.settings.tabs.webauthn.page.toast.updated', {}), 'success');
-        updateSettings({ webauthn: adminSettingsWebauthnSchema.parse(form.getValues()) });
+        updateSettings({ webauthn: { ...settings.webauthn, ...form.getValues() } });
+        updateAdminSettings({ webauthn: adminSettingsWebauthnSchema.parse(form.getValues()) });
       })
       .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
       .finally(() => setLoading(false));
@@ -62,6 +70,18 @@ export default function WebauthnContainer() {
 
   const fields: FieldDef<WebauthnFormValues>[] = [
     {
+      type: 'switch',
+      name: 'enabled',
+      label: t('pages.admin.settings.tabs.webauthn.page.form.enabled', {}),
+      description: t('pages.admin.settings.tabs.webauthn.page.form.enabledDescription', {}),
+    },
+    {
+      type: 'switch',
+      name: 'allowDiscoverable',
+      label: t('pages.admin.settings.tabs.webauthn.page.form.allowDiscoverable', {}),
+      description: t('pages.admin.settings.tabs.webauthn.page.form.allowDiscoverableDescription', {}),
+    },
+    {
       type: 'text',
       name: 'rpId',
       label: t('pages.admin.settings.tabs.webauthn.page.form.rpId', {}),
@@ -71,6 +91,18 @@ export default function WebauthnContainer() {
       type: 'text',
       name: 'rpOrigin',
       label: t('pages.admin.settings.tabs.webauthn.page.form.rpOrigin', {}),
+      required: true,
+    },
+    {
+      type: 'number',
+      name: 'authenticationTimeoutSeconds',
+      label: t('pages.admin.settings.tabs.webauthn.page.form.authenticationTimeoutSeconds', {}),
+      required: true,
+    },
+    {
+      type: 'number',
+      name: 'registrationTimeoutSeconds',
+      label: t('pages.admin.settings.tabs.webauthn.page.form.registrationTimeoutSeconds', {}),
       required: true,
     },
   ];

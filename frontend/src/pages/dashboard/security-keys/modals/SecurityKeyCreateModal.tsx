@@ -17,18 +17,20 @@ import { userSecurityKeyCreateSchema } from '@/lib/schemas/user/securityKeys.ts'
 import { useModalForm } from '@/plugins/useModalForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { useGlobalStore } from '@/stores/global.ts';
 
 export default function SecurityKeyCreateModal({ ...props }: ModalProps) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const queryClient = useQueryClient();
+  const settings = useGlobalStore((state) => state.settings);
 
   const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<
     z.infer<typeof userSecurityKeyCreateSchema>
   >({
     initialValues: {
       name: '',
-      allowUsernamelessLogin: true,
+      allowUsernamelessLogin: settings.webauthn?.allowDiscoverable !== false,
     },
     validate: zod4Resolver(userSecurityKeyCreateSchema),
     onClose: props.onClose,
@@ -93,12 +95,14 @@ export default function SecurityKeyCreateModal({ ...props }: ModalProps) {
       <Stack>
         <TextInput withAsterisk label={t('common.form.name', {})} {...form.getInputProps('name')} />
 
-        <Switch
-          label={t('pages.account.securityKeys.modal.createSecurityKey.allowUsernamelessLogin', {})}
-          description={t('pages.account.securityKeys.modal.createSecurityKey.allowUsernamelessLoginDescription', {})}
-          name='allowUsernamelessLogin'
-          {...form.getInputProps('allowUsernamelessLogin', { type: 'checkbox' })}
-        />
+        {settings.webauthn?.allowDiscoverable !== false && (
+          <Switch
+            label={t('pages.account.securityKeys.modal.createSecurityKey.allowUsernamelessLogin', {})}
+            description={t('pages.account.securityKeys.modal.createSecurityKey.allowUsernamelessLoginDescription', {})}
+            name='allowUsernamelessLogin'
+            {...form.getInputProps('allowUsernamelessLogin', { type: 'checkbox' })}
+          />
+        )}
 
         <ModalFooter>
           <Button type='submit' loading={loading} disabled={!form.isValid()}>

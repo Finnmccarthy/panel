@@ -126,6 +126,16 @@ mod post {
 
         permissions.has_user_permission("security-keys.create")?;
 
+        let settings = state.settings.get().await?;
+        if !settings.webauthn.enabled {
+            return ApiResponse::error("security keys are disabled")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+        let allow_discoverable = settings.webauthn.allow_discoverable;
+        let registration_timeout_seconds = settings.webauthn.registration_timeout_seconds;
+        drop(settings);
+
         let webauthn = state.settings.get_webauthn().await?;
 
         let credential_ids = sqlx::query!(
@@ -149,7 +159,10 @@ mod post {
             ),
         )?;
 
+        webauthn_options.public_key.timeout = Some(registration_timeout_seconds as u32 * 1000);
+
         if data.allow_usernameless_login
+            && allow_discoverable
             && let Some(selection) = webauthn_options.public_key.authenticator_selection.as_mut()
         {
             selection.resident_key = Some(webauthn_rs_proto::ResidentKeyRequirement::Required);

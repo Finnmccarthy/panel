@@ -11,7 +11,7 @@ struct SecurityKeyAuthentication {
 }
 
 mod get {
-    use axum::extract::Query;
+    use axum::{extract::Query, http::StatusCode};
     use serde::{Deserialize, Serialize};
     use shared::{
         ApiError, GetState,
@@ -47,10 +47,15 @@ mod get {
         ip: shared::GetIp,
         Query(data): Query<Params>,
     ) -> ApiResponseResult {
-        let ratelimit = state
-            .settings
-            .get_as(|s| s.ratelimits.auth_login_security_key)
-            .await?;
+        let settings = state.settings.get().await?;
+        if !settings.webauthn.enabled {
+            return ApiResponse::error("security keys are disabled")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+        let ratelimit = settings.ratelimits.auth_login_security_key;
+        drop(settings);
+
         state
             .cache
             .ratelimit(
@@ -145,10 +150,15 @@ mod post {
         cookies: Cookies,
         shared::Payload(data): shared::Payload<Payload>,
     ) -> ApiResponseResult {
-        let ratelimit = state
-            .settings
-            .get_as(|s| s.ratelimits.auth_login_security_key)
-            .await?;
+        let settings = state.settings.get().await?;
+        if !settings.webauthn.enabled {
+            return ApiResponse::error("security keys are disabled")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+        let ratelimit = settings.ratelimits.auth_login_security_key;
+        drop(settings);
+
         state
             .cache
             .ratelimit(

@@ -29,6 +29,17 @@ pub mod server;
 pub mod user;
 pub mod webauthn;
 
+pub const OOBE_STEPS: &[&str] = &[
+    "register",
+    "configuration",
+    "repositories",
+    "location",
+    "node",
+    "nodeconfiguration",
+    "server",
+    "finished",
+];
+
 #[derive(ToSchema, Serialize, Deserialize, Clone)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum RouteOrderItem {
@@ -1035,6 +1046,9 @@ impl Settings {
             &settings.webauthn.rp_origin.parse()?,
         )?
         .rp_name(&settings.app.name)
+        .timeout(std::time::Duration::from_secs(
+            settings.webauthn.authentication_timeout_seconds,
+        ))
         .build()?)
     }
 

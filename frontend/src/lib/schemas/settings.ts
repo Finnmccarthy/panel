@@ -50,6 +50,10 @@ export const publicSettingsSchema = z.object({
     registrationEnabled: z.boolean(),
     debug: z.boolean(),
   }),
+  webauthn: z.object({
+    enabled: z.boolean(),
+    allowDiscoverable: z.boolean(),
+  }),
   server: z.object({
     maxFileManagerViewSize: z.number(),
     maxFileManagerContentSearchSize: z.number(),

@@ -8,6 +8,7 @@ mod post {
     use shared::{
         ApiError, GetState,
         models::{
+            DeletableModel,
             user::{GetPermissionManager, GetUser},
             user_activity::GetUserActivityLogger,
             user_security_key::UserSecurityKey,
@@ -30,6 +31,7 @@ mod post {
 
     #[utoipa::path(post, path = "/", responses(
         (status = OK, body = inline(Response)),
+        (status = BAD_REQUEST, body = ApiError),
         (status = NOT_FOUND, body = ApiError),
         (status = CONFLICT, body = ApiError),
     ), request_body = inline(Payload))]
@@ -42,6 +44,15 @@ mod post {
         shared::Payload(data): shared::Payload<Payload>,
     ) -> ApiResponseResult {
         permissions.has_user_permission("security-keys.create")?;
+
+        let settings = state.settings.get().await?;
+        if !settings.webauthn.enabled {
+            return ApiResponse::error("security keys are disabled")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+        let registration_timeout_seconds = settings.webauthn.registration_timeout_seconds;
+        drop(settings);
 
         let security_key =
             match UserSecurityKey::by_user_uuid_uuid(&state.database, user.uuid, security_key)
@@ -57,7 +68,7 @@ mod post {
                 }
             };
 
-        let registration = match security_key.registration {
+        let registration = match &security_key.registration {
             Some(registration) => registration,
             None => {
                 return ApiResponse::new_serialized(ApiError::new_value(&[
@@ -68,20 +79,29 @@ mod post {
             }
         };
 
+        if security_key.created + chrono::Duration::seconds(registration_timeout_seconds as i64)
+            < chrono::Utc::now().naive_utc()
+        {
+            security_key.delete(&state, ()).await?;
+
+            return ApiResponse::error("invalid or expired challenge")
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+
         let webauthn = state.settings.get_webauthn().await?;
 
-        let passkey = match webauthn
-            .finish_passkey_registration(&data.public_key_credential, &registration)
-        {
-            Ok(passkey) => passkey,
-            Err(err) => {
-                tracing::error!("failed to finish security key registration: {:?}", err);
+        let passkey =
+            match webauthn.finish_passkey_registration(&data.public_key_credential, registration) {
+                Ok(passkey) => passkey,
+                Err(err) => {
+                    tracing::error!("failed to finish security key registration: {:?}", err);
 
-                return ApiResponse::error("failed to finish security key registration")
-                    .with_status(StatusCode::BAD_REQUEST)
-                    .ok();
-            }
-        };
+                    return ApiResponse::error("failed to finish security key registration")
+                        .with_status(StatusCode::BAD_REQUEST)
+                        .ok();
+                }
+            };
 
         let result = sqlx::query!(
             "UPDATE user_security_keys

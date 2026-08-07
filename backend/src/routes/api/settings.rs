@@ -23,6 +23,12 @@ mod get {
     }
 
     #[derive(ToSchema, Serialize)]
+    struct ResponseWebauthn {
+        enabled: bool,
+        allow_discoverable: bool,
+    }
+
+    #[derive(ToSchema, Serialize)]
     struct ResponseServer<'a> {
         max_file_manager_view_size: u64,
         max_file_manager_content_search_size: u64,
@@ -62,6 +68,8 @@ mod get {
         #[schema(inline)]
         app: ResponseApp<'a>,
         #[schema(inline)]
+        webauthn: ResponseWebauthn,
+        #[schema(inline)]
         server: ResponseServer<'a>,
         #[schema(inline)]
         user: ResponseUser<'a>,
@@ -87,6 +95,10 @@ mod get {
                 language: &settings.app.language,
                 registration_enabled: settings.app.registration_enabled,
                 debug: state.env.is_debug(),
+            },
+            webauthn: ResponseWebauthn {
+                enabled: settings.webauthn.enabled,
+                allow_discoverable: settings.webauthn.allow_discoverable,
             },
             server: ResponseServer {
                 max_file_manager_view_size: settings.server.max_file_manager_view_size,

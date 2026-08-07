@@ -12,6 +12,7 @@ export const oobeConfigurationSchema = z.object({
   applicationLanguage: z.string(),
   applicationUrl: z.url({ protocol: /^https?$/ }),
   applicationRegistration: z.boolean(),
+  applicationSecurityKeys: z.boolean(),
 });
 
 export const oobeLocationSchema = z.object({

@@ -92,6 +92,11 @@ export default function Login() {
       return;
     }
 
+    if (settings.webauthn?.enabled === false) {
+      setStep('password');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -305,16 +310,18 @@ export default function Login() {
 
                 <Divider label={t('common.divider.or', {})} labelPosition='center' />
 
-                <Button
-                  variant='light'
-                  onClick={doDiscoverablePasskeyAuth}
-                  loading={loading}
-                  leftSection={<FontAwesomeIcon icon={faFingerprint} />}
-                  size='md'
-                  fullWidth
-                >
-                  {t('pages.auth.login.step.username.button.passkeyLogin', {})}
-                </Button>
+                {settings.webauthn?.enabled !== false && settings.webauthn?.allowDiscoverable !== false && (
+                  <Button
+                    variant='light'
+                    onClick={doDiscoverablePasskeyAuth}
+                    loading={loading}
+                    leftSection={<FontAwesomeIcon icon={faFingerprint} />}
+                    size='md'
+                    fullWidth
+                  >
+                    {t('pages.auth.login.step.username.button.passkeyLogin', {})}
+                  </Button>
+                )}
 
                 {oAuthProviders.length > 3 ? (
                   <Button

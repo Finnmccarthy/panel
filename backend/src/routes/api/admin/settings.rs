@@ -78,10 +78,22 @@ mod put {
 
     #[derive(ToSchema, Validate, Deserialize)]
     pub struct PayloadWebauthn {
+        #[garde(skip)]
+        enabled: Option<bool>,
+        #[garde(skip)]
+        allow_discoverable: Option<bool>,
+
         #[garde(length(chars, min = 1, max = 255))]
         rp_id: Option<compact_str::CompactString>,
         #[garde(url)]
         rp_origin: Option<compact_str::CompactString>,
+
+        #[garde(range(min = 30, max = 600))]
+        #[schema(minimum = 30, maximum = 600)]
+        authentication_timeout_seconds: Option<u64>,
+        #[garde(range(min = 30, max = 600))]
+        #[schema(minimum = 30, maximum = 600)]
+        registration_timeout_seconds: Option<u64>,
     }
 
     #[derive(ToSchema, Validate, Deserialize)]
@@ -327,11 +339,23 @@ mod put {
             }
         }
         if let Some(webauthn) = data.webauthn {
+            if let Some(enabled) = webauthn.enabled {
+                settings.webauthn.enabled = enabled;
+            }
+            if let Some(allow_discoverable) = webauthn.allow_discoverable {
+                settings.webauthn.allow_discoverable = allow_discoverable;
+            }
             if let Some(rp_id) = webauthn.rp_id {
                 settings.webauthn.rp_id = rp_id;
             }
             if let Some(rp_origin) = webauthn.rp_origin {
                 settings.webauthn.rp_origin = rp_origin;
+            }
+            if let Some(authentication_timeout_seconds) = webauthn.authentication_timeout_seconds {
+                settings.webauthn.authentication_timeout_seconds = authentication_timeout_seconds;
+            }
+            if let Some(registration_timeout_seconds) = webauthn.registration_timeout_seconds {
+                settings.webauthn.registration_timeout_seconds = registration_timeout_seconds;
             }
         }
         if let Some(server) = data.server {

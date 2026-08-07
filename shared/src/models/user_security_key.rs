@@ -195,13 +195,15 @@ impl UserSecurityKey {
 
     pub async fn delete_unconfigured(
         database: &crate::database::Database,
+        timeout_seconds: i64,
     ) -> Result<u64, sqlx::Error> {
         Ok(sqlx::query(
             r#"
             DELETE FROM user_security_keys
-            WHERE user_security_keys.created < NOW() - INTERVAL '1 day' AND user_security_keys.passkey IS NULL
+            WHERE user_security_keys.created < $1 AND user_security_keys.passkey IS NULL
             "#,
         )
+        .bind(chrono::Utc::now().naive_utc() - chrono::Duration::seconds(timeout_seconds))
         .execute(database.write())
         .await?
         .rows_affected())
