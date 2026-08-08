@@ -18,6 +18,7 @@ export interface ContextMenuActionItem {
   type: 'action';
   icon?: IconDefinition;
   label: string;
+  rightSection?: ReactNode;
   hidden?: boolean;
   disabled?: boolean;
   onClick?: (e: MouseEvent) => void;
@@ -143,6 +144,7 @@ export const ContextMenuProvider = ({ children }: { children: ReactNode }) => {
                           <Menu.Item
                             key={idx.toString() + subIdx.toString()}
                             leftSection={subItem.icon ? <FontAwesomeIcon icon={subItem.icon} /> : undefined}
+                            rightSection={subItem.rightSection}
                             color={subItem.color === 'red' ? 'red' : undefined}
                             disabled={subItem.disabled}
                             onClick={(e) => {
@@ -164,6 +166,7 @@ export const ContextMenuProvider = ({ children }: { children: ReactNode }) => {
                 <Menu.Item
                   key={idx}
                   leftSection={item.icon ? <FontAwesomeIcon icon={item.icon} /> : undefined}
+                  rightSection={item.rightSection}
                   color={item.color === 'red' ? 'red' : undefined}
                   disabled={item.disabled}
                   onClick={(e) => {
@@ -266,9 +269,7 @@ const ContextMenuToggle = memo(
         className='relative cursor-pointer min-w-10 text-center'
         onClick={(e) => {
           e.stopPropagation();
-
-          const rect = e.currentTarget.getBoundingClientRect();
-          openMenu(rect.left, rect.bottom);
+          openMenu(e.clientX, e.clientY);
         }}
       >
         <FontAwesomeIcon icon={faEllipsis} />

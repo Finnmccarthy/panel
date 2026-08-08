@@ -12,7 +12,7 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Menu, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
+import { useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
 import classNames from 'classnames';
 import { ReactNode, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -150,9 +150,7 @@ function Link({ to, end, icon, name, title = name, className, activeMatches }: L
           end={end}
           onContextMenu={(e) => {
             e.preventDefault();
-
-            const rect = e.currentTarget.getBoundingClientRect();
-            openMenu(rect.left, rect.bottom);
+            openMenu(e.clientX, e.clientY);
           }}
           className='w-full'
         >
@@ -232,94 +230,110 @@ function Footer() {
   };
 
   return (
-    <>
-      <Card
-        className='flex flex-row! justify-between items-center min-h-fit'
-        p='xs'
-        hoverable
-        id='sidebar-account-card'
-      >
-        <NavLink
-          to='/account'
-          className='flex items-center flex-1 min-w-0'
-          onClick={(e) => {
+    <ContextMenu
+      items={[
+        {
+          type: 'action',
+          icon: faUserCog,
+          label: t('pages.account.account.title', {}),
+          hidden: suspended,
+          onClick: () => navigate('/account'),
+        },
+        {
+          type: 'divider',
+          hidden: suspended || !isAdmin(user),
+        },
+        {
+          type: 'action',
+          icon: faGraduationCap,
+          label: t('pages.account.admin.title', {}),
+          hidden: suspended || !isAdmin(user),
+          onClick: () => navigate('/admin'),
+        },
+        {
+          type: 'divider',
+          hidden: suspended,
+        },
+        {
+          type: 'action',
+          icon: faCircleHalfStroke,
+          label: t('elements.sidebar.button.theme', {}),
+          items: [
+            {
+              type: 'action',
+              icon: faCircleHalfStroke,
+              label: t('elements.sidebar.button.themeAuto', {}),
+              rightSection: colorScheme === 'auto' && <FontAwesomeIcon icon={faCheck} size='sm' />,
+              onClick: (e) => changeTheme(e, 'auto'),
+            },
+            {
+              type: 'action',
+              icon: faMoon,
+              label: t('elements.sidebar.button.themeDark', {}),
+              rightSection: colorScheme === 'dark' && <FontAwesomeIcon icon={faCheck} size='sm' />,
+              onClick: (e) => changeTheme(e, 'dark'),
+            },
+            {
+              type: 'action',
+              icon: faSun,
+              label: t('elements.sidebar.button.themeLight', {}),
+              rightSection: colorScheme === 'light' && <FontAwesomeIcon icon={faCheck} size='sm' />,
+              onClick: (e) => changeTheme(e, 'light'),
+            },
+          ],
+        },
+        {
+          type: 'divider',
+        },
+        {
+          type: 'action',
+          icon: faArrowRightFromBracket,
+          label: impersonating
+            ? t('elements.sidebar.button.stopImpersonating', {})
+            : t('elements.sidebar.button.logout', {}),
+          color: 'red',
+          onClick: doLogout,
+        },
+      ]}
+    >
+      {({ openMenu }) => (
+        <Card
+          className='flex flex-row! justify-between items-center min-h-fit'
+          p='xs'
+          hoverable
+          id='sidebar-account-card'
+          onContextMenu={(e) => {
             e.preventDefault();
-            navigate('/account');
+            openMenu(e.clientX, e.clientY);
           }}
         >
-          <Avatar size={40} className='select-none shrink-0' src={user.avatar} name={user.username} />
-          <span className='font-sans font-normal text-sm whitespace-nowrap leading-tight ml-3 overflow-hidden text-ellipsis'>
-            {user.username}
-          </span>
-        </NavLink>
+          <NavLink
+            to='/account'
+            className='flex items-center flex-1 min-w-0'
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/account');
+            }}
+          >
+            <Avatar size={40} className='select-none shrink-0' src={user.avatar} name={user.username} />
+            <span className='font-sans font-normal text-sm whitespace-nowrap leading-tight ml-3 overflow-hidden text-ellipsis'>
+              {user.username}
+            </span>
+          </NavLink>
 
-        <Menu shadow='md' width={200} position='top-end'>
-          <Menu.Target>
-            <ActionIcon variant='subtle' className='shrink-0'>
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </ActionIcon>
-          </Menu.Target>
-
-          <Menu.Dropdown>
-            {!suspended && (
-              <>
-                <Menu.Item leftSection={<FontAwesomeIcon icon={faUserCog} />} onClick={() => navigate('/account')}>
-                  {t('pages.account.account.title', {})}
-                </Menu.Item>
-                {isAdmin(user) && (
-                  <>
-                    <Menu.Divider />
-                    <Menu.Item
-                      leftSection={<FontAwesomeIcon icon={faGraduationCap} />}
-                      onClick={() => navigate('/admin')}
-                    >
-                      {t('pages.account.admin.title', {})}
-                    </Menu.Item>
-                  </>
-                )}
-                <Menu.Divider />
-              </>
-            )}
-            <Menu.Sub>
-              <Menu.Sub.Target>
-                <Menu.Sub.Item leftSection={<FontAwesomeIcon icon={faCircleHalfStroke} />}>
-                  {t('elements.sidebar.button.theme', {})}
-                </Menu.Sub.Item>
-              </Menu.Sub.Target>
-              <Menu.Sub.Dropdown>
-                <Menu.Item
-                  leftSection={<FontAwesomeIcon icon={faCircleHalfStroke} />}
-                  rightSection={colorScheme === 'auto' && <FontAwesomeIcon icon={faCheck} size='sm' />}
-                  onClick={(e) => changeTheme(e, 'auto')}
-                >
-                  {t('elements.sidebar.button.themeAuto', {})}
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={<FontAwesomeIcon icon={faMoon} />}
-                  rightSection={colorScheme === 'dark' && <FontAwesomeIcon icon={faCheck} size='sm' />}
-                  onClick={(e) => changeTheme(e, 'dark')}
-                >
-                  {t('elements.sidebar.button.themeDark', {})}
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={<FontAwesomeIcon icon={faSun} />}
-                  rightSection={colorScheme === 'light' && <FontAwesomeIcon icon={faCheck} size='sm' />}
-                  onClick={(e) => changeTheme(e, 'light')}
-                >
-                  {t('elements.sidebar.button.themeLight', {})}
-                </Menu.Item>
-              </Menu.Sub.Dropdown>
-            </Menu.Sub>
-            <Menu.Divider />
-            <Menu.Item leftSection={<FontAwesomeIcon icon={faArrowRightFromBracket} />} color='red' onClick={doLogout}>
-              {impersonating
-                ? t('elements.sidebar.button.stopImpersonating', {})
-                : t('elements.sidebar.button.logout', {})}
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-      </Card>
-    </>
+          <ActionIcon
+            variant='subtle'
+            className='shrink-0'
+            onClick={(e) => {
+              e.preventDefault();
+              openMenu(e.clientX, e.clientY);
+            }}
+          >
+            <FontAwesomeIcon icon={faEllipsisVertical} />
+          </ActionIcon>
+        </Card>
+      )}
+    </ContextMenu>
   );
 }
 
