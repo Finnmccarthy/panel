@@ -1,5 +1,7 @@
 import { type OnMount } from '@monaco-editor/react';
-import { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
+import debounce from 'debounce';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import downloadNodeLog from '@/api/admin/nodes/system/downloadNodeLog.ts';
 import getNodeLog from '@/api/admin/nodes/system/getNodeLog.ts';
@@ -111,21 +113,40 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
       .finally(() => setLoading(false));
   };
 
-  const doView = () => {
-    if (!selectedLog) return;
-
+  const loadLogs = (log: NodeLogFile, linesValue: number) => {
     setLoading(true);
 
-    getNodeLog(node.uuid, selectedLog.name, lines)
+    getNodeLog(node.uuid, log.name, linesValue)
       .then((data) => {
         setContent(stripAnsi(data));
         setLoaded(true);
+
+        requestAnimationFrame(() => {
+          const editor = editorRef.current;
+          if (editor) {
+            editor.setScrollTop(editor.getScrollHeight());
+          }
+        });
       })
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');
       })
       .finally(() => setLoading(false));
   };
+
+  const doView = () => {
+    if (!selectedLog) return;
+
+    loadLogs(selectedLog, lines);
+  };
+
+  const debouncedLoadLogs = useCallback(debounce(loadLogs, 500), []);
+
+  useEffect(() => {
+    if (!selectedLog || !loaded) return;
+
+    debouncedLoadLogs(selectedLog, lines);
+  }, [lines]);
 
   return (
     <AdminSubContentContainer
@@ -167,19 +188,30 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
               <Button
                 onClick={doView}
                 variant='outline'
-                disabled={!selectedLog || connected}
+                disabled={!selectedLog}
                 loading={loading}
                 className='min-w-fit'
               >
                 {t('common.button.loadLogs', {})}
               </Button>
-              <div className='flex h-9 items-center md:self-end'>
+              <div className='flex h-9 items-center gap-2 md:self-end'>
                 <Switch
                   label={t('pages.admin.nodes.tabs.logs.page.form.follow', {})}
                   checked={following}
                   disabled={!selectedLog}
                   onChange={(e) => setFollowing(e.currentTarget.checked)}
                 />
+                {following && (
+                  <span className='flex items-center gap-1.5 text-xs text-(--mantine-color-dimmed)'>
+                    <span
+                      className={classNames(
+                        'rounded-full size-2',
+                        connected ? 'bg-green-500 animate-pulse' : 'bg-red-500',
+                      )}
+                    />
+                    {t(`common.enum.connectionStatus.${connected ? 'connected' : 'offline'}`, {})}
+                  </span>
+                )}
               </div>
             </div>
           </div>
