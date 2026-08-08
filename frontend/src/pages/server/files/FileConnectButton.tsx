@@ -41,7 +41,7 @@ export default function FileConnectButton({ file }: { file?: string }) {
               label: t('pages.server.files.button.connectSftp', {}),
               onClick: (e) => {
                 if (e.shiftKey) {
-                  openUrl(sftpUrl);
+                  window.location.href = sftpUrl;
                 } else {
                   setSftpDetailsOpen(true);
                 }

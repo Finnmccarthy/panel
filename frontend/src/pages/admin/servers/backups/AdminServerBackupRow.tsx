@@ -27,7 +27,6 @@ import { adminNodeServerBackupSchema } from '@/lib/schemas/admin/nodes.ts';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { streamingArchiveFormat } from '@/lib/schemas/generic.ts';
 import { bytesToString } from '@/lib/size.ts';
-import { openUrl } from '@/lib/url.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -53,7 +52,7 @@ export default function AdminServerBackupRow({
     downloadNodeBackup(backup.node.uuid, backup.uuid, archiveFormat)
       .then(({ url }) => {
         addToast(t('pages.admin.nodes.tabs.backups.page.toast.downloadStarted', {}), 'success');
-        openUrl(url);
+        window.location.href = url;
       })
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');
