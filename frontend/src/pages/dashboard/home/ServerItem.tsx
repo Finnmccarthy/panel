@@ -166,11 +166,11 @@ export default function ServerItem({
                 }}
               >
                 <Card
-                  className='duration-200 h-full flex flex-col justify-between rounded-xl! overflow-hidden min-w-0'
+                  className='@container duration-200 h-full flex flex-col justify-between rounded-xl! overflow-hidden min-w-0'
                   leftStripeClassName={statusToColor(stats?.state)}
                   hoverable
                 >
-                  <div className='flex flex-col sm:flex-row sm:items-center gap-2 justify-between overflow-hidden min-w-0'>
+                  <div className='flex flex-col @md:flex-row @md:items-center gap-2 justify-between overflow-hidden min-w-0'>
                     <div className='flex gap-2 items-center min-w-0 flex-1'>
                       {showSelection && (
                         <Tooltip
@@ -210,7 +210,7 @@ export default function ServerItem({
                         )}
                       </span>
                     </div>
-                    <div className='flex flex-row items-center min-w-0 sm:justify-end sm:max-w-none'>
+                    <div className='flex flex-row items-center min-w-0 @md:justify-end @md:max-w-none'>
                       {server.allocation ? (
                         server.egg.separatePort ? (
                           <div className='flex flex-row gap-2 min-w-0'>
