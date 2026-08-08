@@ -82,7 +82,7 @@ export function isOpenableFile(
   }
 
   if (file.size > getGlobalStore().settings.server.maxFileManagerViewSize) {
-    return { openable: false };
+    return { openable: false, reason: 'tooLarge' };
   }
 
   if (isViewableImage(file)) {

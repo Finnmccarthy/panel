@@ -23,6 +23,7 @@ type HandleOpenProps = {
 export type FileOpenMode =
   | {
       openable: false;
+      reason?: 'tooLarge';
     }
   | {
       openable: true;

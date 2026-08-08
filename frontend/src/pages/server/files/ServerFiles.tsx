@@ -147,6 +147,8 @@ function ServerFilesComponent() {
             navigate(`/server/${server.uuidShort}/files/${action}?${searchParams}`);
           },
         });
+      } else if (openMode.reason === 'tooLarge') {
+        addToast(t('pages.server.files.toast.fileTooLargeToOpen', {}), 'warning');
       }
     },
     [server, navigate, setSearchParams, store],

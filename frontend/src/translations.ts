@@ -4420,6 +4420,7 @@ const baseTranslations = defineTranslations({
             permissionsCouldNotBeRestored: 'Permissions could not be restored.',
             fileSaved: 'File has been saved.',
             collabSaveTimeout: 'The file could not be saved, the daemon did not respond in time.',
+            fileTooLargeToOpen: 'This file is too large to open in the file manager.',
           },
           tooltip: {
             fileHistory: 'File History',
