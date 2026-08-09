@@ -1,12 +1,13 @@
 import { faPause, faPlay, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import cancelOperation from '@/api/server/files/cancelOperation.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Badge from '@/elements/Badge.tsx';
 import Button from '@/elements/Button.tsx';
+import FailedOperationProgress from '@/elements/FailedOperationProgress.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import Popover from '@/elements/Popover.tsx';
 import Progress from '@/elements/Progress.tsx';
@@ -22,34 +23,6 @@ import { useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 import { FAILED_OPERATION_LINGER_MS } from '@/stores/slices/server/files.ts';
-
-function FailedOperationProgress({ failedAt }: { failedAt: number }) {
-  const [remaining] = useState(() => Math.max(0, FAILED_OPERATION_LINGER_MS - (Date.now() - failedAt)));
-  const [drained, setDrained] = useState(false);
-
-  useEffect(() => {
-    let inner: number;
-    const frame = requestAnimationFrame(() => {
-      inner = requestAnimationFrame(() => setDrained(true));
-    });
-
-    return () => {
-      cancelAnimationFrame(frame);
-      cancelAnimationFrame(inner);
-    };
-  }, []);
-
-  return (
-    <Progress
-      value={drained ? 0 : (remaining / FAILED_OPERATION_LINGER_MS) * 100}
-      color='red'
-      hourglass={false}
-      withLabel={false}
-      transitionDuration={remaining}
-      styles={{ section: { transitionTimingFunction: 'linear' } }}
-    />
-  );
-}
 
 function FileOperationsProgress() {
   const { t, tItem } = useTranslations();
@@ -128,11 +101,7 @@ function FileOperationsProgress() {
   const hasOperations = fileOperations.size > 0 || uploadingFiles.size > 0;
   const hasErrors = hasUploadErrors || failedFileOperations.size > 0;
 
-  const averageOperationProgress = useMemo(() => {
-    if (fileOperations.size === 0 && uploadingFiles.size === 0) {
-      return 0;
-    }
-
+  const { averageOperationProgress, indeterminate } = useMemo(() => {
     let totalProgress = 0;
     let totalSize = 0;
 
@@ -147,7 +116,10 @@ function FileOperationsProgress() {
       totalSize += file.size;
     });
 
-    return totalSize > 0 ? (totalProgress / totalSize) * 100 : 0;
+    return {
+      averageOperationProgress: totalSize > 0 ? (totalProgress / totalSize) * 100 : 0,
+      indeterminate: totalSize === 0 && (fileOperations.size > 0 || uploadingFiles.size > 0),
+    };
   }, [fileOperations, uploadingFiles]);
 
   if (!hasOperations) return null;
@@ -158,6 +130,7 @@ function FileOperationsProgress() {
         <UnstyledButton>
           <RingProgress
             size={50}
+            indeterminate={indeterminate}
             sections={[
               {
                 value: averageOperationProgress,
@@ -173,7 +146,7 @@ function FileOperationsProgress() {
                 ta='center'
                 size='xs'
               >
-                {averageOperationProgress.toFixed(0)}%
+                {indeterminate ? fileOperations.size + uploadingFiles.size : `${averageOperationProgress.toFixed(0)}%`}
               </Text>
             }
           />
@@ -428,7 +401,7 @@ function FileOperationsProgress() {
                     <Progress indeterminate={!operation.bytesTotal} value={progress} />
                   </Tooltip>
                 ) : (
-                  <FailedOperationProgress failedAt={failedAt} />
+                  <FailedOperationProgress failedAt={failedAt} lingerMs={FAILED_OPERATION_LINGER_MS} />
                 )}
               </div>
               {(failedAt !== undefined || canUpdate) && (

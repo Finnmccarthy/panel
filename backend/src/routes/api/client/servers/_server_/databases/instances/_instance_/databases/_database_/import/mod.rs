@@ -1,6 +1,8 @@
 use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
+mod remote;
+
 mod post {
     use crate::routes::api::client::servers::_server_::databases::instances::_instance_::GetServerDatabaseInstance;
     use axum::{
@@ -18,6 +20,7 @@ mod post {
 
     #[derive(ToSchema, Deserialize)]
     pub struct Params {
+        source_db: Option<compact_str::CompactString>,
         #[serde(default)]
         wipe: bool,
     }
@@ -29,6 +32,8 @@ mod post {
         (status = OK, body = inline(Response)),
         (status = UNAUTHORIZED, body = ApiError),
         (status = NOT_FOUND, body = ApiError),
+        (status = BAD_REQUEST, body = ApiError),
+        (status = CONFLICT, body = ApiError),
     ), params(
         (
             "server" = uuid::Uuid,
@@ -44,6 +49,10 @@ mod post {
             "database" = uuid::Uuid,
             description = "The database ID",
             example = "123e4567-e89b-12d3-a456-426614174000",
+        ),
+        (
+            "source_db" = Option<String>, Query,
+            description = "The database the dump was taken from, required for mongodb",
         ),
         (
             "wipe" = bool, Query,
@@ -84,11 +93,12 @@ mod post {
             body.into_data_stream().map_err(std::io::Error::other),
         );
 
-        if let Err(err) = client
+        match client
             .post_instances_instance_import(
                 database_instance.uuid,
                 db_agent_api::client::AsyncRequestReader::new(body_reader),
                 &db_agent_api::instances_instance_import::post::Query {
+                    source_db: params.source_db.clone(),
                     db: Some(db),
                     wipe: Some(params.wipe),
                     ..Default::default()
@@ -96,13 +106,23 @@ mod post {
             )
             .await
         {
-            if let db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err) = err {
+            Ok(_) => {}
+            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
                 return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
                     .with_status(StatusCode::NOT_FOUND)
                     .ok();
             }
-
-            return Err(err.into());
+            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
+                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                    .with_status(StatusCode::BAD_REQUEST)
+                    .ok();
+            }
+            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
+                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                    .with_status(StatusCode::CONFLICT)
+                    .ok();
+            }
+            Err(err) => return Err(err.into()),
         }
 
         activity_logger
@@ -112,6 +132,7 @@ mod post {
                     "uuid": database_instance.uuid,
                     "name": database_instance.name,
                     "database_uuid": database,
+                    "source_db": params.source_db,
                     "wipe": params.wipe,
                 }),
             )
@@ -124,5 +145,6 @@ mod post {
 pub fn router(state: &State) -> OpenApiRouter<State> {
     OpenApiRouter::new()
         .routes(routes!(post::route))
+        .nest("/remote", remote::router(state))
         .with_state(state.clone())
 }

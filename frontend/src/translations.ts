@@ -4715,6 +4715,7 @@ const baseTranslations = defineTranslations({
               button: {
                 export: 'Export',
                 import: 'Import',
+                remoteImport: 'Import from Remote',
               },
               modal: {
                 createDatabase: {
@@ -4736,7 +4737,20 @@ const baseTranslations = defineTranslations({
                   content: 'Upload a dump to import into this database. Large imports may take a while to complete.',
                   form: {
                     file: 'Dump File',
+                    sourceDb: 'Source Database',
+                    sourceDbDescription: 'The name this database had when the dump was taken.',
                     wipe: 'Wipe existing data before importing',
+                  },
+                },
+                remoteImportDatabase: {
+                  title: 'Import Database from Remote',
+                  content:
+                    'Dumps another database server and imports the result into **{database}**. The connection string is only used to take the dump, it is never stored.',
+                  form: {
+                    url: 'Connection String',
+                    urlDescription: 'Private and link-local addresses may be blocked by the database agent.',
+                    sourceDb: 'Source Database',
+                    sourceDbDescription: 'Overrides the database named in the connection string.',
                   },
                 },
                 recreateDatabase: {
@@ -4754,6 +4768,7 @@ const baseTranslations = defineTranslations({
                 created: 'Database created.',
                 deleted: 'Database deleted.',
                 imported: 'Database import completed.',
+                remoteImportStarted: 'Remote import started.',
                 passwordRotated: 'Password has been rotated.',
                 recreated: 'Database recreated.',
               },
@@ -4796,6 +4811,25 @@ const baseTranslations = defineTranslations({
                 forceKill: {
                   title: 'Forcibly Kill Database',
                   content: 'Forcibly killing a database can lead to data corruption.',
+                },
+              },
+            },
+            message: {
+              databaseMarkedAs: 'Database marked as {state}...',
+              pulling: 'Pulling',
+              extracting: 'Extracting',
+            },
+            operations: {
+              remoteImport: 'Importing {database} from {source}',
+              cancelAllOperations: 'Cancel all operations',
+            },
+            toast: {
+              operationCancelled: 'Operation cancelled',
+              allOperationsCancelled: 'All operations have been cancelled.',
+              operations: {
+                remoteImport: {
+                  completed: 'Imported `{database}` from `{source}` in {time}.',
+                  failed: 'Failed to import `{database}` from `{source}`:\n{error}',
                 },
               },
             },
@@ -4844,6 +4878,19 @@ const baseTranslations = defineTranslations({
                 title: 'Export Instance',
                 content:
                   'Download a dump of this managed database instance. Large instances may take a while to prepare.',
+              },
+              importInstance: {
+                title: 'Import Instance',
+                content:
+                  'Upload a dump to import into this managed database instance. Large imports may take a while to complete.',
+                form: {
+                  wipe: 'Wipe all existing data before importing',
+                },
+              },
+              cancelAllOperations: {
+                title: 'Cancel All Operations',
+                content:
+                  'Are you sure you want to cancel all running database operations? Their progress will be lost.',
               },
             },
           },

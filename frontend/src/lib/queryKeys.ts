@@ -183,8 +183,6 @@ const server = (serverUuid: string) => ({
       databaseSize: (instanceUuid: string, databaseUuid: string) =>
         ['server', serverUuid, 'databases', 'instances', instanceUuid, 'databases', databaseUuid, 'size'] as const,
       users: (instanceUuid: string) => ['server', serverUuid, 'databases', 'instances', instanceUuid, 'users'] as const,
-      logs: (instanceUuid: string, lines: number) =>
-        ['server', serverUuid, 'databases', 'instances', instanceUuid, 'logs', lines] as const,
     },
   },
   files: {

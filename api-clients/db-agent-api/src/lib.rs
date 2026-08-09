@@ -67,6 +67,15 @@ nestify::nest! {
     }
 }
 
+nestify::nest! {
+    #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct ApiOperation {
+        #[schema(inline)]
+        pub uuid: uuid::Uuid,
+        #[schema(inline)]
+        pub operation: DatabaseOperation,
+    }
+}
+
 #[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy)]
 pub enum AppContainerType {
     #[serde(rename = "official")]
@@ -100,6 +109,11 @@ pub enum ContainerState {
     Running,
 }
 
+nestify::nest! {
+    #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct DatabaseOperation {
+    }
+}
+
 #[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy)]
 pub enum DatabaseAgentType {
     #[serde(rename = "postgres")]
@@ -110,15 +124,6 @@ pub enum DatabaseAgentType {
     Mongodb,
     #[serde(rename = "redis")]
     Redis,
-}
-
-nestify::nest! {
-    #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct DockerRegistry {
-        #[schema(inline)]
-        pub username: compact_str::CompactString,
-        #[schema(inline)]
-        pub password: compact_str::CompactString,
-    }
 }
 
 #[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy)]
@@ -308,6 +313,8 @@ nestify::nest! {
     #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Tls {
         #[schema(inline)]
         pub enabled: bool,
+        #[schema(inline)]
+        pub ktls_enabled: bool,
         #[schema(inline)]
         pub cert: compact_str::CompactString,
         #[schema(inline)]
@@ -619,11 +626,49 @@ pub mod instances_instance_import {
         #[derive(Debug, Clone, Default)]
         #[allow(clippy::manual_non_exhaustive)]
         pub struct Query {
+            pub source_db: Option<compact_str::CompactString>,
             pub db: Option<compact_str::CompactString>,
             pub wipe: Option<bool>,
             #[doc(hidden)]
             pub __priv: (),
         }
+    }
+}
+pub mod instances_instance_import_remote {
+    use super::*;
+
+    pub mod post {
+        use super::*;
+
+        nestify::nest! {
+            #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct RequestBody {
+                #[schema(inline)]
+                pub url: compact_str::CompactString,
+                #[schema(inline)]
+                pub source_db: Option<compact_str::CompactString>,
+                #[schema(inline)]
+                pub db: Option<compact_str::CompactString>,
+                #[schema(inline)]
+                pub wipe: bool,
+            }
+        }
+
+        nestify::nest! {
+            #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response200 {
+                #[schema(inline)]
+                pub operation: uuid::Uuid,
+            }
+        }
+
+        pub type Response400 = ApiError;
+
+        pub type Response404 = ApiError;
+
+        pub type Response409 = ApiError;
+
+        pub type Response417 = ApiError;
+
+        pub type Response = Response200;
     }
 }
 pub mod instances_instance_logs {
@@ -645,6 +690,40 @@ pub mod instances_instance_logs {
             #[doc(hidden)]
             pub __priv: (),
         }
+    }
+}
+pub mod instances_instance_operations {
+    use super::*;
+
+    pub mod get {
+        use super::*;
+
+        nestify::nest! {
+            #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response200 {
+                #[schema(inline)]
+                pub operations: Vec<ApiOperation>,
+            }
+        }
+
+        pub type Response404 = ApiError;
+
+        pub type Response = Response200;
+    }
+}
+pub mod instances_instance_operations_operation {
+    use super::*;
+
+    pub mod delete {
+        use super::*;
+
+        nestify::nest! {
+            #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response200 {
+            }
+        }
+
+        pub type Response404 = ApiError;
+
+        pub type Response = Response200;
     }
 }
 pub mod instances_instance_power {
@@ -877,11 +956,11 @@ pub mod system_config {
                 #[schema(inline)]
                 pub log_dir: compact_str::CompactString,
                 #[schema(inline)]
-                pub ignore_config_updates: bool,
-                #[schema(inline)]
                 pub disk_check_interval: u64,
                 #[schema(inline)]
                 pub disk_check_concurrency: u64,
+                #[schema(inline)]
+                pub websocket_log_count: u64,
                 #[schema(inline)]
                 pub postgres: #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response200Postgres {
                     #[schema(inline)]
@@ -935,15 +1014,23 @@ pub mod system_config {
                     #[schema(inline)]
                     pub socket: compact_str::CompactString,
                     #[schema(inline)]
-                    pub registries: IndexMap<compact_str::CompactString, DockerRegistry>,
+                    pub registries: IndexMap<compact_str::CompactString, serde_json::Value>,
                     #[schema(inline)]
                     pub tmpfs_size: u64,
                     #[schema(inline)]
-                    pub container_pid_limit: i64,
+                    pub container_pid_limit: u64,
                     #[schema(inline)]
                     pub timezone: compact_str::CompactString,
                     #[schema(inline)]
                     pub userns_mode: compact_str::CompactString,
+                    #[schema(inline)]
+                    pub registry_image_fetch_cache: #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response200DockerRegistryImageFetchCache {
+                        #[schema(inline)]
+                        pub enabled: bool,
+                        #[schema(inline)]
+                        pub duration: u64,
+                    },
+
                     #[schema(inline)]
                     pub rootless: #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response200DockerRootless {
                         #[schema(inline)]
@@ -965,17 +1052,23 @@ pub mod system_config {
                     #[schema(inline)]
                     pub bind: compact_str::CompactString,
                     #[schema(inline)]
+                    pub tls: Tls,
+                    #[schema(inline)]
                     pub token: compact_str::CompactString,
                     #[schema(inline)]
                     pub disable_openapi_docs: bool,
                     #[schema(inline)]
-                    pub ignore_upgrades: bool,
+                    pub disable_remote_import: bool,
                     #[schema(inline)]
-                    pub tls: Tls,
+                    pub remote_import_blocked_cidrs: Vec<compact_str::CompactString>,
                     #[schema(inline)]
                     pub trusted_proxies: Vec<compact_str::CompactString>,
                 },
 
+                #[schema(inline)]
+                pub ignore_config_updates: bool,
+                #[schema(inline)]
+                pub ignore_upgrades: bool,
             }
         }
 

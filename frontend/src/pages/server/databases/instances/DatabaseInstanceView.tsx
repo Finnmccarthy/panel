@@ -5,17 +5,17 @@ import {
   faFileLines,
   faPencil,
   faTrash,
+  faUpload,
   faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { z } from 'zod';
-import { httpErrorToHuman } from '@/api/axios.ts';
+import { useShallow } from 'zustand/react/shallow';
 import getDatabaseInstance from '@/api/server/databases/instances/getDatabaseInstance.ts';
-import postDatabaseInstancePower, {
-  DatabaseInstancePowerAction,
-} from '@/api/server/databases/instances/postDatabaseInstancePower.ts';
+import { DatabaseInstancePowerAction } from '@/api/server/databases/instances/postDatabaseInstancePower.ts';
 import Badge from '@/elements/Badge.tsx';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
@@ -26,36 +26,95 @@ import ResourceView from '@/elements/ResourceView.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Tabs from '@/elements/Tabs.tsx';
 import Title from '@/elements/Title.tsx';
+import { safeParseFromApi } from '@/lib/api-transform.ts';
 import { databaseAgentTypeLabelMapping } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import { serverDatabaseInstanceResourceUsageSchema } from '@/lib/schemas/server/databaseInstances.ts';
-import { transformKeysToCamelCase } from '@/lib/transformers.ts';
+import {
+  serverDatabaseInstanceImagePullProgressSchema,
+  serverDatabaseInstanceOperationSchema,
+  serverDatabaseInstancePowerStateSchema,
+  serverDatabaseInstanceResourceUsageSchema,
+  serverDatabaseInstanceWebsocketMessageSchema,
+} from '@/lib/schemas/server/databaseInstances.ts';
+import { formatMilliseconds } from '@/lib/time.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useResource } from '@/plugins/useResource.ts';
+import { useWebsocket } from '@/plugins/useWebsocket.ts';
+import { SocketEvent, SocketRequest } from '@/plugins/useWebsocketEvent.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { useServerStore } from '@/stores/server.ts';
+import { useGlobalStore } from '@/stores/global.ts';
+import { useServerStore, useServerStoreApi } from '@/stores/server.ts';
 import DatabaseInstanceDatabases from './DatabaseInstanceDatabases.tsx';
 import DatabaseInstanceDetails from './DatabaseInstanceDetails.tsx';
 import DatabaseInstanceLogs from './DatabaseInstanceLogs.tsx';
+import DatabaseInstanceOperations from './DatabaseInstanceOperations.tsx';
 import DatabaseInstanceStats from './DatabaseInstanceStats.tsx';
 import DatabaseInstanceUsers from './DatabaseInstanceUsers.tsx';
 import DatabaseInstanceApplyUpdateModal from './modals/DatabaseInstanceApplyUpdateModal.tsx';
 import DatabaseInstanceDeleteModal from './modals/DatabaseInstanceDeleteModal.tsx';
 import DatabaseInstanceEditModal from './modals/DatabaseInstanceEditModal.tsx';
 import DatabaseInstanceExportModal from './modals/DatabaseInstanceExportModal.tsx';
+import DatabaseInstanceImportModal from './modals/DatabaseInstanceImportModal.tsx';
+
+function withPrelude(prelude: string, message: string) {
+  return `\x1b[1m\x1b[33m${prelude} \x1b[0m${message}`;
+}
+
+function parseJson(value: string | undefined): unknown {
+  try {
+    return JSON.parse(value ?? '');
+  } catch {
+    return null;
+  }
+}
 
 export default function DatabaseInstanceView() {
   const params = useParams<'id'>();
   const { t } = useTranslations();
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const serverStoreApi = useServerStoreApi();
   const server = useServerStore((state) => state.server);
+  const settings = useGlobalStore((state) => state.settings);
+  const powerState = useServerStore((state) => state.databaseInstanceUsage?.state);
+  const powerAction = useServerStore((state) => state.databaseInstancePowerAction);
+  const {
+    setDatabaseInstance,
+    clearDatabaseInstance,
+    setDatabaseInstanceUsage,
+    setDatabaseInstanceState,
+    setDatabaseInstancePowerAction,
+    addDatabaseInstanceLog,
+    clearDatabaseInstanceLogs,
+    setDatabaseInstanceImagePull,
+    removeDatabaseInstanceImagePull,
+    setDatabaseInstanceOperation,
+    failDatabaseInstanceOperation,
+    removeDatabaseInstanceOperation,
+    resetDatabaseInstanceLiveState,
+  } = useServerStore(
+    useShallow((state) => ({
+      setDatabaseInstance: state.setDatabaseInstance,
+      clearDatabaseInstance: state.clearDatabaseInstance,
+      setDatabaseInstanceUsage: state.setDatabaseInstanceUsage,
+      setDatabaseInstanceState: state.setDatabaseInstanceState,
+      setDatabaseInstancePowerAction: state.setDatabaseInstancePowerAction,
+      addDatabaseInstanceLog: state.addDatabaseInstanceLog,
+      clearDatabaseInstanceLogs: state.clearDatabaseInstanceLogs,
+      setDatabaseInstanceImagePull: state.setDatabaseInstanceImagePull,
+      removeDatabaseInstanceImagePull: state.removeDatabaseInstanceImagePull,
+      setDatabaseInstanceOperation: state.setDatabaseInstanceOperation,
+      failDatabaseInstanceOperation: state.failDatabaseInstanceOperation,
+      removeDatabaseInstanceOperation: state.removeDatabaseInstanceOperation,
+      resetDatabaseInstanceLiveState: state.resetDatabaseInstanceLiveState,
+    })),
+  );
 
-  const [openModal, setOpenModal] = useState<'edit' | 'applyUpdate' | 'delete' | 'kill' | 'export' | null>(null);
-  const [usage, setUsage] = useState<z.infer<typeof serverDatabaseInstanceResourceUsageSchema> | null>(null);
-  const [powerLoading, setPowerLoading] = useState<DatabaseInstancePowerAction | null>(null);
-  const [connected, setConnected] = useState(false);
+  const [openModal, setOpenModal] = useState<'edit' | 'applyUpdate' | 'delete' | 'kill' | 'export' | 'import' | null>(
+    null,
+  );
   const canSeeDatabaseInstanceDatabases = useServerCan('database-instances.databases');
   const canSeeDatabaseInstanceUsers = useServerCan('database-instances.users');
   const canSeeLogs = useServerCan('database-instances.logs');
@@ -67,98 +126,166 @@ export default function DatabaseInstanceView() {
   });
 
   useEffect(() => {
-    let socketRef: WebSocket | null = null;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-    let destroyed = false;
+    if (resource.data) {
+      setDatabaseInstance(resource.data);
+    }
+  }, [resource.data, setDatabaseInstance]);
 
-    const connect = () => {
-      if (destroyed) {
-        return;
-      }
+  useEffect(() => () => clearDatabaseInstance(), [clearDatabaseInstance]);
 
-      const url = new URL(
-        `/api/client/servers/${server.uuid}/databases/instances/${params.id}/resources/ws`,
-        window.location.origin,
-      );
-      url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+  const onMessage = useCallback(
+    (message: z.infer<typeof serverDatabaseInstanceWebsocketMessageSchema>) => {
+      const [first, second] = message.args;
 
-      const socket = new WebSocket(url);
-      socketRef = socket;
-
-      socket.onopen = () => {
-        if (destroyed || socket !== socketRef) {
-          return;
-        }
-
-        setConnected(true);
-      };
-
-      socket.onmessage = (event) => {
-        if (destroyed || socket !== socketRef) {
-          return;
-        }
-
-        try {
-          const data = serverDatabaseInstanceResourceUsageSchema.safeParse(
-            transformKeysToCamelCase(JSON.parse(event.data)),
-          );
-          if (data.success) {
-            setUsage(data.data);
+      switch (message.event) {
+        case SocketEvent.STATS: {
+          const usage = safeParseFromApi(serverDatabaseInstanceResourceUsageSchema, parseJson(first));
+          if (usage.success) {
+            setDatabaseInstanceUsage(usage.data);
           }
-        } catch {
-          // ignore
+          break;
         }
-      };
+        case SocketEvent.STATUS: {
+          const state = serverDatabaseInstancePowerStateSchema.safeParse(first);
+          if (state.success) {
+            const statusMapping: Record<z.infer<typeof serverDatabaseInstancePowerStateSchema>, string> = {
+              offline: t('common.enum.serverState.offline', {}),
+              running: t('common.enum.serverState.running', {}),
+              starting: t('common.enum.serverState.starting', {}),
+              stopping: t('common.enum.serverState.stopping', {}),
+            };
 
-      socket.onclose = (e) => {
-        if (destroyed || socket !== socketRef) {
-          return;
+            setDatabaseInstanceState(state.data);
+            addDatabaseInstanceLog(
+              withPrelude(
+                settings.server.containerPrelude,
+                t('pages.server.databases.instance.message.databaseMarkedAs', { state: statusMapping[state.data] }),
+              ),
+            );
+          }
+          break;
         }
-
-        socketRef = null;
-        setConnected(false);
-        setUsage(null);
-
-        if (e.wasClean) {
-          return;
+        case SocketEvent.CONSOLE_OUTPUT:
+          addDatabaseInstanceLog(first);
+          break;
+        case SocketEvent.DAEMON_MESSAGE:
+          addDatabaseInstanceLog(withPrelude(settings.server.containerPrelude, first));
+          break;
+        case SocketEvent.IMAGE_PULL_PROGRESS: {
+          const progress = safeParseFromApi(serverDatabaseInstanceImagePullProgressSchema, parseJson(second));
+          if (progress.success) {
+            setDatabaseInstanceImagePull(first, progress.data);
+          }
+          break;
         }
+        case SocketEvent.IMAGE_PULL_COMPLETED:
+          removeDatabaseInstanceImagePull(first);
+          break;
+        case SocketEvent.OPERATION_PROGRESS: {
+          const operation = safeParseFromApi(serverDatabaseInstanceOperationSchema, parseJson(second));
+          if (operation.success) {
+            setDatabaseInstanceOperation(first, operation.data);
+          }
+          break;
+        }
+        case SocketEvent.OPERATION_COMPLETED: {
+          const { databaseInstance, databaseInstanceOperations } = serverStoreApi.getState();
+          const operation = databaseInstanceOperations.get(first);
+          if (!operation) break;
 
-        reconnectTimer = setTimeout(() => {
-          reconnectTimer = null;
-          connect();
-        }, 5000);
-      };
-    };
+          switch (operation.type) {
+            case 'remote_import':
+              addToast(
+                t('pages.server.databases.instance.toast.operations.remoteImport.completed', {
+                  database: operation.db ?? databaseInstance?.name ?? '',
+                  source: operation.sourceDb ? `${operation.sourceHost}/${operation.sourceDb}` : operation.sourceHost,
+                  time: formatMilliseconds(Math.max(0, Date.now() - operation.startTime.getTime()), false),
+                }).md(),
+                'success',
+              );
+              break;
+          }
 
-    connect();
+          if (databaseInstance) {
+            queryClient
+              .invalidateQueries({
+                queryKey: queryKeys.server(server.uuid).databases.instances.databases(databaseInstance.uuid),
+              })
+              .catch(console.error);
+          }
 
-    return () => {
-      destroyed = true;
-      if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
+          removeDatabaseInstanceOperation(first);
+          break;
+        }
+        case SocketEvent.OPERATION_ERROR: {
+          const { databaseInstance, databaseInstanceOperations } = serverStoreApi.getState();
+          const operation = databaseInstanceOperations.get(first);
+          if (!operation) break;
+
+          switch (operation.type) {
+            case 'remote_import':
+              addToast(
+                t('pages.server.databases.instance.toast.operations.remoteImport.failed', {
+                  database: operation.db ?? databaseInstance?.name ?? '',
+                  source: operation.sourceDb ? `${operation.sourceHost}/${operation.sourceDb}` : operation.sourceHost,
+                  error: second,
+                }).md(),
+                'error',
+              );
+              break;
+          }
+
+          failDatabaseInstanceOperation(first);
+          break;
+        }
+        case SocketEvent.DAEMON_ERROR:
+          setDatabaseInstancePowerAction(null);
+          addToast(first, 'error');
+          break;
       }
-      socketRef?.close();
-      socketRef = null;
-    };
-  }, [server.uuid, params.id]);
+    },
+    [
+      addDatabaseInstanceLog,
+      addToast,
+      failDatabaseInstanceOperation,
+      queryClient,
+      removeDatabaseInstanceImagePull,
+      removeDatabaseInstanceOperation,
+      server.uuid,
+      serverStoreApi,
+      setDatabaseInstanceImagePull,
+      setDatabaseInstanceOperation,
+      setDatabaseInstancePowerAction,
+      setDatabaseInstanceState,
+      setDatabaseInstanceUsage,
+      settings.server.containerPrelude,
+      t,
+    ],
+  );
 
-  useEffect(() => {
-    setPowerLoading(null);
-  }, [usage?.state]);
+  const { connected, send } = useWebsocket({
+    path: `/api/client/servers/${server.uuid}/databases/instances/${params.id}/ws`,
+    schema: serverDatabaseInstanceWebsocketMessageSchema,
+    enabled: !!params.id,
+    reconnectDelay: 5000,
+    onMessage,
+    onOpen: () => {
+      clearDatabaseInstanceLogs();
+      send(JSON.stringify({ event: SocketRequest.SEND_STATS, args: [] }));
+      send(JSON.stringify({ event: SocketRequest.SEND_STATUS, args: [] }));
+      send(JSON.stringify({ event: SocketRequest.SEND_LOGS, args: [] }));
+    },
+    onClose: () => resetDatabaseInstanceLiveState(),
+  });
 
   const onPowerAction = (action: DatabaseInstancePowerAction) => {
     setOpenModal(null);
-    setPowerLoading(action);
+    setDatabaseInstancePowerAction(action);
 
-    postDatabaseInstancePower(server.uuid, params.id!, action)
-      .then(() => addToast(t(`pages.server.databases.instance.power.toast.${action}`, {}), 'success'))
-      .catch((msg) => {
-        addToast(httpErrorToHuman(msg), 'error');
-        setPowerLoading(null);
-      });
+    send(JSON.stringify({ event: SocketRequest.SET_STATE, args: [action] }));
   };
 
-  const killable = usage?.state === 'stopping';
+  const killable = powerState === 'stopping';
 
   return (
     <ResourceView resource={resource}>
@@ -166,7 +293,7 @@ export default function DatabaseInstanceView() {
         const showDatabasesTab = canSeeDatabaseInstanceDatabases && instance.type !== 'redis';
         const showUsersTab = canSeeDatabaseInstanceUsers;
         const anyTab = showDatabasesTab || showUsersTab || canSeeLogs;
-        const offline = !usage || usage.state === 'offline';
+        const offline = !powerState || powerState === 'offline';
 
         return (
           <ServerContentContainer title={t('pages.server.databases.instance.title', {})} hideTitleComponent>
@@ -196,11 +323,18 @@ export default function DatabaseInstanceView() {
               onDeleted={() => navigate(`/server/${server.uuidShort}/databases`)}
             />
             {instance.type === 'redis' && (
-              <DatabaseInstanceExportModal
-                instance={instance}
-                opened={openModal === 'export'}
-                onClose={() => setOpenModal(null)}
-              />
+              <>
+                <DatabaseInstanceExportModal
+                  instance={instance}
+                  opened={openModal === 'export'}
+                  onClose={() => setOpenModal(null)}
+                />
+                <DatabaseInstanceImportModal
+                  instance={instance}
+                  opened={openModal === 'import'}
+                  onClose={() => setOpenModal(null)}
+                />
+              </>
             )}
 
             <Stack gap='lg'>
@@ -223,27 +357,28 @@ export default function DatabaseInstanceView() {
                 </Group>
 
                 <Group>
+                  <DatabaseInstanceOperations />
                   <ServerCan action='database-instances.power'>
                     <Button
                       color='green'
-                      disabled={!connected || usage?.state !== 'offline' || powerLoading !== null}
-                      loading={usage?.state === 'starting' || powerLoading === 'start'}
+                      disabled={!connected || powerState !== 'offline' || powerAction !== null}
+                      loading={powerState === 'starting' || powerAction === 'start'}
                       onClick={() => onPowerAction('start')}
                     >
                       {t('common.enum.serverPowerAction.start', {})}
                     </Button>
                     <Button
                       color='gray'
-                      disabled={!connected || !usage || powerLoading !== null}
-                      loading={powerLoading === 'restart'}
+                      disabled={!connected || !powerState || powerAction !== null}
+                      loading={powerAction === 'restart'}
                       onClick={() => onPowerAction('restart')}
                     >
                       {t('common.enum.serverPowerAction.restart', {})}
                     </Button>
                     <Button
                       color='red'
-                      disabled={!connected || !usage || usage.state === 'offline' || powerLoading !== null}
-                      loading={powerLoading === 'stop'}
+                      disabled={!connected || !powerState || powerState === 'offline' || powerAction !== null}
+                      loading={powerAction === 'stop'}
                       onClick={() => (killable ? setOpenModal('kill') : onPowerAction('stop'))}
                     >
                       {killable
@@ -252,16 +387,28 @@ export default function DatabaseInstanceView() {
                     </Button>
                   </ServerCan>
                   {instance.type === 'redis' && (
-                    <ServerCan action='database-instances.export'>
-                      <Button
-                        onClick={() => setOpenModal('export')}
-                        color='gray'
-                        disabled={offline}
-                        leftSection={<FontAwesomeIcon icon={faDownload} />}
-                      >
-                        {t('pages.server.databases.instance.databases.button.export', {})}
-                      </Button>
-                    </ServerCan>
+                    <>
+                      <ServerCan action='database-instances.export'>
+                        <Button
+                          onClick={() => setOpenModal('export')}
+                          color='gray'
+                          disabled={offline}
+                          leftSection={<FontAwesomeIcon icon={faDownload} />}
+                        >
+                          {t('pages.server.databases.instance.databases.button.export', {})}
+                        </Button>
+                      </ServerCan>
+                      <ServerCan action='database-instances.import'>
+                        <Button
+                          onClick={() => setOpenModal('import')}
+                          color='gray'
+                          disabled={offline}
+                          leftSection={<FontAwesomeIcon icon={faUpload} />}
+                        >
+                          {t('pages.server.databases.instance.databases.button.import', {})}
+                        </Button>
+                      </ServerCan>
+                    </>
                   )}
                   {instance.updateAvailable && (
                     <ServerCan action='database-instances.apply-update'>
@@ -299,11 +446,11 @@ export default function DatabaseInstanceView() {
 
               <div className='grid xl:grid-cols-4 gap-4'>
                 <div className='xl:col-span-3 flex flex-col h-[60vh] xl:h-auto'>
-                  <DatabaseInstanceStats instance={instance} usage={usage} />
+                  <DatabaseInstanceStats instance={instance} />
                 </div>
 
                 <div className='flex flex-col'>
-                  <DatabaseInstanceDetails instance={instance} usage={usage} />
+                  <DatabaseInstanceDetails instance={instance} />
                 </div>
               </div>
 
@@ -342,7 +489,7 @@ export default function DatabaseInstanceView() {
                   )}
                   {canSeeLogs && (
                     <Tabs.Panel value='logs' pt='xs'>
-                      <DatabaseInstanceLogs instance={instance} />
+                      <DatabaseInstanceLogs />
                     </Tabs.Panel>
                   )}
                 </Tabs>

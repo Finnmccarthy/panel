@@ -30,6 +30,7 @@ import Spinner from '@/elements/Spinner.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { handleRawCopyToClipboard } from '@/lib/copy.ts';
 import { eventKeyMatches } from '@/lib/shortcuts.ts';
+import { getXtermTheme } from '@/lib/xterm.ts';
 import { matchesShortcut, useKeyboardShortcut } from '@/plugins/useKeyboardShortcuts.ts';
 import { SocketEvent, SocketRequest } from '@/plugins/useWebsocketEvent.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -41,7 +42,7 @@ import FeatureProvider from './features/FeatureProvider.tsx';
 import SshDetailsModal from './modals/SshDetailsModal.tsx';
 
 import '@xterm/xterm/css/xterm.css';
-import './xterm.css';
+import '@/lib/xterm.css';
 
 const commandSnippetFilter: OptionsFilter = ({ options, search }) => {
   if (!search.startsWith('!')) {
@@ -67,34 +68,6 @@ function getCellHeight(term: XTerm, fallback: number): number {
 
   return core?._renderService?.dimensions?.css?.cell?.height || fallback;
 }
-
-const getXtermTheme = (isDark: boolean) => ({
-  background: isDark ? '#00000000' : '#ffffff',
-  foreground: isDark ? '#f8f8f2' : '#1a1a1a',
-  cursor: '#00000000',
-  cursorAccent: '#00000000',
-  selectionBackground: isDark ? '#FFFFFF4D' : '#0000004D',
-  selectionInactiveBackground: isDark ? '#FFFFFF80' : '#00000080',
-  // Light-mode ANSI palette
-  ...(!isDark && {
-    black: '#1c1c1c',
-    red: '#b22222',
-    green: '#005f00',
-    yellow: '#8b6800',
-    blue: '#0000cc',
-    magenta: '#7d0070',
-    cyan: '#005f5f',
-    white: '#6c6c6c',
-    brightBlack: '#505050',
-    brightRed: '#c0392b',
-    brightGreen: '#1e8449',
-    brightYellow: '#b07d00',
-    brightBlue: '#2471a3',
-    brightMagenta: '#7d3c98',
-    brightCyan: '#148f77',
-    brightWhite: '#909090',
-  }),
-});
 
 export default function Terminal() {
   const { t } = useTranslations();

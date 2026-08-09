@@ -31,6 +31,31 @@ export const serverDatabaseInstanceResourceUsageSchema = z.object({
   uptime: z.number(),
 });
 
+export const serverDatabaseInstanceImagePullProgressSchema = z.object({
+  status: z.enum(['pulling', 'extracting']),
+  bytesProcessed: z.number(),
+  bytesTotal: z.number(),
+});
+
+export const serverDatabaseInstanceWebsocketMessageSchema = z.object({
+  event: z.string(),
+  args: z.array(z.string()).default([]),
+});
+
+export const serverDatabaseInstanceOperationRemoteImportSchema = z.object({
+  type: z.literal('remote_import'),
+  sourceHost: z.string(),
+  sourceDb: z.string().nullable(),
+  db: z.string().nullable(),
+  wipe: z.boolean(),
+  startTime: z.coerce.date(),
+  bytesProcessed: z.number(),
+});
+
+export const serverDatabaseInstanceOperationSchema = z.discriminatedUnion('type', [
+  serverDatabaseInstanceOperationRemoteImportSchema,
+]);
+
 export const serverDatabaseInstanceDatabaseSchema = z.object({
   uuid: z.string(),
   name: z.string(),
@@ -76,6 +101,12 @@ export const serverDatabaseInstanceDatabaseCreateSchema = z.object({
     .min(2)
     .max(23)
     .regex(/^[a-zA-Z0-9]+$/),
+});
+
+export const serverDatabaseInstanceRemoteImportSchema = z.object({
+  url: z.url().max(2048),
+  sourceDb: z.preprocess(nullableString, z.string().nullable()),
+  wipe: z.boolean(),
 });
 
 export const serverDatabaseInstanceUserCreateSchema = z.object({

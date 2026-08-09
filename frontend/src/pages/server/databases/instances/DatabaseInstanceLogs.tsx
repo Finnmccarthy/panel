@@ -1,101 +1,119 @@
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
-import { z } from 'zod';
-import { httpErrorToHuman } from '@/api/axios.ts';
-import getDatabaseInstanceLogs from '@/api/server/databases/instances/getDatabaseInstanceLogs.ts';
-import Button from '@/elements/Button.tsx';
-import Group from '@/elements/Group.tsx';
-import NumberInput from '@/elements/input/NumberInput.tsx';
-import MonacoEditor from '@/elements/MonacoEditor.tsx';
-import Spinner from '@/elements/Spinner.tsx';
-import Stack from '@/elements/Stack.tsx';
-import Text from '@/elements/Text.tsx';
-import { stripAnsi } from '@/lib/ansi.ts';
-import { queryKeys } from '@/lib/queryKeys.ts';
-import { serverDatabaseInstanceSchema } from '@/lib/schemas/server/databaseInstances.ts';
+import { useComputedColorScheme } from '@mantine/core';
+import { FitAddon } from '@xterm/addon-fit';
+import { ITerminalInitOnlyOptions, ITerminalOptions, Terminal as XTerm } from '@xterm/xterm';
+import { useEffect, useRef } from 'react';
+import Card from '@/elements/Card.tsx';
+import Progress from '@/elements/Progress.tsx';
+import { getXtermTheme } from '@/lib/xterm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 
-export default function DatabaseInstanceLogs({ instance }: { instance: z.infer<typeof serverDatabaseInstanceSchema> }) {
+import '@xterm/xterm/css/xterm.css';
+import '@/lib/xterm.css';
+
+export default function DatabaseInstanceLogs() {
   const { t } = useTranslations();
-  const server = useServerStore((state) => state.server);
+  const computedColorScheme = useComputedColorScheme('dark');
+  const logs = useServerStore((state) => state.databaseInstanceLogs);
+  const imagePulls = useServerStore((state) => state.databaseInstanceImagePulls);
 
-  const [lines, setLines] = useState(100);
-
-  const editorRef = useRef<import('monaco-editor').editor.IStandaloneCodeEditor | null>(null);
-
-  const scrollToBottom = () => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    const lineCount = editor.getModel()?.getLineCount() ?? 0;
-    editor.revealLine(lineCount, 1);
-  };
-
-  const {
-    data: logs,
-    error,
-    isFetching,
-    refetch,
-  } = useQuery({
-    queryKey: queryKeys.server(server.uuid).databases.instances.logs(instance.uuid, lines),
-    queryFn: () => getDatabaseInstanceLogs(server.uuid, instance.uuid, lines),
-  });
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const xtermInstance = useRef<XTerm | null>(null);
+  const writtenLines = useRef(0);
 
   useEffect(() => {
-    scrollToBottom();
+    if (!terminalRef.current) return;
+
+    const initOptions: ITerminalOptions & ITerminalInitOnlyOptions = {
+      fontSize: 14,
+      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+      theme: getXtermTheme(computedColorScheme === 'dark'),
+      allowTransparency: true,
+      lineHeight: 1.2,
+      disableStdin: true,
+      convertEol: true,
+      smoothScrollDuration: 0,
+      fontWeightBold: '500',
+      rescaleOverlappingGlyphs: true,
+    };
+
+    const term = new XTerm(initOptions);
+    const fitAddon = new FitAddon();
+
+    term.loadAddon(fitAddon);
+    term.open(terminalRef.current);
+    fitAddon.fit();
+    term.write('\x1b[?25l');
+
+    xtermInstance.current = term;
+    writtenLines.current = 0;
+
+    let fitFrame: number | null = null;
+    const resizeObserver = new ResizeObserver(() => {
+      if (fitFrame !== null) return;
+      fitFrame = requestAnimationFrame(() => {
+        fitFrame = null;
+        const dimensions = fitAddon.proposeDimensions();
+        if (dimensions && (dimensions.cols !== term.cols || dimensions.rows !== term.rows)) {
+          fitAddon.fit();
+        }
+      });
+    });
+    resizeObserver.observe(terminalRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+      if (fitFrame !== null) cancelAnimationFrame(fitFrame);
+      term.dispose();
+      xtermInstance.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (xtermInstance.current) {
+      xtermInstance.current.options.theme = getXtermTheme(computedColorScheme === 'dark');
+    }
+  }, [computedColorScheme]);
+
+  useEffect(() => {
+    const term = xtermInstance.current;
+    if (!term) return;
+
+    if (logs.length < writtenLines.current) {
+      term.reset();
+      term.write('\x1b[?25l');
+      writtenLines.current = 0;
+    }
+
+    for (const line of logs.slice(writtenLines.current)) {
+      term.write(writtenLines.current === 0 ? line : '\n'.concat(line));
+      writtenLines.current++;
+    }
   }, [logs]);
 
   return (
-    <Stack>
-      <Group align='flex-end' wrap='nowrap'>
-        <NumberInput
-          label={t('common.form.lines', {})}
-          value={lines}
-          min={1}
-          max={1000}
-          onChange={(value) => setLines(Number(value) || 100)}
-          style={{ flexGrow: 1 }}
-        />
-        <Button
-          onClick={() => {
-            void refetch();
-          }}
-          loading={isFetching}
-          variant='outline'
-        >
-          {t('common.button.loadLogs', {})}
-        </Button>
-      </Group>
+    <Card className='h-[50vh] flex flex-col font-mono text-sm relative isolate p-2!'>
+      <div className='flex-1 min-h-0 relative overflow-hidden'>
+        <div ref={terminalRef} className='absolute inset-0' />
+      </div>
 
-      {isFetching && logs === undefined ? (
-        <Spinner.Centered />
-      ) : error ? (
-        <Text>{httpErrorToHuman(error)}</Text>
-      ) : (
-        <div className='rounded-md overflow-hidden'>
-          <MonacoEditor
-            height='50vh'
-            theme='vs-dark'
-            value={stripAnsi(logs ?? '')}
-            defaultLanguage='text'
-            onMount={(editor) => {
-              editorRef.current = editor;
-              scrollToBottom();
-            }}
-            options={{
-              readOnly: true,
-              stickyScroll: { enabled: false },
-              minimap: { enabled: false },
-              codeLens: false,
-              scrollBeyondLastLine: false,
-              smoothScrolling: false,
-              // @ts-expect-error this is valid
-              touchScrollEnabled: true,
-            }}
-          />
-        </div>
+      {imagePulls.size > 0 && (
+        <span className='flex flex-col justify-end mt-4'>
+          {[...imagePulls.entries()].map(([id, progress]) => (
+            <span key={id} className='flex flex-row w-full items-center whitespace-pre-wrap break-all'>
+              {progress.status === 'pulling'
+                ? t('pages.server.databases.instance.message.pulling', {})
+                : t('pages.server.databases.instance.message.extracting', {})}{' '}
+              <Progress
+                hourglass={false}
+                indeterminate={progress.bytesTotal === 0}
+                value={(progress.bytesProcessed / progress.bytesTotal) * 100}
+                className='flex-1 ml-2'
+              />
+            </span>
+          ))}
+        </span>
       )}
-    </Stack>
+    </Card>
   );
 }

@@ -317,7 +317,7 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
       advanced: true,
     },
     {
-      type: 'tags',
+      type: 'numberTags',
       name: 'pinnedCpus',
       label: t('pages.admin.servers.tabs.general.page.form.pinnedCpus', {}),
       description: t('pages.admin.servers.tabs.general.page.form.pinnedCpusDescription', {}),

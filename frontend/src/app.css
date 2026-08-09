@@ -19,6 +19,7 @@
   --color-neutral-850: oklch(25.4% 0 0);
 
   --animate-progress-indeterminate: progress-indeterminate 1.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  --animate-ring-indeterminate: ring-indeterminate 1.4s linear infinite;
   --animate-scrolling-text: scrolling-text 6s ease-in-out infinite;
 
   @keyframes progress-indeterminate {
@@ -27,6 +28,16 @@
     }
     to {
       transform: translateX(250%);
+    }
+  }
+
+  /* rotates on top of the ring svg's own start-angle transform, so it must not touch transform itself */
+  @keyframes ring-indeterminate {
+    from {
+      rotate: 0deg;
+    }
+    to {
+      rotate: 360deg;
     }
   }
 

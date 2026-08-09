@@ -1,4 +1,11 @@
-import { faDownload, faRefresh, faTrash, faUpload, faWarning } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCloudArrowDown,
+  faDownload,
+  faRefresh,
+  faTrash,
+  faUpload,
+  faWarning,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -27,6 +34,7 @@ import { useServerStore } from '@/stores/server.ts';
 import DatabaseInstanceDatabaseExportModal from './modals/DatabaseInstanceDatabaseExportModal.tsx';
 import DatabaseInstanceDatabaseImportModal from './modals/DatabaseInstanceDatabaseImportModal.tsx';
 import DatabaseInstanceDatabaseRecreateModal from './modals/DatabaseInstanceDatabaseRecreateModal.tsx';
+import DatabaseInstanceDatabaseRemoteImportModal from './modals/DatabaseInstanceDatabaseRemoteImportModal.tsx';
 
 export default function DatabaseInstanceDatabaseRow({
   instance,
@@ -44,7 +52,7 @@ export default function DatabaseInstanceDatabaseRow({
   const server = useServerStore((state) => state.server);
   const queryClient = useQueryClient();
 
-  const [openModal, setOpenModal] = useState<'export' | 'import' | 'recreate' | 'delete' | null>(null);
+  const [openModal, setOpenModal] = useState<'export' | 'import' | 'remoteImport' | 'recreate' | 'delete' | null>(null);
 
   const {
     data: size,
@@ -89,6 +97,12 @@ export default function DatabaseInstanceDatabaseRow({
         opened={openModal === 'import'}
         onClose={() => setOpenModal(null)}
       />
+      <DatabaseInstanceDatabaseRemoteImportModal
+        instance={instance}
+        database={database}
+        opened={openModal === 'remoteImport'}
+        onClose={() => setOpenModal(null)}
+      />
       <DatabaseInstanceDatabaseRecreateModal
         instance={instance}
         database={database}
@@ -123,6 +137,15 @@ export default function DatabaseInstanceDatabaseRow({
             icon: faUpload,
             label: t('pages.server.databases.instance.databases.button.import', {}),
             onClick: () => setOpenModal('import'),
+            color: 'gray',
+            canAccess: canImport,
+          },
+          {
+            type: 'action',
+            icon: faCloudArrowDown,
+            label: t('pages.server.databases.instance.databases.button.remoteImport', {}),
+            disabled: offline,
+            onClick: () => setOpenModal('remoteImport'),
             color: 'gray',
             canAccess: canImport,
           },

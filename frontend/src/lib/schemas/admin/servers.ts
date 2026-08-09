@@ -45,7 +45,7 @@ export const adminServerSchema = z.looseObject({
   name: z.string().min(1).max(255),
   description: z.preprocess(nullableString, z.string().max(1024).nullable()),
   limits: z.lazy(() => adminServerLimitsSchema),
-  pinnedCpus: z.array(z.number()),
+  pinnedCpus: z.array(z.number().int().min(0)),
   featureLimits: z.lazy(() => adminServerFeatureLimitsSchema),
   startup: z.string().min(1).max(8192),
   image: z.string().min(2).max(255),

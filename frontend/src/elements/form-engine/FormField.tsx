@@ -211,7 +211,7 @@ export function FormField<T extends Record<string, unknown>>({ form, field }: Pr
       );
 
     case 'tags': {
-      const { value, onChange } = f.getInputProps(field.name);
+      const { value, defaultValue, onChange, error } = f.getInputProps(field.name);
       return (
         <div className={colSpanClass}>
           <TagsInput
@@ -221,9 +221,34 @@ export function FormField<T extends Record<string, unknown>>({ form, field }: Pr
             allowReordering={field.allowReordering}
             placeholder={resolveString(field.placeholder)}
             allowDuplicates={field.allowDuplicates}
-            value={value as string[]}
+            value={(value ?? defaultValue) as string[]}
             onChange={onChange as (tags: string[]) => void}
+            error={error as ReactNode}
             key={f.key(field.name)}
+          />
+        </div>
+      );
+    }
+
+    case 'numberTags': {
+      const rawValue = getByPath(f.getValues(), field.name);
+      const { min = 0, max } = field;
+      return (
+        <div className={colSpanClass}>
+          <TagsInput
+            label={fieldLabel(field)}
+            description={resolveString(field.description)}
+            withAsterisk={field.required}
+            allowReordering={field.allowReordering}
+            placeholder={resolveString(field.placeholder)}
+            value={Array.isArray(rawValue) ? rawValue.map(String) : []}
+            onChange={(tags) => {
+              const numbers = tags
+                .map(Number)
+                .filter((n) => Number.isInteger(n) && n >= min && (max === undefined || n <= max));
+              (f.setFieldValue as (n: string, v: unknown) => void)(field.name, Array.from(new Set(numbers)));
+            }}
+            error={f.errors[field.name] as ReactNode}
           />
         </div>
       );

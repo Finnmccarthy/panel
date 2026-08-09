@@ -4683,7 +4683,8 @@
               },
               "button": {
                 "export": "Exportieren",
-                "import": "Importieren"
+                "import": "Importieren",
+                "remoteImport": "Von Remote importieren"
               },
               "modal": {
                 "createDatabase": {
@@ -4703,7 +4704,19 @@
                   "content": "Lade einen Abzug hoch, um ihn in diese Datenbank zu importieren. Große Importe können eine Weile dauern.",
                   "form": {
                     "file": "Abzugsdatei",
+                    "sourceDb": "Quelldatenbank",
+                    "sourceDbDescription": "Der Name, den diese Datenbank beim Erstellen des Abzugs hatte.",
                     "wipe": "Vorhandene Daten vor dem Import löschen"
+                  }
+                },
+                "remoteImportDatabase": {
+                  "title": "Datenbank von Remote importieren",
+                  "content": "Erstellt einen Abzug eines anderen Datenbankservers und importiert das Ergebnis in **{database}**. Die Verbindungszeichenfolge wird nur für den Abzug verwendet und niemals gespeichert.",
+                  "form": {
+                    "url": "Verbindungszeichenfolge",
+                    "urlDescription": "Private und Link-Local-Adressen können vom Datenbank-Agenten blockiert werden.",
+                    "sourceDb": "Quelldatenbank",
+                    "sourceDbDescription": "Überschreibt die in der Verbindungszeichenfolge angegebene Datenbank."
                   }
                 },
                 "recreateDatabase": {
@@ -4720,6 +4733,7 @@
                 "created": "Datenbank erstellt.",
                 "deleted": "Datenbank gelöscht.",
                 "imported": "Datenbank-Import abgeschlossen.",
+                "remoteImportStarted": "Remote-Import gestartet.",
                 "passwordRotated": "Passwort wurde rotiert.",
                 "recreated": "Datenbank neu erstellt."
               }
@@ -4761,6 +4775,25 @@
                 "forceKill": {
                   "title": "Datenbank zwangsweise beenden",
                   "content": "Das zwangsweise Beenden einer Datenbank kann zu Datenverlust führen."
+                }
+              }
+            },
+            "message": {
+              "databaseMarkedAs": "Datenbank als {state} markiert...",
+              "pulling": "Wird heruntergeladen",
+              "extracting": "Wird entpackt"
+            },
+            "operations": {
+              "remoteImport": "{database} wird von {source} importiert",
+              "cancelAllOperations": "Alle Vorgänge abbrechen"
+            },
+            "toast": {
+              "operationCancelled": "Vorgang abgebrochen",
+              "allOperationsCancelled": "Alle Vorgänge wurden abgebrochen.",
+              "operations": {
+                "remoteImport": {
+                  "completed": "`{database}` in {time} von `{source}` importiert.",
+                  "failed": "`{database}` konnte nicht von `{source}` importiert werden:\n{error}"
                 }
               }
             },
@@ -4806,6 +4839,17 @@
               "exportInstance": {
                 "title": "Instanz exportieren",
                 "content": "Lade einen Dump dieser verwalteten Datenbank-Instanz herunter. Bei großen Instanzen kann die Vorbereitung eine Weile dauern."
+              },
+              "importInstance": {
+                "title": "Instanz importieren",
+                "content": "Lade einen Abzug hoch, um ihn in diese verwaltete Datenbank-Instanz zu importieren. Große Importe können eine Weile dauern.",
+                "form": {
+                  "wipe": "Alle vorhandenen Daten vor dem Import löschen"
+                }
+              },
+              "cancelAllOperations": {
+                "title": "Alle Vorgänge abbrechen",
+                "content": "Möchtest du wirklich alle laufenden Datenbank-Vorgänge abbrechen? Ihr Fortschritt geht dabei verloren."
               }
             }
           },

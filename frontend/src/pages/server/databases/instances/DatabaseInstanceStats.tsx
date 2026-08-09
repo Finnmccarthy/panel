@@ -5,21 +5,18 @@ import { z } from 'zod';
 import ChartBlock from '@/elements/ChartBlock.tsx';
 import StreamChart from '@/elements/StreamChart.tsx';
 import { formatBytes, formatPercent, useStreamChart } from '@/lib/chart.ts';
-import {
-  serverDatabaseInstanceResourceUsageSchema,
-  serverDatabaseInstanceSchema,
-} from '@/lib/schemas/server/databaseInstances.ts';
+import { serverDatabaseInstanceSchema } from '@/lib/schemas/server/databaseInstances.ts';
 import { mbToBytes } from '@/lib/size.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { useServerStore } from '@/stores/server.ts';
 
 export default function DatabaseInstanceStats({
   instance,
-  usage,
 }: {
   instance: z.infer<typeof serverDatabaseInstanceSchema>;
-  usage: z.infer<typeof serverDatabaseInstanceResourceUsageSchema> | null;
 }) {
   const { t } = useTranslations();
+  const usage = useServerStore((state) => state.databaseInstanceUsage);
 
   const wasOffline = useRef(false);
 

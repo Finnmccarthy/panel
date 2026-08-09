@@ -1,8 +1,6 @@
 use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
-mod ws;
-
 mod get {
     use crate::routes::api::client::servers::_server_::databases::instances::_instance_::GetServerDatabaseInstance;
     use axum::http::StatusCode;
@@ -61,6 +59,5 @@ mod get {
 pub fn router(state: &State) -> OpenApiRouter<State> {
     OpenApiRouter::new()
         .routes(routes!(get::route))
-        .nest("/ws", ws::router(state))
         .with_state(state.clone())
 }

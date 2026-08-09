@@ -1,0 +1,27 @@
+export const getXtermTheme = (isDark: boolean) => ({
+  background: isDark ? '#00000000' : '#ffffff',
+  foreground: isDark ? '#f8f8f2' : '#1a1a1a',
+  cursor: '#00000000',
+  cursorAccent: '#00000000',
+  selectionBackground: isDark ? '#FFFFFF4D' : '#0000004D',
+  selectionInactiveBackground: isDark ? '#FFFFFF80' : '#00000080',
+  // Light-mode ANSI palette
+  ...(!isDark && {
+    black: '#1c1c1c',
+    red: '#b22222',
+    green: '#005f00',
+    yellow: '#8b6800',
+    blue: '#0000cc',
+    magenta: '#7d0070',
+    cyan: '#005f5f',
+    white: '#6c6c6c',
+    brightBlack: '#505050',
+    brightRed: '#c0392b',
+    brightGreen: '#1e8449',
+    brightYellow: '#b07d00',
+    brightBlue: '#2471a3',
+    brightMagenta: '#7d3c98',
+    brightCyan: '#148f77',
+    brightWhite: '#909090',
+  }),
+});

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { safeParseFromApi } from '@/lib/api-transform.ts';
 
@@ -18,18 +18,25 @@ type SchemaOptions<T extends z.ZodTypeAny> = Omit<WebsocketOptions, 'onMessage'>
   onMessage: (data: z.infer<T>) => void;
 };
 
-export function useWebsocket(options: WebsocketOptions & { schema?: undefined }): { connected: boolean };
-export function useWebsocket<T extends z.ZodTypeAny>(options: SchemaOptions<T>): { connected: boolean };
+interface WebsocketHandle {
+  connected: boolean;
+  send: (data: string) => void;
+}
+
+export function useWebsocket(options: WebsocketOptions & { schema?: undefined }): WebsocketHandle;
+export function useWebsocket<T extends z.ZodTypeAny>(options: SchemaOptions<T>): WebsocketHandle;
 
 export function useWebsocket<T extends z.ZodTypeAny>(
   options: (WebsocketOptions & { schema?: undefined }) | SchemaOptions<T>,
-): { connected: boolean } {
+): WebsocketHandle {
   const { path, params, enabled = true, reconnectDelay = null, schema } = options;
 
   const [connected, setConnected] = useState(false);
 
   const handlers = useRef(options);
   handlers.current = options;
+
+  const openSocket = useRef<WebSocket | null>(null);
 
   const serializedParams = params ? new URLSearchParams(params).toString() : '';
 
@@ -61,6 +68,7 @@ export function useWebsocket<T extends z.ZodTypeAny>(
           return;
         }
 
+        openSocket.current = socket;
         setConnected(true);
         handlers.current.onOpen?.();
       };
@@ -104,6 +112,7 @@ export function useWebsocket<T extends z.ZodTypeAny>(
         }
 
         socketRef = null;
+        openSocket.current = null;
         setConnected(false);
         handlers.current.onClose?.(event);
 
@@ -137,8 +146,15 @@ export function useWebsocket<T extends z.ZodTypeAny>(
 
       socketRef?.close();
       socketRef = null;
+      openSocket.current = null;
     };
   }, [path, serializedParams, enabled, reconnectDelay, schema]);
 
-  return { connected };
+  const send = useCallback((data: string) => {
+    if (openSocket.current?.readyState === WebSocket.OPEN) {
+      openSocket.current.send(data);
+    }
+  }, []);
+
+  return { connected, send };
 }

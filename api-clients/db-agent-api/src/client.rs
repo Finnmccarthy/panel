@@ -432,6 +432,9 @@ impl DbAgentClient {
         query: &super::instances_instance_import::post::Query,
     ) -> Result<super::instances_instance_import::post::Response, ApiHttpError> {
         let mut query_parts: Vec<compact_str::CompactString> = Vec::new();
+        if let Some(value) = &query.source_db {
+            query_parts.push(format!("source_db={}", urlencoding::encode(value)).into());
+        }
         if let Some(value) = &query.db {
             query_parts.push(format!("db={}", urlencoding::encode(value)).into());
         }
@@ -449,6 +452,21 @@ impl DbAgentClient {
             format!("/api/instances/{instance}/import{query}"),
             None::<&()>,
             Some(data),
+        )
+        .await
+    }
+
+    pub async fn post_instances_instance_import_remote(
+        &self,
+        instance: uuid::Uuid,
+        data: &super::instances_instance_import_remote::post::RequestBody,
+    ) -> Result<super::instances_instance_import_remote::post::Response, ApiHttpError> {
+        request_impl(
+            self,
+            Method::POST,
+            format!("/api/instances/{instance}/import/remote"),
+            Some(data),
+            None,
         )
         .await
     }
@@ -471,6 +489,36 @@ impl DbAgentClient {
             self,
             Method::GET,
             format!("/api/instances/{instance}/logs{query}"),
+            None::<&()>,
+            None,
+        )
+        .await
+    }
+
+    pub async fn get_instances_instance_operations(
+        &self,
+        instance: uuid::Uuid,
+    ) -> Result<super::instances_instance_operations::get::Response, ApiHttpError> {
+        request_impl(
+            self,
+            Method::GET,
+            format!("/api/instances/{instance}/operations"),
+            None::<&()>,
+            None,
+        )
+        .await
+    }
+
+    pub async fn delete_instances_instance_operations_operation(
+        &self,
+        instance: uuid::Uuid,
+        operation: uuid::Uuid,
+    ) -> Result<super::instances_instance_operations_operation::delete::Response, ApiHttpError>
+    {
+        request_impl(
+            self,
+            Method::DELETE,
+            format!("/api/instances/{instance}/operations/{operation}"),
             None::<&()>,
             None,
         )

@@ -105,6 +105,14 @@ export interface TagsFieldDef<T extends Record<string, unknown>> extends BaseFie
   allowDuplicates?: boolean;
 }
 
+export interface NumberTagsFieldDef<T extends Record<string, unknown>> extends BaseFieldDef<T> {
+  type: 'numberTags';
+  allowReordering?: boolean;
+  placeholder?: LazyString;
+  min?: number;
+  max?: number;
+}
+
 export interface SizeFieldDef<T extends Record<string, unknown>> extends BaseFieldDef<T> {
   type: 'size';
   mode: 'b' | 'mb';
@@ -157,6 +165,7 @@ export type FieldDef<T extends Record<string, unknown> = Record<string, unknown>
   | DateFieldDef<T>
   | AutocompleteFieldDef<T>
   | TagsFieldDef<T>
+  | NumberTagsFieldDef<T>
   | SizeFieldDef<T>
   | LocalizedTextFieldDef<T>
   | LocalizedTextAreaFieldDef<T>

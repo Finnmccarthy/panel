@@ -2,6 +2,7 @@ import { create, StoreApi } from 'zustand';
 import { createContext } from 'zustand-utils';
 import { createServerAnnouncementsSlice, ServerAnnouncementsSlice } from '@/stores/slices/server/announcements.ts';
 import { BackupsSlice, createBackupsSlice } from '@/stores/slices/server/backups.ts';
+import { createDatabaseInstancesSlice, DatabaseInstancesSlice } from '@/stores/slices/server/databaseInstances.ts';
 import { createFilesSlice, FilesSlice } from '@/stores/slices/server/files.ts';
 import { createSchedulesSlice, SchedulesSlice } from '@/stores/slices/server/schedules.ts';
 import { createServerSlice, ServerSlice } from '@/stores/slices/server/server.ts';
@@ -15,6 +16,7 @@ export interface ServerStore
   extends ServerAnnouncementsSlice,
     BackupsSlice,
     TransferSlice,
+    DatabaseInstancesSlice,
     FilesSlice,
     SchedulesSlice,
     ServerSlice,
@@ -34,6 +36,7 @@ export const createServerStore = () =>
       ...createServerAnnouncementsSlice(...a),
       ...createBackupsSlice(...a),
       ...createTransferSlice(...a),
+      ...createDatabaseInstancesSlice(...a),
       ...createFilesSlice(...a),
       ...createSchedulesSlice(...a),
       ...createServerSlice(...a),

@@ -2,38 +2,30 @@ import { ModalProps } from '@mantine/core';
 import { useState } from 'react';
 import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import importDatabaseInstanceDatabase from '@/api/server/databases/instances/importDatabaseInstanceDatabase.ts';
+import importDatabaseInstance from '@/api/server/databases/instances/importDatabaseInstance.ts';
 import Button from '@/elements/Button.tsx';
 import FileInput from '@/elements/input/FileInput.tsx';
 import Switch from '@/elements/input/Switch.tsx';
-import TextInput from '@/elements/input/TextInput.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
-import {
-  serverDatabaseInstanceDatabaseSchema,
-  serverDatabaseInstanceSchema,
-} from '@/lib/schemas/server/databaseInstances.ts';
+import { serverDatabaseInstanceSchema } from '@/lib/schemas/server/databaseInstances.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 
 type Props = ModalProps & {
   instance: z.infer<typeof serverDatabaseInstanceSchema>;
-  database: z.infer<typeof serverDatabaseInstanceDatabaseSchema>;
 };
 
-export default function DatabaseInstanceDatabaseImportModal({ instance, database, ...props }: Props) {
+export default function DatabaseInstanceImportModal({ instance, ...props }: Props) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const server = useServerStore((state) => state.server);
 
   const [file, setFile] = useState<File | null>(null);
-  const [sourceDb, setSourceDb] = useState('');
   const [wipe, setWipe] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const requiresSourceDb = instance.type === 'mongodb';
 
   const handleClose = () => {
     if (loading) {
@@ -41,7 +33,6 @@ export default function DatabaseInstanceDatabaseImportModal({ instance, database
     }
 
     setFile(null);
-    setSourceDb('');
     setWipe(false);
     props.onClose();
   };
@@ -53,11 +44,10 @@ export default function DatabaseInstanceDatabaseImportModal({ instance, database
 
     setLoading(true);
 
-    importDatabaseInstanceDatabase(server.uuid, instance.uuid, database.uuid, file, sourceDb || null, wipe)
+    importDatabaseInstance(server.uuid, instance.uuid, file, wipe)
       .then(() => {
         addToast(t('pages.server.databases.instance.databases.toast.imported', {}), 'success');
         setFile(null);
-        setSourceDb('');
         setWipe(false);
         props.onClose();
       })
@@ -66,14 +56,10 @@ export default function DatabaseInstanceDatabaseImportModal({ instance, database
   };
 
   return (
-    <Modal
-      title={t('pages.server.databases.instance.databases.modal.importDatabase.title', {})}
-      {...props}
-      onClose={handleClose}
-    >
+    <Modal title={t('pages.server.databases.instance.modal.importInstance.title', {})} {...props} onClose={handleClose}>
       <Stack>
         <Text c='dimmed' size='sm'>
-          {t('pages.server.databases.instance.databases.modal.importDatabase.content', {})}
+          {t('pages.server.databases.instance.modal.importInstance.content', {})}
         </Text>
 
         <FileInput
@@ -84,33 +70,15 @@ export default function DatabaseInstanceDatabaseImportModal({ instance, database
           clearable
         />
 
-        {requiresSourceDb && (
-          <TextInput
-            withAsterisk
-            label={t('pages.server.databases.instance.databases.modal.importDatabase.form.sourceDb', {})}
-            description={t(
-              'pages.server.databases.instance.databases.modal.importDatabase.form.sourceDbDescription',
-              {},
-            )}
-            value={sourceDb}
-            onChange={(e) => setSourceDb(e.target.value)}
-          />
-        )}
-
         <Switch
-          label={t('pages.server.databases.instance.databases.modal.importDatabase.form.wipe', {})}
+          label={t('pages.server.databases.instance.modal.importInstance.form.wipe', {})}
           name='wipe'
           checked={wipe}
           onChange={(e) => setWipe(e.target.checked)}
         />
 
         <ModalFooter>
-          <Button
-            color={wipe ? 'red' : undefined}
-            onClick={doImport}
-            loading={loading}
-            disabled={!file || (requiresSourceDb && !sourceDb)}
-          >
+          <Button color={wipe ? 'red' : undefined} onClick={doImport} loading={loading} disabled={!file}>
             {t('pages.server.databases.instance.databases.button.import', {})}
           </Button>
           <Button variant='default' onClick={handleClose} disabled={loading}>

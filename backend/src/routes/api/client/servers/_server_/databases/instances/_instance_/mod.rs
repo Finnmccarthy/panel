@@ -17,11 +17,14 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod databases;
 mod export;
+mod import;
 mod logs;
+mod operations;
 mod power;
 mod resources;
 mod update;
 mod users;
+mod ws;
 
 pub type GetServerDatabaseInstance = shared::extract::ConsumingExtension<ServerDatabaseInstance>;
 
@@ -353,11 +356,14 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .routes(routes!(delete::route))
         .nest("/databases", databases::router(state))
         .nest("/export", export::router(state))
+        .nest("/import", import::router(state))
         .nest("/users", users::router(state))
         .nest("/logs", logs::router(state))
+        .nest("/operations", operations::router(state))
         .nest("/power", power::router(state))
         .nest("/resources", resources::router(state))
         .nest("/update", update::router(state))
+        .nest("/ws", ws::router(state))
         .route_layer(axum::middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state.clone())
 }

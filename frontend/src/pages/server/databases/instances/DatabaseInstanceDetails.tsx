@@ -1,22 +1,19 @@
 import { faClock, faEthernet, faHardDrive, faMemory, faMicrochip } from '@fortawesome/free-solid-svg-icons';
 import { z } from 'zod';
 import StatCard from '@/elements/StatCard.tsx';
-import {
-  serverDatabaseInstanceResourceUsageSchema,
-  serverDatabaseInstanceSchema,
-} from '@/lib/schemas/server/databaseInstances.ts';
+import { serverDatabaseInstanceSchema } from '@/lib/schemas/server/databaseInstances.ts';
 import { bytesToString, mbToBytes } from '@/lib/size.ts';
 import { formatMilliseconds } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { useServerStore } from '@/stores/server.ts';
 
 export default function DatabaseInstanceDetails({
   instance,
-  usage,
 }: {
   instance: z.infer<typeof serverDatabaseInstanceSchema>;
-  usage: z.infer<typeof serverDatabaseInstanceResourceUsageSchema> | null;
 }) {
   const { t } = useTranslations();
+  const usage = useServerStore((state) => state.databaseInstanceUsage);
 
   const offline = !usage || usage.state === 'offline';
   const host = instance.host ? `${instance.host}${instance.port ? `:${instance.port}` : ''}` : null;

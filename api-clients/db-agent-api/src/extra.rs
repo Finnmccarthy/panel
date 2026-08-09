@@ -1,6 +1,82 @@
 use super::DatabaseAgentType;
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 pub type Config = super::system_config::get::Response200;
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
+pub enum WebsocketEvent {
+    #[serde(rename = "send stats")]
+    SendStats,
+    #[serde(rename = "send status")]
+    SendStatus,
+    #[serde(rename = "send logs")]
+    SendLogs,
+    #[serde(rename = "set state")]
+    SetState,
+
+    #[serde(rename = "stats")]
+    InstanceStats,
+    #[serde(rename = "status")]
+    InstanceStatus,
+    #[serde(rename = "console output")]
+    InstanceConsoleOutput,
+    #[serde(rename = "image pull progress")]
+    InstanceImagePullProgress,
+    #[serde(rename = "image pull completed")]
+    InstanceImagePullCompleted,
+    #[serde(rename = "daemon error")]
+    InstanceDaemonError,
+    #[serde(rename = "daemon message")]
+    InstanceDaemonMessage,
+
+    #[serde(rename = "operation progress")]
+    OperationProgress,
+    #[serde(rename = "operation completed")]
+    OperationCompleted,
+    #[serde(rename = "operation error")]
+    OperationError,
+}
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub struct WebsocketMessage {
+    pub event: WebsocketEvent,
+    #[serde(default)]
+    pub args: Vec<compact_str::CompactString>,
+}
+
+impl WebsocketMessage {
+    #[inline]
+    pub fn builder(event: WebsocketEvent) -> WebsocketMessageBuilder {
+        WebsocketMessageBuilder::new(event)
+    }
+}
+
+pub struct WebsocketMessageBuilder {
+    event: WebsocketEvent,
+    args: Vec<compact_str::CompactString>,
+}
+
+impl WebsocketMessageBuilder {
+    pub fn new(event: WebsocketEvent) -> Self {
+        Self {
+            event,
+            args: Vec::new(),
+        }
+    }
+
+    pub fn arg(mut self, arg: impl Into<compact_str::CompactString>) -> Self {
+        self.args.push(arg.into());
+        self
+    }
+
+    pub fn build(self) -> WebsocketMessage {
+        WebsocketMessage {
+            event: self.event,
+            args: self.args,
+        }
+    }
+}
 
 impl DatabaseAgentType {
     #[inline]
@@ -23,8 +99,6 @@ impl DatabaseAgentType {
         }
     }
 
-    /// The default network port each database type listens on, used to fill in
-    /// connection info when a host has no explicit public port configured.
     #[inline]
     pub const fn default_port(self) -> u16 {
         match self {
