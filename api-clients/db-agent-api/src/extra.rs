@@ -155,7 +155,21 @@ impl<'r> sqlx::Decode<'r, sqlx::Postgres> for DatabaseAgentType {
     }
 }
 
-const FORBIDDEN_CONFIG_PATHS: &[&str] = &["api.token"];
+// mirrors db-agent config::FORBIDDEN_PATHS
+const FORBIDDEN_CONFIG_PATHS: &[&str] = &[
+    "ignore_config_updates",
+    "ignore_upgrades",
+    "socket_dir",
+    "data_dir",
+    "log_dir",
+    "docker.socket",
+    "api.token",
+    "api.bind",
+    "api.tls",
+    "api.trusted_proxies",
+    "api.disable_remote_import",
+    "api.remote_import_blocked_cidrs",
+];
 
 pub fn strip_config_paths(value: &mut serde_json::Value) {
     for path in FORBIDDEN_CONFIG_PATHS {
@@ -168,6 +182,11 @@ pub fn strip_config_paths(value: &mut serde_json::Value) {
             };
 
             if parts.peek().is_none() {
+                map.remove(part);
+                break;
+            }
+
+            if map.get(part).is_some_and(|next| !next.is_object()) {
                 map.remove(part);
                 break;
             }

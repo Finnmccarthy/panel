@@ -709,6 +709,7 @@ impl ScheduleCondition {
     }
 }
 
+// mirrors wings config::FORBIDDEN_PATHS
 const FORBIDDEN_CONFIG_PATHS: &[&str] = &[
     "uuid",
     "token",
@@ -732,6 +733,15 @@ const FORBIDDEN_CONFIG_PATHS: &[&str] = &[
     "system.passwd",
     "docker.socket",
     "allowed_mounts",
+    "ignore_panel_config_updates",
+    "ignore_panel_wings_upgrades",
+    "api.host",
+    "api.port",
+    "api.ssl",
+    "api.trusted_proxies",
+    "api.disable_remote_download",
+    "api.remote_download_blocked_cidrs",
+    "api.schedule.steps.http_request",
 ];
 
 pub fn strip_config_paths(value: &mut serde_json::Value) {
@@ -745,6 +755,11 @@ pub fn strip_config_paths(value: &mut serde_json::Value) {
             };
 
             if parts.peek().is_none() {
+                map.remove(part);
+                break;
+            }
+
+            if map.get(part).is_some_and(|next| !next.is_object()) {
                 map.remove(part);
                 break;
             }

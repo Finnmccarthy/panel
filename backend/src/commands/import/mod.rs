@@ -64,11 +64,17 @@ pub(super) async fn connect_source_database_any(
                 .context("failed to set source mysql database host")?;
             url.set_port(Some(source_database_port))
                 .map_err(|_| anyhow::anyhow!("failed to set source mysql database port"))?;
-            url.set_username(source_database_username.trim_matches('"'))
-                .map_err(|_| anyhow::anyhow!("failed to set source mysql database username"))?;
-            url.set_password(Some(source_database_password.trim_matches('"')))
-                .map_err(|_| anyhow::anyhow!("failed to set source mysql database password"))?;
-            url.set_path(source_database_database.trim_matches('"'));
+            url.set_username(&urlencoding::encode(
+                source_database_username.trim_matches('"'),
+            ))
+            .map_err(|_| anyhow::anyhow!("failed to set source mysql database username"))?;
+            url.set_password(Some(&urlencoding::encode(
+                source_database_password.trim_matches('"'),
+            )))
+            .map_err(|_| anyhow::anyhow!("failed to set source mysql database password"))?;
+            url.set_path(&urlencoding::encode(
+                source_database_database.trim_matches('"'),
+            ));
             url.to_string()
         }
         "sqlite" | "sqlite3" => {
@@ -118,11 +124,17 @@ pub(super) async fn connect_source_database_any(
                 .context("failed to set source postgres database host")?;
             url.set_port(Some(source_database_port))
                 .map_err(|_| anyhow::anyhow!("failed to set source postgres database port"))?;
-            url.set_username(source_database_username.trim_matches('"'))
-                .map_err(|_| anyhow::anyhow!("failed to set source postgres database username"))?;
-            url.set_password(Some(source_database_password.trim_matches('"')))
-                .map_err(|_| anyhow::anyhow!("failed to set source postgres database password"))?;
-            url.set_path(source_database_database.trim_matches('"'));
+            url.set_username(&urlencoding::encode(
+                source_database_username.trim_matches('"'),
+            ))
+            .map_err(|_| anyhow::anyhow!("failed to set source postgres database username"))?;
+            url.set_password(Some(&urlencoding::encode(
+                source_database_password.trim_matches('"'),
+            )))
+            .map_err(|_| anyhow::anyhow!("failed to set source postgres database password"))?;
+            url.set_path(&urlencoding::encode(
+                source_database_database.trim_matches('"'),
+            ));
             url.to_string()
         }
         _ => {
