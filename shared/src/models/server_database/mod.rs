@@ -15,6 +15,15 @@ use std::{
 };
 use utoipa::ToSchema;
 
+mod explorer;
+pub use explorer::{
+    BROWSE_DEFAULT_ROWS, BROWSE_MAX_FILTERS, BROWSE_MAX_ROWS, BrowseFilter, BrowseOptions,
+    CREATE_TABLE_MAX_COLUMNS, ColumnDefinition, FilterOperator, MUTATE_MAX_ROWS,
+    QUERY_ACTIVITY_LENGTH, QUERY_DEFAULT_ROWS, QUERY_MAX_LENGTH, QUERY_MAX_ROWS, QueryColumn,
+    QueryResultSet, QueryValue, RowDelete, RowInsert, RowOperation, RowUpdate, RowValue,
+    SchemaColumn, SchemaTable, TenantConnection,
+};
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ServerDatabase {
     pub uuid: uuid::Uuid,

@@ -172,7 +172,11 @@ const server = (serverUuid: string) => ({
   databases: {
     all: () => ['server', serverUuid, 'databases'] as const,
     hosts: () => ['server', serverUuid, 'databases', 'hosts'] as const,
+    detail: (databaseUuid: string) => ['server', serverUuid, 'databases', { uuid: databaseUuid }] as const,
     size: (databaseUuid: string) => ['server', serverUuid, 'databases', databaseUuid, 'size'] as const,
+    schema: (databaseUuid: string) => ['server', serverUuid, 'databases', databaseUuid, 'schema'] as const,
+    rows: (databaseUuid: string) => ['server', serverUuid, 'databases', databaseUuid, 'rows'] as const,
+    columnTypes: (databaseUuid: string) => ['server', serverUuid, 'databases', databaseUuid, 'column-types'] as const,
     instances: {
       all: () => ['server', serverUuid, 'databases', 'instances'] as const,
       templates: () => ['server', serverUuid, 'databases', 'instances', 'templates'] as const,
@@ -182,6 +186,21 @@ const server = (serverUuid: string) => ({
         ['server', serverUuid, 'databases', 'instances', instanceUuid, 'databases'] as const,
       databaseSize: (instanceUuid: string, databaseUuid: string) =>
         ['server', serverUuid, 'databases', 'instances', instanceUuid, 'databases', databaseUuid, 'size'] as const,
+      databaseSchema: (instanceUuid: string, databaseUuid: string) =>
+        ['server', serverUuid, 'databases', 'instances', instanceUuid, 'databases', databaseUuid, 'schema'] as const,
+      databaseRows: (instanceUuid: string, databaseUuid: string) =>
+        ['server', serverUuid, 'databases', 'instances', instanceUuid, 'databases', databaseUuid, 'rows'] as const,
+      databaseColumnTypes: (instanceUuid: string, databaseUuid: string) =>
+        [
+          'server',
+          serverUuid,
+          'databases',
+          'instances',
+          instanceUuid,
+          'databases',
+          databaseUuid,
+          'column-types',
+        ] as const,
       users: (instanceUuid: string) => ['server', serverUuid, 'databases', 'instances', instanceUuid, 'users'] as const,
     },
   },

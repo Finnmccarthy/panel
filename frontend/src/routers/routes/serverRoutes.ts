@@ -15,10 +15,13 @@ import { lazy } from 'react';
 import type { ServerRouteDefinition } from 'shared';
 import ServerActivity from '@/pages/server/activity/ServerActivity.tsx';
 import ServerBackups from '@/pages/server/backups/ServerBackups.tsx';
+import DatabaseExplorerView from '@/pages/server/databases/explorer/DatabaseExplorerView.tsx';
+import DatabaseInstanceExplorerView from '@/pages/server/databases/instances/DatabaseInstanceExplorerView.tsx';
 import DatabaseInstanceView from '@/pages/server/databases/instances/DatabaseInstanceView.tsx';
 import ServerDatabases from '@/pages/server/databases/ServerDatabases.tsx';
 import ServerFilesEditor from '@/pages/server/files/FileEditor.tsx';
 import FileRevisionDiff from '@/pages/server/files/FileRevisionDiff.tsx';
+import FileSqliteQuery from '@/pages/server/files/FileSqliteQuery.tsx';
 import ServerFiles from '@/pages/server/files/ServerFiles.tsx';
 import ServerMounts from '@/pages/server/mounts/ServerMounts.tsx';
 import ServerNetwork from '@/pages/server/network/ServerNetwork.tsx';
@@ -55,6 +58,12 @@ const routes: ServerRouteDefinition[] = [
   },
   {
     name: undefined,
+    path: '/files/sqlite',
+    element: FileSqliteQuery,
+    permission: 'files.query-raw',
+  },
+  {
+    name: undefined,
     path: '/files/:action',
     element: ServerFilesEditor,
     permission: ['files.read-content', 'files.create'],
@@ -71,6 +80,18 @@ const routes: ServerRouteDefinition[] = [
     path: '/databases/instances/:id',
     element: DatabaseInstanceView,
     permission: 'database-instances.read',
+  },
+  {
+    name: undefined,
+    path: '/databases/instances/:id/databases/:databaseId/explore',
+    element: DatabaseInstanceExplorerView,
+    permission: 'database-instances.query',
+  },
+  {
+    name: undefined,
+    path: '/databases/:id/explore',
+    element: DatabaseExplorerView,
+    permission: 'databases.query',
   },
   {
     name: () => getTranslations().t('pages.server.schedules.title', {}),

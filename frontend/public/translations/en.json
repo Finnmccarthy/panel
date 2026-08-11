@@ -127,6 +127,22 @@
       "few": "{count} Days",
       "many": "{count} Days",
       "other": "{count} Days"
+    },
+    "row": {
+      "zero": "{count} Rows",
+      "one": "{count} Row",
+      "two": "{count} Rows",
+      "few": "{count} Rows",
+      "many": "{count} Rows",
+      "other": "{count} Rows"
+    },
+    "change": {
+      "zero": "{count} Changes",
+      "one": "{count} Change",
+      "two": "{count} Changes",
+      "few": "{count} Changes",
+      "many": "{count} Changes",
+      "other": "{count} Changes"
     }
   },
   "translations": {
@@ -4649,6 +4665,164 @@
           },
           "form": {
             "databaseName": "Database Name"
+          },
+          "explorer": {
+            "title": "Data Explorer",
+            "button": {
+              "open": "Explore Data",
+              "run": "Run",
+              "previous": "Previous",
+              "next": "Next",
+              "hideTables": "Hide Tables",
+              "showTables": "Show Tables",
+              "save": "Save {changes}",
+              "newRow": "New Row",
+              "deleteRows": "Delete {rows}",
+              "newTable": "New Table",
+              "addColumn": "Add Column",
+              "rename": "Rename",
+              "renameTable": "Rename Table",
+              "deleteTable": "Delete Table"
+            },
+            "form": {
+              "tableName": "Table Name",
+              "columnsList": "Columns",
+              "columnName": "Column Name",
+              "columnType": "Type",
+              "nullable": "Nullable",
+              "primaryKey": "Primary Key",
+              "autoIncrement": "Auto Increment"
+            },
+            "unsupported": {
+              "title": "Not Supported",
+              "content": "MongoDB databases cannot be explored from the panel.",
+              "instanceContent": "MongoDB and Redis database instances cannot be explored from the panel."
+            },
+            "notFound": "This database does not exist on the instance.",
+            "tabs": {
+              "rows": "Rows",
+              "structure": "Structure",
+              "query": "Query"
+            },
+            "modal": {
+              "deleteRows": {
+                "title": "Confirm Row Deletion",
+                "content": "Are you sure you want to delete {rows} from **{table}**? This cannot be undone."
+              },
+              "createTable": {
+                "title": "Create Table",
+                "toast": {
+                  "created": "Table {table} has been created."
+                }
+              },
+              "createColumn": {
+                "title": "Add Column",
+                "form": {
+                  "nullableHint": "Adding a non-nullable column to a table that already has rows will fail."
+                },
+                "toast": {
+                  "created": "Column {column} has been added."
+                }
+              },
+              "renameTable": {
+                "title": "Rename Table",
+                "toast": {
+                  "renamed": "Table {table} has been renamed."
+                }
+              },
+              "deleteTable": {
+                "title": "Confirm Table Deletion",
+                "content": "Are you sure you want to delete **{table}**? This permanently destroys all of its rows and cannot be undone.",
+                "toast": {
+                  "deleted": "Table {table} has been deleted."
+                }
+              },
+              "renameColumn": {
+                "title": "Rename Column",
+                "toast": {
+                  "renamed": "Column {column} has been renamed."
+                }
+              },
+              "deleteColumn": {
+                "title": "Confirm Column Deletion",
+                "content": "Are you sure you want to delete **{column}** from **{table}**? Its data is permanently destroyed and cannot be recovered.",
+                "toast": {
+                  "deleted": "Column {column} has been deleted."
+                }
+              }
+            },
+            "schema": {
+              "title": "Tables",
+              "empty": "This database has no tables yet.",
+              "noMatches": "No tables match your search.",
+              "rowEstimate": "~{rows}",
+              "badge": {
+                "view": "View"
+              }
+            },
+            "rows": {
+              "noTable": "Select a table to browse its rows.",
+              "range": "Showing rows {start} to {end}.",
+              "saved": "Applied changes to {rows}.",
+              "insert": {
+                "default": "Database default"
+              }
+            },
+            "filter": {
+              "add": "Filter",
+              "column": "Column",
+              "operator": "Operator",
+              "value": "Value",
+              "apply": "Apply"
+            },
+            "enum": {
+              "filterOperator": {
+                "eq": "equals",
+                "ne": "does not equal",
+                "lt": "less than",
+                "lte": "less than or equal",
+                "gt": "greater than",
+                "gte": "greater than or equal",
+                "contains": "contains",
+                "startsWith": "starts with",
+                "endsWith": "ends with",
+                "isNull": "is null",
+                "notNull": "is not null"
+              }
+            },
+            "table": {
+              "columns": {
+                "nullable": "Nullable",
+                "key": "Key",
+                "default": "Default",
+                "attributes": "Attributes"
+              }
+            },
+            "badge": {
+              "primaryKey": "Primary",
+              "autoIncrement": "auto_increment",
+              "generated": "Generated",
+              "binary": "Binary"
+            },
+            "query": {
+              "placeholder": "Run a statement to see its results here.",
+              "statement": "Statement {index}",
+              "form": {
+                "rowLimit": "Row Limit",
+                "readOnly": "Read-only",
+                "readOnlyDescription": "Rejects statements that change data or structure."
+              }
+            },
+            "result": {
+              "rowsAffected": "{rows} affected.",
+              "truncated": "This result set was truncated. Narrow the statement or lower the row limit to see everything."
+            },
+            "cell": {
+              "setNull": "Set to NULL",
+              "null": "NULL",
+              "empty": "empty",
+              "editorHint": "{enter} applies the value, {shiftEnter} inserts a new line."
+            }
           },
           "instance": {
             "title": "Managed Databases",
