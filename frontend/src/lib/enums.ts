@@ -756,6 +756,7 @@ export const permissionCategoryIconMapping: Record<string, IconDefinition> = {
   activity: faBriefcase,
   allocations: faNetworkWired,
   'api-keys': faCloud,
+  'command-snippets': faTerminal,
   'backup-configurations': faFileZipper,
   backups: faBoxArchive,
   'backup-groups': faBoxArchive,
