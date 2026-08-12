@@ -13,7 +13,8 @@
               "Enum": [
                 "INSTALLING",
                 "INSTALL_FAILED",
-                "RESTORING_BACKUP"
+                "RESTORING_BACKUP",
+                "BACKUP_RESTORE_FAILED"
               ]
             }
           }
@@ -25,7 +26,8 @@
               "Enum": [
                 "INSTALLING",
                 "INSTALL_FAILED",
-                "RESTORING_BACKUP"
+                "RESTORING_BACKUP",
+                "BACKUP_RESTORE_FAILED"
               ]
             }
           }

@@ -48,7 +48,12 @@ export const bytea = customType<{
 
 export const databaseTypeEnum = pgEnum('database_type', ['MYSQL', 'POSTGRES', 'MONGODB']);
 export const databaseAgentTypeEnum = pgEnum('database_agent_type', ['POSTGRES', 'MARIADB', 'MONGODB', 'REDIS']);
-export const serverStatusEnum = pgEnum('server_status', ['INSTALLING', 'INSTALL_FAILED', 'RESTORING_BACKUP']);
+export const serverStatusEnum = pgEnum('server_status', [
+  'INSTALLING',
+  'INSTALL_FAILED',
+  'RESTORING_BACKUP',
+  'BACKUP_RESTORE_FAILED',
+]);
 export const serverAutoStartBehaviorEnum = pgEnum('server_auto_start_behavior', ['ALWAYS', 'UNLESS_STOPPED', 'NEVER']);
 export const backupDiskEnum = pgEnum('backup_disk', [
   'LOCAL',

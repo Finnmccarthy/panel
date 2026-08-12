@@ -210,10 +210,17 @@ export default function WebsocketListener() {
     setBackupRestoreProgress(wsData.bytes_processed, wsData.bytes_total, wsData.files_processed);
   });
 
-  useWebsocketEvent(SocketEvent.BACKUP_RESTORE_COMPLETED, () => {
-    updateServer({ status: null });
+  useWebsocketEvent(SocketEvent.BACKUP_RESTORE_COMPLETED, (successful) => {
+    const failed = successful === 'false';
 
-    addToast(t('elements.serverWebsocket.listener.toast.backupRestoreCompleted', {}), 'success');
+    updateServer({ status: failed ? 'backup_restore_failed' : null });
+
+    addToast(
+      failed
+        ? t('elements.serverWebsocket.listener.toast.backupRestoreFailed', {})
+        : t('elements.serverWebsocket.listener.toast.backupRestoreCompleted', {}),
+      failed ? 'error' : 'success',
+    );
   });
 
   useWebsocketEvent(SocketEvent.TRANSFER_STATUS, (s) => {

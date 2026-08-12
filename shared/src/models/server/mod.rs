@@ -79,6 +79,7 @@ pub enum ServerStatus {
     Installing,
     InstallFailed,
     RestoringBackup,
+    BackupRestoreFailed,
 }
 
 #[derive(ToSchema, Serialize, Deserialize, Type, PartialEq, Eq, Hash, Clone, Copy)]

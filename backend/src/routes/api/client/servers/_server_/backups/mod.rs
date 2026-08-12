@@ -3,6 +3,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod _backup_;
 mod groups;
+mod unlock;
 
 mod get {
     use axum::{extract::Query, http::StatusCode};
@@ -267,6 +268,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .routes(routes!(get::route))
         .routes(routes!(post::route))
         .nest("/groups", groups::router(state))
+        .nest("/unlock", unlock::router(state))
         .nest("/{backup}", _backup_::router(state))
         .with_state(state.clone())
 }

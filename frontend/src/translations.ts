@@ -296,6 +296,7 @@ const baseTranslations = defineTranslations({
           restoringBackup: 'Restoring Backup',
           installing: 'Installing',
           installFailed: 'Install Failed',
+          backupRestoreFailed: 'Backup Restore Failed',
         },
       },
       enum: {
@@ -523,15 +524,22 @@ const baseTranslations = defineTranslations({
           contentInstalling: 'This server is currently installing and cannot be accessed until completed.',
           contentRestoringBackup:
             'This server is currently restoring from a backup and cannot be accessed until completed.',
+          contentBackupRestoreFailed:
+            'This server failed to restore a backup and cannot be accessed until acknowledged. Its files may be incomplete.',
           button: {
             viewInstallLogs: 'View Installation Logs',
             acknowledgeFailure: 'Acknowledge Failure',
           },
           modal: {
-            acknowledgeFailure: {
+            acknowledgeInstallFailure: {
               title: 'Acknowledge Installation Failure',
               content:
                 'By acknowledging this installation failure, you are confirming that you are aware of the failed installation and have taken any necessary steps to resolve the issue. This will allow you to regain control over the server.',
+            },
+            acknowledgeBackupRestoreFailure: {
+              title: 'Acknowledge Backup Restore Failure',
+              content:
+                'By acknowledging this backup restore failure, you are confirming that you are aware of the failed restore and that the server files may be incomplete. This will allow you to regain control over the server.',
             },
           },
         },
@@ -564,6 +572,7 @@ const baseTranslations = defineTranslations({
             backupFailed: 'Backup failed.',
             backupDeleteFailed: 'Backup deletion failed.',
             backupRestoreCompleted: 'Backup restore completed successfully.',
+            backupRestoreFailed: 'Backup restore failed.',
             installCompleted: 'Server Installation completed successfully.',
             installFailed: 'Server Installation failed.',
             transferFailed: 'Server transfer failed, the server remains on this node.',
@@ -2757,9 +2766,6 @@ const baseTranslations = defineTranslations({
                 badge: {
                   suspended: 'Suspended',
                   transferring: 'Transferring',
-                  installing: 'Installing',
-                  installFailed: 'Install Failed',
-                  restoringBackup: 'Restoring Backup',
                   admin: 'Admin',
                 },
               },

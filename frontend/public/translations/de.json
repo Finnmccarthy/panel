@@ -408,7 +408,8 @@
           "nodeMaintenance": "Node in Wartung",
           "restoringBackup": "Backup wird wiederhergestellt",
           "installing": "Wird installiert",
-          "installFailed": "Installation fehlgeschlagen"
+          "installFailed": "Installation fehlgeschlagen",
+          "backupRestoreFailed": "Backup-Wiederherstellung fehlgeschlagen"
         }
       },
       "enum": {
@@ -630,14 +631,19 @@
           "contentInstallFailed": "Die Installation dieses Servers ist fehlgeschlagen und er kann erst nach Bestätigung aufgerufen werden.",
           "contentInstalling": "Dieser Server wird derzeit installiert und kann erst nach Abschluss aufgerufen werden.",
           "contentRestoringBackup": "Dieser Server stellt derzeit ein Backup wieder her und kann erst nach Abschluss aufgerufen werden.",
+          "contentBackupRestoreFailed": "Die Wiederherstellung eines Backups auf diesem Server ist fehlgeschlagen und er kann erst nach Bestätigung aufgerufen werden. Seine Dateien könnten unvollständig sein.",
           "button": {
             "viewInstallLogs": "Installationsprotokolle ansehen",
             "acknowledgeFailure": "Fehlschlag bestätigen"
           },
           "modal": {
-            "acknowledgeFailure": {
+            "acknowledgeInstallFailure": {
               "title": "Installationsfehlschlag bestätigen",
               "content": "Durch die Bestätigung dieses Installationsfehlschlags bestätigst du, dass du über die fehlgeschlagene Installation informiert bist und alle notwendigen Schritte zur Behebung unternommen hast. Dadurch erhältst du wieder die Kontrolle über den Server."
+            },
+            "acknowledgeBackupRestoreFailure": {
+              "title": "Fehlgeschlagene Backup-Wiederherstellung bestätigen",
+              "content": "Durch die Bestätigung dieser fehlgeschlagenen Backup-Wiederherstellung bestätigst du, dass du über die fehlgeschlagene Wiederherstellung informiert bist und dass die Dateien des Servers unvollständig sein könnten. Dadurch erhältst du wieder die Kontrolle über den Server."
             }
           }
         }
@@ -670,6 +676,7 @@
             "backupFailed": "Backup fehlgeschlagen.",
             "backupDeleteFailed": "Backup-Löschung fehlgeschlagen.",
             "backupRestoreCompleted": "Backup-Wiederherstellung erfolgreich abgeschlossen.",
+            "backupRestoreFailed": "Backup-Wiederherstellung fehlgeschlagen.",
             "installCompleted": "Server-Installation erfolgreich abgeschlossen.",
             "installFailed": "Server-Installation fehlgeschlagen.",
             "transferFailed": "Server transfer failed, the server remains on this node.",
@@ -2800,9 +2807,6 @@
                 "badge": {
                   "suspended": "Suspendiert",
                   "transferring": "Server wird übertragen",
-                  "installing": "Wird installiert",
-                  "installFailed": "Installation fehlgeschlagen",
-                  "restoringBackup": "Backup wird wiederhergestellt",
                   "admin": "Admin"
                 }
               }

@@ -71,7 +71,11 @@ mod post {
             .try_set_status(
                 state.database.write(),
                 Some(ServerStatus::RestoringBackup),
-                None,
+                if data.successful {
+                    None
+                } else {
+                    Some(ServerStatus::BackupRestoreFailed)
+                },
             )
             .await?
         {
@@ -111,25 +115,27 @@ mod post {
             );
         }
 
-        let settings = state.settings.get().await?;
-        state
-            .mail
-            .send_template(
-                &state,
-                "server_restored",
-                server.owner.email.clone(),
-                minijinja::context! {
-                    user => server.owner,
-                    server => server,
-                    server_link => format!(
-                        "{}/server/{:08x}",
-                        settings.app.url,
-                        server.uuid_short,
-                    )
-                },
-            )
-            .await;
-        drop(settings);
+        if data.successful {
+            let settings = state.settings.get().await?;
+            state
+                .mail
+                .send_template(
+                    &state,
+                    "server_restored",
+                    server.owner.email.clone(),
+                    minijinja::context! {
+                        user => server.owner,
+                        server => server,
+                        server_link => format!(
+                            "{}/server/{:08x}",
+                            settings.app.url,
+                            server.uuid_short,
+                        )
+                    },
+                )
+                .await;
+            drop(settings);
+        }
 
         ServerBackup::get_event_emitter().emit(
             state.0.clone(),
