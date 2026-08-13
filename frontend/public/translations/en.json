@@ -685,42 +685,34 @@
             "operations": {
               "compressing": {
                 "completed": "Compressed {files} to `{path}` in {time}.",
-                "failed": "Failed to compress {files} to `{path}`:\n{error}",
-                "aborted": "Compression of {files} to `{path}` was cancelled."
+                "failed": "Failed to compress {files} to `{path}`:\n{error}"
               },
               "decompressing": {
                 "completed": "Decompressed `{path}` to `{destination}` in {time}.",
-                "failed": "Failed to decompress `{path}` to `{destination}`:\n{error}",
-                "aborted": "Decompression of `{path}` to `{destination}` was cancelled."
+                "failed": "Failed to decompress `{path}` to `{destination}`:\n{error}"
               },
               "pulling": {
                 "completed": "Pulled `{destination}` in {time}.",
-                "failed": "Failed to pull `{destination}`:\n{error}",
-                "aborted": "Pull of `{destination}` was cancelled."
+                "failed": "Failed to pull `{destination}`:\n{error}"
               },
               "copying": {
                 "completed": "Copied `{path}` to `{destination}` in {time}.",
                 "completedMany": "Copied `{path}` to `{destination}` ({files}) in {time}.",
-                "failed": "Failed to copy `{path}` to `{destination}`:\n{error}",
-                "aborted": "Copy of `{path}` to `{destination}` was cancelled."
+                "failed": "Failed to copy `{path}` to `{destination}`:\n{error}"
               },
               "copyingMany": {
                 "completed": "Copied {files} in {time}.",
-                "failed": "Failed to copy {files}:\n{error}",
-                "aborted": "Copy of {files} was cancelled."
+                "failed": "Failed to copy {files}:\n{error}"
               },
               "copyingRemote": {
                 "completedFrom": "Copied {files} from remote server in {time}.",
                 "completedTo": "Copied {files} to remote server in {time}.",
                 "failedFrom": "Failed to copy {files} from remote server:\n{error}",
-                "failedTo": "Failed to copy {files} to remote server:\n{error}",
-                "abortedFrom": "Copy of {files} from remote server was cancelled.",
-                "abortedTo": "Copy of {files} to remote server was cancelled."
+                "failedTo": "Failed to copy {files} to remote server:\n{error}"
               },
               "exportingBackup": {
                 "completed": "Exported backup to `{destination}` in {time}.",
-                "failed": "Failed to export backup to `{destination}`:\n{error}",
-                "aborted": "Backup export to `{destination}` was cancelled."
+                "failed": "Failed to export backup to `{destination}`:\n{error}"
               }
             }
           }
@@ -5105,8 +5097,7 @@
               "operations": {
                 "remoteImport": {
                   "completed": "Imported `{database}` from `{source}` in {time}.",
-                  "failed": "Failed to import `{database}` from `{source}`:\n{error}",
-                  "aborted": "Import of `{database}` from `{source}` was cancelled."
+                  "failed": "Failed to import `{database}` from `{source}`:\n{error}"
                 }
               }
             },

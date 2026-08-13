@@ -617,6 +617,12 @@
           "button": {
             "viewInstallLogs": "Kurulum Loglarını Görüntüle",
             "acknowledgeFailure": "Hatayı Onayla"
+          },
+          "modal": {
+            "acknowledgeFailure": {
+              "title": "Kurulum Hatasını Onayla",
+              "content": "Bu kurulum hatasını onaylayarak, başarısız kurulumun farkında olduğunuzu ve sorunu çözmek için gerekli adımları attığınızı onaylamış olursunuz. Bu, sunucu üzerindeki kontrolünüzü geri almanızı sağlar."
+            }
           }
         }
       },

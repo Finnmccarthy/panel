@@ -617,6 +617,12 @@
           "button": {
             "viewInstallLogs": "Installatielogboeken bekijken",
             "acknowledgeFailure": "Mislukking bevestigen"
+          },
+          "modal": {
+            "acknowledgeFailure": {
+              "title": "Installatiefout bevestigen",
+              "content": "Door deze installatiefout te bevestigen, geeft u aan dat u op de hoogte bent van de mislukte installatie en de nodige stappen heeft ondernomen om het probleem op te lossen. Hiermee herkrijgt u de controle over de server."
+            }
           }
         }
       },

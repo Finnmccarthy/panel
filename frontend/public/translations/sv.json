@@ -617,6 +617,12 @@
           "button": {
             "viewInstallLogs": "Visa installationsloggar",
             "acknowledgeFailure": "Erkänn misslyckandet"
+          },
+          "modal": {
+            "acknowledgeFailure": {
+              "title": "Erkänn installationsfel",
+              "content": "Genom att erkänna detta installationsfel bekräftar du att du är medveten om det misslyckade installationen och har tagit några nödvändiga steg för att lösa problemet. Detta kommer att tillåta dig att återfå kontroll över servern."
+            }
           }
         }
       },

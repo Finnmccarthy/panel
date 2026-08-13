@@ -617,6 +617,12 @@
           "button": {
             "viewInstallLogs": "Просмотреть логи установки",
             "acknowledgeFailure": "Подтвердить сбой"
+          },
+          "modal": {
+            "acknowledgeFailure": {
+              "title": "Подтвердить сбой установки",
+              "content": "Подтверждая сбой установки, вы подтверждаете, что знаете о неудачной установке и предприняли необходимые шаги для решения проблемы. Это позволит вам восстановить контроль над сервером."
+            }
           }
         }
       },
@@ -2778,7 +2784,10 @@
                 "badge": {
                   "suspended": "Suspended",
                   "transferring": "Transferring",
-                  "admin": "Admin"
+                  "admin": "Admin",
+                  "installing": "Installing",
+                  "installFailed": "Install Failed",
+                  "restoringBackup": "Restoring Backup"
                 }
               }
             },

@@ -617,6 +617,12 @@
           "button": {
             "viewInstallLogs": "Voir les journaux d'installation",
             "acknowledgeFailure": "Acquitter l'échec"
+          },
+          "modal": {
+            "acknowledgeFailure": {
+              "title": "Acquitter l'échec d'installation",
+              "content": "En acquittant cet échec d'installation, vous confirmez que vous êtes au courant de l'échec et que vous avez pris les mesures nécessaires pour résoudre le problème. Cela vous permettra de reprendre le contrôle du serveur."
+            }
           }
         }
       },
