@@ -2,7 +2,7 @@
   "items": {
     "byte": {
       "zero": "{count} Bytes",
-      "one": "{count} Byte",
+      "one": "{count} Bytes",
       "two": "{count} Bytes",
       "few": "{count} Bytes",
       "many": "{count} Bytes",
@@ -41,20 +41,20 @@
       "other": "{count} SSH-nycklar"
     },
     "asset": {
-      "zero": "{count} Assets",
-      "one": "{count} Asset",
-      "two": "{count} Assets",
-      "few": "{count} Assets",
-      "many": "{count} Assets",
-      "other": "{count} Assets"
+      "zero": "{count} Resurser",
+      "one": "{count} Resurs",
+      "two": "{count} Resurser",
+      "few": "{count} Resurser",
+      "many": "{count} Resurser",
+      "other": "{count} Resurser"
     },
     "node": {
-      "zero": "{count} Nodes",
-      "one": "{count} Node",
-      "two": "{count} Nodes",
-      "few": "{count} Nodes",
-      "many": "{count} Nodes",
-      "other": "{count} Nodes"
+      "zero": "{count} Noder",
+      "one": "{count} Noder",
+      "two": "{count} Noder",
+      "few": "{count} Noder",
+      "many": "{count} Noder",
+      "other": "{count} Noder"
     },
     "databaseAgentHost": {
       "zero": "{count} Database Agent Hosts",
@@ -65,39 +65,39 @@
       "other": "{count} Database Agent Hosts"
     },
     "allocation": {
-      "zero": "{count} Node Allocations",
-      "one": "{count} Node Allocation",
-      "two": "{count} Node Allocations",
-      "few": "{count} Node Allocations",
-      "many": "{count} Node Allocations",
-      "other": "{count} Node Allocations"
+      "zero": "{count} Nod tilldelningar",
+      "one": "{count} Nod tilldelning",
+      "two": "{count} Nod tilldelningar",
+      "few": "{count} Nod tilldelningar",
+      "many": "{count} Nod tilldelningar",
+      "other": "{count} Nod tilldelningar"
     },
     "egg": {
-      "zero": "{count} Eggs",
-      "one": "{count} Egg",
-      "two": "{count} Eggs",
-      "few": "{count} Eggs",
-      "many": "{count} Eggs",
-      "other": "{count} Eggs"
+      "zero": "{count} Ägg",
+      "one": "{count} Ägg",
+      "two": "{count} Ägg",
+      "few": "{count} Ägg",
+      "many": "{count} Ägg",
+      "other": "{count} Ägg"
     },
     "instance": {
-      "zero": "{count} Instances",
-      "one": "{count} Instance",
-      "two": "{count} Instances",
-      "few": "{count} Instances",
-      "many": "{count} Instances",
-      "other": "{count} Instances"
+      "zero": "{count} Instanser",
+      "one": "{count} Instans",
+      "two": "{count} Instanser",
+      "few": "{count} Instanser",
+      "many": "{count} Instanser",
+      "other": "{count} Instanser"
     },
     "shortcut": {
-      "zero": "{count} Shortcuts",
-      "one": "{count} Shortcut",
-      "two": "{count} Shortcuts",
-      "few": "{count} Shortcuts",
-      "many": "{count} Shortcuts",
-      "other": "{count} Shortcuts"
+      "zero": "{count} Genvägar",
+      "one": "{count} Genväg",
+      "two": "{count} Genvägar",
+      "few": "{count} Genvägar",
+      "many": "{count} Genvägar",
+      "other": "{count} Genvägar"
     },
     "line": {
-      "zero": "{count} Lines",
+      "zero": "{count} Linjer",
       "one": "{count} Line",
       "two": "{count} Lines",
       "few": "{count} Lines",

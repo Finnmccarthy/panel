@@ -156,7 +156,7 @@
         "edit": "Edytuj",
         "duplicate": "Duplikuj",
         "delete": "Usuń",
-        "remove": "Remove",
+        "remove": "Usuń",
         "enable": "Włącz",
         "disable": "Wyłącz",
         "update": "Zaktualizuj",
@@ -178,15 +178,15 @@
         "exportAs": "Eksportuj jako {format}",
         "recreate": "Odtwórz",
         "move": "Przenieś",
-        "transfer": "Transfer",
+        "transfer": "Transferuj",
         "reattach": "Reattach",
         "detach": "Detach",
         "send": "Wyślij",
         "reset": "Zresetuj",
-        "view": "View",
+        "view": "Zobacz",
         "import": "Importuj",
         "details": "Szczegóły",
-        "loadLogs": "Load Logs",
+        "loadLogs": "Wczytaj logi",
         "sendTestEmail": "Wyślij e-mail testowy",
         "setPrimary": "Ustaw jako główny",
         "unsetPrimary": "Unset Primary",
@@ -201,7 +201,7 @@
         "clockOffset": "Zegar systemowy rozbiega się z zegarem serwerem o więcej niż 5 sekund. Może to powodować problemy z uwierzytelnianiem hasłem i uwierzytelnianiem dwuskładnikowym. Proszę zsynchronizować zegar, jeśli pojawią się problemy. Aktualne przesunięcie: {offset} sekund(y)."
       },
       "divider": {
-        "or": "OR"
+        "or": "LUB"
       },
       "input": {
         "search": "Wyszukaj..."
@@ -248,13 +248,13 @@
         "edit": "Edytuj",
         "delete": "Skasuj",
         "remove": "Usuń",
-        "primary": "Primary",
+        "primary": "Główne",
         "backupOnDifferentNode": "Ta kopia zapasowa jest na innym węźle niż serwer. Nie jest widoczna z API klienta."
       },
       "form": {
         "force": "Czy chcesz wymusić usunięcie?",
-        "name": "Name",
-        "newName": "New Name",
+        "name": "Nazwa",
+        "newName": "Nowa nazwa",
         "description": "Opis",
         "author": "Autor",
         "type": "Typ",
@@ -278,55 +278,55 @@
         "bucket": "Bucket",
         "region": "Region",
         "endpoint": "Endpoint",
-        "publicUrl": "Public URL",
-        "firstName": "First Name",
-        "lastName": "Last Name",
-        "language": "Language",
-        "identifier": "Identifier",
-        "enabled": "Enabled",
-        "disabled": "Disabled",
-        "title": "Title",
-        "content": "Content",
-        "backupConfiguration": "Backup Configuration",
-        "fileName": "File Name",
-        "sftpPort": "SFTP Port",
-        "sftpHost": "SFTP Host",
-        "dockerImage": "Docker Image",
-        "memory": "Memory",
-        "disk": "Disk",
-        "serverName": "Server Name",
-        "startupCommand": "Startup Command",
-        "archiveName": "Archive Name",
-        "archiveFormat": "Archive Format",
-        "compressionLevel": "Compression Level",
+        "publicUrl": "Publiczny URL",
+        "firstName": "Imię",
+        "lastName": "Nazwisko",
+        "language": "Język",
+        "identifier": "Identyfikator",
+        "enabled": "Włączone",
+        "disabled": "Wyłączone",
+        "title": "Tytuł",
+        "content": "Zawartość",
+        "backupConfiguration": "Konfiguracja kopii zapasowej",
+        "fileName": "Nazwa pliku",
+        "sftpPort": "Port SFTP",
+        "sftpHost": "Host SFTP",
+        "dockerImage": "Obraz Docker",
+        "memory": "Pamięć",
+        "disk": "Dysk",
+        "serverName": "Nazwa serwera",
+        "startupCommand": "Polecenie startowe",
+        "archiveName": "Nazwa archiwum",
+        "archiveFormat": "Format archiwum",
+        "compressionLevel": "Poziom kompresji",
         "multiplexChannels": "Multiplex Channels",
         "multiplexChannelsDescription": "Add additional HTTP connections (and therefore also threads) for transferring split archives, total streams is 1 + multiplex channels.",
-        "deleteSourceBackups": "Delete source backups",
-        "deleteSourceBackupsDescription": "Deletes the transferred backups on the source node once transfer finishes.",
-        "node": "Node",
-        "location": "Location",
-        "primaryAllocation": "Primary Allocation",
-        "additionalAllocations": "Additional Allocations",
-        "externalId": "External ID",
+        "deleteSourceBackups": "Usuń kopie zapasowe źródłowe",
+        "deleteSourceBackupsDescription": "Usuwa przetransferowane kopie zapasowe na źródłowym węźle po zakończeniu transferu.",
+        "node": "Węzeł",
+        "location": "Lokalizacja",
+        "primaryAllocation": "Główna alokacja",
+        "additionalAllocations": "Dodatkowe alokacje",
+        "externalId": "Zewnętrzne ID",
         "mount": "Mount",
         "nest": "Nest",
-        "lines": "Lines",
-        "databaseHost": "Database Host",
+        "lines": "Linie",
+        "databaseHost": "Host baz danych",
         "databaseAgentHost": "Database Agent Host",
         "timezone": "Strefa czasowa",
         "timezoneSystem": "System",
         "protocol": "Protokół",
         "powerAction": "Akcja zasilania",
-        "destination": "Destination",
-        "destinationDirectory": "Destination Directory",
-        "directoryName": "Directory Name",
-        "locked": "Locked",
+        "destination": "Cel",
+        "destinationDirectory": "Docelowy folder",
+        "directoryName": "Nazwa folderu",
+        "locked": "Zablokowane",
         "portRanges": "Zakresy portów",
         "portRangesPlaceholder": "Zakresy portów (np. 3000–4000)",
         "currentPassword": "Aktualne hasło",
         "confirmPassword": "Potwierdź hasło",
         "authenticationCode": "Kod weryfikacyjny",
-        "restoreStartup": "Restore the startup command, image, and variables from this backup.",
+        "restoreStartup": "Przywróć polecenie startowe, obraz i zmienne z tej kopii zapasowej.",
         "lineContains": "Linia zawiera",
         "filePath": "Ścieżka pliku",
         "envVariable": "Zmienna środowiskowa",
@@ -335,7 +335,7 @@
         "ignoredFiles": "Ignorowane pliki",
         "previewIgnoredFiles": "Podgląd ignorowanych plików",
         "yourControlPanelPassword": "Twoje hasło Panelu Zarządzania",
-        "deploymentEnabled": "Deployment Enabled",
+        "deploymentEnabled": "Wdrożenie włączone",
         "maintenanceEnabled": "Konserwacja włączona",
         "truncateDirectory": "Czy chcesz usunąć wszystkie pliki tego serwera przed wykonaniem tej akcji? Tej operacji nie można cofnąć."
       },
@@ -388,8 +388,8 @@
       "badge": {
         "active": "Active",
         "inactive": "Inactive",
-        "enabled": "Enabled",
-        "disabled": "Disabled",
+        "enabled": "Włączone",
+        "disabled": "Wyłączone",
         "successful": "Successful",
         "failed": "Failed",
         "installed": "Installed",
@@ -397,13 +397,13 @@
       },
       "label": {
         "noSubdirectories": "No subdirectories",
-        "page": "Page {page}",
-        "emptyDirectory": "This directory is empty",
+        "page": "Strona {page}",
+        "emptyDirectory": "Ten folder jest pusty",
         "ignored": "Ignored",
         "showingFirstEntries": "Showing the first {count} entries"
       },
       "server": {
-        "noAllocation": "No Allocation",
+        "noAllocation": "Brak alokacji",
         "state": {
           "suspended": "Zawieszony",
           "transferring": "Serwer jest przenoszony",
@@ -434,24 +434,24 @@
           "start": "Start",
           "stop": "Stop",
           "restart": "Restart",
-          "kill": "Kill"
+          "kill": "Zabij"
         },
         "serverBackupStatus": {
-          "starting": "Starting",
-          "finished": "Finished",
-          "failed": "Failed"
+          "starting": "Rozpoczynanie",
+          "finished": "Zakończony",
+          "failed": "Nieudany"
         },
         "connectionStatus": {
-          "connected": "Connected",
+          "connected": "Połączono",
           "offline": "Offline"
         },
         "serverAutoStartBehavior": {
-          "always": "Always",
-          "unlessStopped": "Unless Stopped",
-          "never": "Never"
+          "always": "Zawsze",
+          "unlessStopped": "Gdy nie wyłączono",
+          "never": "Nigdy"
         },
         "bulkActionServerAction": {
-          "started": "Started",
+          "started": "Uruchomiono",
           "stopped": "Zatrzymano",
           "restarted": "Uruchomiono ponownie",
           "killed": "Zabito"
@@ -487,7 +487,7 @@
       "custom": "Custom",
       "system": "System",
       "schedule": "Harmonogram",
-      "impersonatedBy": "Impersonated by {username}"
+      "impersonatedBy": "Podszywany przez {username}"
     },
     "elements": {
       "chartLegend": {
@@ -496,7 +496,7 @@
       },
       "dragAndDrop": {
         "item": {
-          "labelled": "{label} (position {position})",
+          "labelled": "{label} (pozycja {position})",
           "unlabelled": "item at position {position}"
         },
         "announcement": {
@@ -670,45 +670,45 @@
           "tokenRefreshLoop": "Authentication loop detected. Please refresh the page to try again."
         },
         "banner": {
-          "retrying": "Retrying in {countdown}..."
+          "retrying": "Próbowanie ponownie za {countdown}..."
         },
         "listener": {
           "toast": {
-            "backupCompleted": "Backup completed successfully.",
+            "backupCompleted": "Kopia zapasowa pomyślnie ukończona.",
             "backupFailed": "Tworzenie kopii zapasowej nie powiodło się.",
             "backupDeleteFailed": "Usuwanie kopii zapasowej nie powiodło się.",
             "backupRestoreCompleted": "Przywracanie kopii zapasowej zakończone pomyślnie.",
-            "backupRestoreFailed": "Backup restore failed.",
-            "installCompleted": "Server Installation completed successfully.",
-            "installFailed": "Server Installation failed.",
+            "backupRestoreFailed": "Przywracanie kopii zapasowej nieudane.",
+            "installCompleted": "Instalacja serwera zakończona pomyślnie.",
+            "installFailed": "Instalacja serwera nie powiodła się.",
             "transferFailed": "Server transfer failed, the server remains on this node.",
             "operations": {
               "compressing": {
-                "completed": "Compressed {files} to `{path}` in {time}.",
-                "failed": "Failed to compress {files} to `{path}`:\n{error}"
+                "completed": "Skompresowano {files} do `{path}` w {time}.",
+                "failed": "Nie udało się skompresować {files} do `{path}`:\n{error}"
               },
               "decompressing": {
-                "completed": "Decompressed `{path}` to `{destination}` in {time}.",
-                "failed": "Failed to decompress `{path}` to `{destination}`:\n{error}"
+                "completed": "Zdekompresowano `{path}` do `{destination}` w {time}.",
+                "failed": "Nie udało się zdekompresować `{path}` do `{destination}`:\n{error}"
               },
               "pulling": {
-                "completed": "Pulled `{destination}` in {time}.",
-                "failed": "Failed to pull `{destination}`:\n{error}"
+                "completed": "Pobrano `{destination}` w {time}.",
+                "failed": "Nie udało się pobrać `{destination}`:\n{error}"
               },
               "copying": {
-                "completed": "Copied `{path}` to `{destination}` in {time}.",
-                "completedMany": "Copied `{path}` to `{destination}` ({files}) in {time}.",
-                "failed": "Failed to copy `{path}` to `{destination}`:\n{error}"
+                "completed": "Skopiowano `{path}` do `{destination}` w {time}.",
+                "completedMany": "Skopiowano `{path}` do `{destination}` ({files}) w {time}.",
+                "failed": "Nie udało się skopiować `{path}` do `{destination}`:\n{error}"
               },
               "copyingMany": {
-                "completed": "Copied {files} in {time}.",
-                "failed": "Failed to copy {files}:\n{error}"
+                "completed": "Skopiowano {files} w {time}.",
+                "failed": "Nie udało się skopiować {files}:\n{error}"
               },
               "copyingRemote": {
-                "completedFrom": "Copied {files} from remote server in {time}.",
-                "completedTo": "Copied {files} to remote server in {time}.",
-                "failedFrom": "Failed to copy {files} from remote server:\n{error}",
-                "failedTo": "Failed to copy {files} to remote server:\n{error}"
+                "completedFrom": "Skopiowano {files} ze zdalnego serwera w {time}.",
+                "completedTo": "Skopiowano {files} do zdalnego serwera w {time}.",
+                "failedFrom": "Nie udało się skopiować {files} ze zdalnego serwera:\n{error}",
+                "failedTo": "Nie udało się skopiować {files} na zdalny serwer:\n{error}"
               },
               "exportingBackup": {
                 "completed": "Eksportowano kopię zapasową do `{destination}` w {time}.",
@@ -814,50 +814,50 @@
             "locationFlagPlaceholder": "Najlepszy kraj",
             "backupName": "Nazwa konfiguracji kopii zapasowej",
             "backupNamePlaceholder": "Unicorn Cloud",
-            "backupDisk": "Backup Disk",
-            "backupDiskPlaceholder": "Backup Disk"
+            "backupDisk": "Dysk kopii zapasowej",
+            "backupDiskPlaceholder": "Dysk kopii zapasowej"
           },
           "button": {
-            "create": "Create & Continue"
+            "create": "Utwórz i kontynuuj"
           }
         },
         "node": {
-          "title": "Node Configuration",
-          "allocationsTitle": "Allocations Configuration",
+          "title": "Konfiguracja węzła",
+          "allocationsTitle": "Konfiguracja alokacji",
           "form": {
-            "name": "Name",
-            "namePlaceholder": "My Server",
+            "name": "Nazwa",
+            "namePlaceholder": "Mój serwer",
             "urlPlaceholder": "https://node.example.com:8080",
-            "urlDescription": "used for internal communication with the node",
-            "publicUrl": "Public URL",
+            "urlDescription": "używany do wewnętrznej komunikacji z węzłem",
+            "publicUrl": "Publiczny URL",
             "publicUrlPlaceholder": "https://node.example.com:8080",
-            "publicUrlDescription": "used for websocket/downloads",
-            "sftpHostPlaceholder": "SFTP Host",
-            "sftpPortPlaceholder": "SFTP Port",
+            "publicUrlDescription": "używany do websocket/pobierania",
+            "sftpHostPlaceholder": "Host SFTP",
+            "sftpPortPlaceholder": "Port SFTP",
             "ip": "IP"
           },
           "error": {
-            "noLocations": "Something went wrong. No locations were found."
+            "noLocations": "Coś poszło nie tak. Nie znaleziono żadnych lokalizacji."
           },
           "button": {
-            "create": "Create & Continue"
+            "create": "Utwórz i kontynuuj"
           }
         },
         "nodeConfiguration": {
-          "title": "Node Configuration",
+          "title": "Konfiguracja węzła",
           "error": {
-            "noNodes": "Something went wrong. No nodes were found.",
-            "connectionError": "The panel could not reach the node. Check that wings is running and that the node URL (including the port) is correct.",
-            "frontendConnectionError": "Your browser could not reach the node. Check the (public) URL, TLS certificate and firewall. Websockets and downloads depend on this connection."
+            "noNodes": "Coś poszło nie tak. Nie znaleziono żadnych węzłów.",
+            "connectionError": "Panel nie może dotrzeć do węzła. Sprawdź, czy wings jest uruchomiony i czy adres URL węzła (w tym port) jest poprawny.",
+            "frontendConnectionError": "Twoja przeglądarka nie może dotrzeć do węzła. Sprawdź (publiczny) adres URL, certyfikat TLS i zaporę. Websocket i pobieranie plików wymagają tego połączenia."
           },
-          "successMessage": "The connection to your node was successfully verified. You may now continue.",
-          "configurationDescription": "Place this into the configuration file at `{file}` or run:",
+          "successMessage": "Połączenie z twoim węzłem zostało pomyślnie zweryfikowane. Możesz teraz kontynuować.",
+          "configurationDescription": "Umieść to w pliku konfiguracyjnym `{file}` oraz uruchom:",
           "button": {
-            "verify": "Verify Connection"
+            "verify": "Zweryfikuj połączenie"
           }
         },
         "configuration": {
-          "title": "Application Settings",
+          "title": "Ustawienia aplikacji",
           "form": {
             "applicationName": "Nazwa aplikacji",
             "applicationNamePlaceholder": "Calagopus",
@@ -936,22 +936,22 @@
       },
       "auth": {
         "button": {
-          "login": "Login",
-          "loginWith": "Login with {name}"
+          "login": "Zaloguj się",
+          "loginWith": "Zaloguj się za pomocą {name}"
         },
         "alert": {
-          "urlMismatch": "The application URL does not match the current URL. Expected: `{appUrl}`, Current: `{currentUrl}`."
+          "urlMismatch": "URL aplikacji nie pasuje do aktualnego URL. Oczekiwano: `{appUrl}`, aktualny: `{currentUrl}`."
         },
         "login": {
           "error": {
-            "usernameRequired": "Please enter a username",
-            "registrationDisabled": "No matching Account could be found and registration is currently disabled.",
-            "userAlreadyExists": "An account with this username or email already exists."
+            "usernameRequired": "Wpisz nazwę użytkownika",
+            "registrationDisabled": "Nie znaleziono pasującego konta, a rejestracja jest obecnie wyłączona.",
+            "userAlreadyExists": "Konto o tej nazwie użytkownika lub adresie e-mail już istnieje."
           },
           "passkey": {
             "error": {
-              "notSupported": "Your browser does not support passkeys.",
-              "unexpected": "An unexpected error occurred while using your passkey.",
+              "notSupported": "Twoja przeglądarka nie obsługuje kluczy fizycznych.",
+              "unexpected": "Wystąpił nieoczekiwany błąd podczas próby użycia twojego klucza fizycznego.",
               "cancelled": "Passkey request was cancelled.",
               "dismissed": "You dismissed or did not interact with the passkey prompt. The used key could also be not registered.",
               "invalidState": "This passkey is not available or already registered.",
@@ -965,18 +965,18 @@
           "step": {
             "username": {
               "title": "Login",
-              "subtitle": "Enter your username or email address to continue",
+              "subtitle": "Podaj swoją nazwę użytkownika lub e-mail, aby kontynuować",
               "form": {
-                "usernameOrEmailPlaceholder": "Your username or email address"
+                "usernameOrEmailPlaceholder": "Twoja nazwa użytkownika albo adres e-mail"
               },
               "link": {
-                "forgotPassword": "Forgot Password",
-                "notRegistered": "Not registered?",
-                "createAccount": "Create account"
+                "forgotPassword": "Zapomniałem hasła",
+                "notRegistered": "Nie masz konta?",
+                "createAccount": "Zarejestruj się"
               },
               "button": {
-                "passkeyLogin": "Sign in with a Passkey",
-                "oauthLogin": "OAuth Login"
+                "passkeyLogin": "Zaloguj się z użyciem klucza fizycznego",
+                "oauthLogin": "Logowanie OAuth"
               }
             },
             "passkey": {
@@ -1209,13 +1209,13 @@
               }
             },
             "avatar": {
-              "title": "Avatar",
+              "title": "Awatar",
               "toast": {
-                "updated": "Avatar updated successfully.",
-                "removed": "Avatar removed successfully."
+                "updated": "Pomyślnie zaktualizowano awatar.",
+                "removed": "Awatar pomyślnie usunięty."
               },
               "form": {
-                "avatar": "Avatar"
+                "avatar": "Awatar"
               }
             }
           }
@@ -1340,10 +1340,10 @@
           }
         },
         "sshKeys": {
-          "title": "SSH Keys",
-          "subtitle": "{current} of {max} maximum ssh keys created.",
+          "title": "Klucze SSH",
+          "subtitle": "{current} z {max} maksimum utworzonych kluczy ssh.",
           "tooltip": {
-            "limitReached": "You are limited to {max} ssh keys."
+            "limitReached": "Jesteś ograniczony do {max} kluczy ssh."
           },
           "table": {
             "columns": {
@@ -1375,14 +1375,14 @@
                 "created": "{sshKeys} created."
               },
               "form": {
-                "provider": "Provider"
+                "provider": "Dostawca"
               }
             },
             "deleteSshKey": {
               "title": "Confirm SSH Key Deletion",
               "content": "Are you sure you want to delete **{name}** from your account?",
               "toast": {
-                "removed": "SSH key removed."
+                "removed": "Usunięto klucz SSH."
               }
             }
           }
@@ -1443,13 +1443,13 @@
           }
         },
         "apiKeys": {
-          "title": "API Keys",
-          "subtitle": "{current} of {max} maximum api keys created.",
+          "title": "Klucze API",
+          "subtitle": "{current} z {max} maksimum utworzonych kluczy api.",
           "button": {
-            "apiDocumentation": "API Documentation"
+            "apiDocumentation": "Dokumentacja API"
           },
           "tooltip": {
-            "limitReached": "You are limited to {max} api keys."
+            "limitReached": "Jesteś ograniczony do {max} kluczy api."
           },
           "table": {
             "columns": {
@@ -1501,9 +1501,9 @@
           },
           "create": {
             "title": "Utwórz klucz API",
-            "subtitle": "An application is requesting an API key to be created for your account.",
+            "subtitle": "Aplikacja prosi o utworzenie klucza API dla Twojego konta.",
             "alert": {
-              "adminPermissions": "This API key requests **admin permissions**. Anyone in possession of this key will be able to perform administrative actions on this panel in your name. Only continue if you absolutely trust the requesting application.",
+              "adminPermissions": "Ten klucz API wymaga **uprawnień administratora**. Każdy posiadający ten klucz będzie mógł wykonywać działania administracyjne na tym panelu w Twoim imieniu. Kontynuuj tylko jeśli całkowicie ufasz wnioskującej aplikacji.",
               "callbackUrl": "After creation, the new API key will be sent to **{url}**."
             },
             "noPermissions": "This API key will not have any permissions.",
@@ -1576,17 +1576,17 @@
                   "officialHeavy": "Official Heavy"
                 },
                 "stats": {
-                  "users": "Users",
-                  "servers": "Servers",
-                  "locations": "Locations",
-                  "nodes": "Nodes",
+                  "users": "Użytkownicy",
+                  "servers": "Serwery",
+                  "locations": "Lokalizacje",
+                  "nodes": "Węzły",
                   "nestEggs": "Nest Eggs",
                   "databaseHosts": "Database Hosts",
-                  "backupConfigurations": "Backup Configurations",
+                  "backupConfigurations": "Konfiguracje kopii zapasowych",
                   "roles": "Role"
                 },
                 "backup": {
-                  "allTime": "All Time",
+                  "allTime": "Cały okres czasu",
                   "today": "Dzisiaj",
                   "week": "Ten tydzień",
                   "month": "Ten miesiąc",
@@ -1746,22 +1746,22 @@
                 },
                 "enum": {
                   "driver": {
-                    "filesystem": "Filesystem",
+                    "filesystem": "System plików",
                     "s3": "S3"
                   }
                 },
                 "toast": {
-                  "updated": "Storage settings updated."
+                  "updated": "Zaktualizowano ustawienia przechowywania."
                 },
                 "modal": {
                   "changeStorageType": {
-                    "title": "Confirm Changing Storage Type",
-                    "content": "Are you sure you want to change the storage type? Changing the storage type will cause the application to look for assets (e.g. profile pictures) in a different location, which may result in missing assets if they are not moved to the new location manually."
+                    "title": "Potwierdź zmianę metody przechowywania",
+                    "content": "Czy na pewno chcesz zmienić metodę przechowywania? Zmiana tego spowoduje, że aplikacja będzie szukać zasobów (np. zdjęć profilowych) w innej lokalizacji, co może skutkować brakującymi zasobami, jeśli nie zostaną przeniesione do nowej lokalizacji ręcznie."
                   }
                 },
                 "s3": {
                   "alert": {
-                    "permissionsTitle": "Note on Permissions",
+                    "permissionsTitle": "Informacja o uprawnieniach",
                     "permissionsIntro": "To ensure that the storage backend works correctly, please make sure the following subdirectories are publicly accessible over the \"Public URL\" you provided:",
                     "permissionsAssets": "This is where all admin assets (e.g., icons) will be stored.",
                     "permissionsAvatars": "This is where all user avatars will be stored.",
@@ -1916,17 +1916,17 @@
               }
             },
             "user": {
-              "title": "User",
+              "title": "Użytkownik",
               "page": {
                 "title": "User Settings",
                 "form": {
                   "maxServerGroupCount": "Max Server Groups",
-                  "maxApiKeyCount": "Max API Keys",
+                  "maxApiKeyCount": "Maksymalna ilość kluczy API",
                   "maxCommandSnippetCount": "Max Command Snippets",
-                  "maxSecurityKeyCount": "Max Security Keys",
-                  "maxSshKeyCount": "Max SSH Keys",
-                  "allowChangingLanguage": "Allow Changing Language",
-                  "allowChangingLanguageDescription": "If enabled, users will be able to change their language preferences."
+                  "maxSecurityKeyCount": "Maksymalna liczba kluczy bezpieczeństwa",
+                  "maxSshKeyCount": "Maksymalna liczba kluczy SSH",
+                  "allowChangingLanguage": "Pozwalaj na zmianę języka",
+                  "allowChangingLanguageDescription": "Jeśli włączone, użytkownicy będą mogli zmienić swoje preferencje językowe."
                 },
                 "routeOrder": {
                   "title": "Client Route Order"
@@ -1937,9 +1937,9 @@
               }
             },
             "activity": {
-              "title": "Activity",
+              "title": "Aktywność",
               "page": {
-                "title": "Activity Settings",
+                "title": "Ustawienia aktywności",
                 "form": {
                   "adminLogRetentionDays": "Admin Activity Retention Days",
                   "userLogRetentionDays": "User Activity Retention Days",
@@ -1958,17 +1958,17 @@
               }
             },
             "ratelimits": {
-              "title": "Ratelimits",
+              "title": "Ograniczenia prędkości",
               "page": {
-                "title": "Ratelimit Settings",
+                "title": "Ustawienia ograniczeń prędkości",
                 "form": {
-                  "hits": "Hits",
-                  "hitsDescription": "Maximum number of requests allowed per window.",
-                  "windowSeconds": "Window",
-                  "windowSecondsDescription": "Window duration in seconds."
+                  "hits": "Liczba żądań",
+                  "hitsDescription": "Maksymalna liczba dozwolonych żądań przez okres",
+                  "windowSeconds": "Okres",
+                  "windowSecondsDescription": "Okres w sekundach."
                 },
                 "toast": {
-                  "updated": "Rate limit settings updated."
+                  "updated": "Ustawienia ograniczeń prędkości zaktualizowane."
                 }
               }
             }
@@ -2069,8 +2069,8 @@
             "cancelBuild": "Anuluj budowę",
             "configure": "Konfiguruj",
             "back": "Back to Extensions",
-            "accept": "Accept",
-            "decline": "Decline"
+            "accept": "Akceptuj",
+            "decline": "Odrzuć"
           },
           "tooltip": {
             "building": "The panel is currently building extension code. Please wait.",
@@ -2078,61 +2078,61 @@
             "cancelling": "The build stops once its current step ends.",
             "noBackend": "Backend extension is required to configure this extension.",
             "noConfigurationPage": "This extension does not have a configuration page defined.",
-            "removeExtension": "Remove extension"
+            "removeExtension": "Usuń rozszerzenie"
           },
           "phase": {
             "queued": "Queued…",
-            "preparing": "Preparing…",
-            "clearing": "Clearing extensions…",
-            "adding": "Adding extensions ({done}/{total})…",
-            "resync": "Resolving dependencies…",
+            "preparing": "Przygotowywanie…",
+            "clearing": "Czyszczenie rozszerzeń…",
+            "adding": "Dodawanie rozszerzeń ({done}/{total})…",
+            "resync": "Rozwiązywanie zależności…",
             "stagingTranslations": "Staging translations…",
-            "compiling": "Compiling…",
-            "verifying": "Verifying…",
-            "installing": "Installing…",
-            "restarting": "Restarting the panel…"
+            "compiling": "Kompilowanie…",
+            "verifying": "Weryfikowanie…",
+            "installing": "Instalowanie…",
+            "restarting": "Restartowanie panelu…"
           },
           "badge": {
-            "frontendMissing": "Frontend missing",
-            "backendMissing": "Backend missing",
-            "pendingBuild": "Pending build",
-            "pendingRemoval": "Pending removal"
+            "frontendMissing": "Brak frontendu",
+            "backendMissing": "Brak backendu",
+            "pendingBuild": "Oczekuje na kompilację",
+            "pendingRemoval": "Oczekuje na usunięcie"
           },
           "card": {
-            "version": "Version",
-            "authors": "Authors"
+            "version": "Wersja",
+            "authors": "Autorzy"
           },
           "section": {
-            "pendingExtensions": "Pending extensions",
-            "noPendingExtensions": "No pending extensions."
+            "pendingExtensions": "Oczekujące rozszerzenia",
+            "noPendingExtensions": "Brak oczekujących rozszerzeń."
           },
           "dropzone": {
-            "title": "Drop some files here to install as Extensions",
-            "subtitle": "Release to start installing"
+            "title": "Upuść pliki tutaj, aby zainstalować jako rozszerzenia",
+            "subtitle": "Puść, aby rozpocząć instalację"
           },
           "toast": {
-            "buildStarted": "Extension rebuild started successfully.",
-            "buildCompleted": "Extension build completed. You may need to refresh the page.",
-            "buildFailed": "Extension build failed: {reason}",
-            "cancelRequested": "Cancel requested. The build stops once its current step ends.",
-            "added": "Extension `{packageName}` added successfully.",
-            "removed": "Extension `{packageName}` removed successfully."
+            "buildStarted": "Kompilacja rozszerzenia rozpoczęta pomyślnie.",
+            "buildCompleted": "Kompilacja rozszerzenia zakończona. Prawdopodobnie musisz odświeżyć stronę.",
+            "buildFailed": "Kompilacja rozszerzenia nieudana: {reason}",
+            "cancelRequested": "Zażądano anulowania. Kompilacja zatrzyma się po ukończeniu aktualnego kroku.",
+            "added": "Rozszerzenie `{packageName}` dodane pomyślnie.",
+            "removed": "Rozszerzenie `{packageName}` pomyślnie usunięte."
           },
           "notFound": {
-            "title": "Extension Not Found",
-            "content": "Extension with package name \"{packageName}\" not found."
+            "title": "Nie znaleziono rozszerzenia",
+            "content": "Rozszerzenie o nazwie paczki \"{packageName}\" nie zostało znalezione."
           },
           "configure": {
-            "title": "Configure {packageName}",
-            "noConfigurationPage": "This extension does not have a configuration page."
+            "title": "Skonfiguruj {packageName}",
+            "noConfigurationPage": "To rozszerzenie nie ma strony konfiguracyjnej."
           },
           "modal": {
             "buildLogs": {
-              "title": "Build Logs",
-              "empty": "No logs found."
+              "title": "Dziennik kompilacji",
+              "empty": "Nie znaleziono logów."
             },
             "license": {
-              "title": "License agreement",
+              "title": "Umowa licencyjna",
               "description": "Rozszerzenie `{packageName}` wymaga zaakceptowania następującej licencji, zanim będzie można ją zainstalować."
             },
             "remove": {
@@ -2190,10 +2190,10 @@
                 "form": {
                   "admin": "Admin",
                   "adminDescription": "Użytkownicy administracyjni mają pełny, nieograniczony dostęp do wszystkiego w panelu.",
-                  "frozen": "Frozen",
-                  "frozenDescription": "Frozen users cannot make any changes to their account information.",
-                  "suspended": "Suspended",
-                  "suspendedDescription": "Suspended users cannot access the panel in any meaningful way.",
+                  "frozen": "Zamrożony",
+                  "frozenDescription": "Zamrożeni użytkownicy nie mogą dokonywać zmian w danych swojego konta.",
+                  "suspended": "Zawieszony",
+                  "suspendedDescription": "Zawieszeni użytkownicy nie mogą uzyskać dostępu do panelu.",
                   "role": "Rola"
                 },
                 "modal": {
@@ -2223,8 +2223,8 @@
             "servers": {
               "title": "Serwery",
               "page": {
-                "title": "User Servers",
-                "showOwnedOnly": "Only show users' owned servers"
+                "title": "Serwery użytkownika",
+                "showOwnedOnly": "Pokaż tylko serwery należące do użytkowników"
               }
             },
             "oauthLinks": {
@@ -2250,39 +2250,39 @@
               }
             },
             "activity": {
-              "title": "Activity",
+              "title": "Aktywność",
               "page": {
-                "title": "User Activity"
+                "title": "Aktywność użytkownika"
               }
             }
           }
         },
         "locations": {
-          "title": "Locations",
-          "resourceName": "Location",
+          "title": "Lokalizacje",
+          "resourceName": "Lokalizacja",
           "tabs": {
             "general": {
               "page": {
                 "form": {
-                  "flag": "Flag"
+                  "flag": "Flaga"
                 },
                 "modal": {
                   "delete": {
-                    "title": "Confirm Location Deletion",
-                    "content": "Are you sure you want to delete **{name}**?"
+                    "title": "Potwierdź usunięcie lokalizacji",
+                    "content": "Czy na pewno chcesz usunąć **{name}**?"
                   }
                 },
-                "titleCreate": "Create Location",
-                "titleUpdate": "Update Location"
+                "titleCreate": "Utwórz lokalizację",
+                "titleUpdate": "Zaktualizuj lokalizację"
               }
             },
             "databaseHosts": {
-              "title": "Database Hosts",
+              "title": "Hosty bazy danych",
               "page": {
-                "title": "Location Database Hosts",
+                "title": "Hosty bazy danych lokalizacji",
                 "toast": {
-                  "created": "Location database host created.",
-                  "deleted": "Location database host deleted."
+                  "created": "Host bazy danych lokalizacji utworzony.",
+                  "deleted": "Host bazy danych lokalizacji usunięty."
                 },
                 "modal": {
                   "create": {
@@ -2315,32 +2315,32 @@
               }
             },
             "nodes": {
-              "title": "Nodes",
+              "title": "Węzły",
               "page": {
-                "title": "Location Nodes"
+                "title": "Węzły lokalizacji"
               }
             }
           }
         },
         "nodes": {
-          "title": "Nodes",
-          "resourceName": "Node",
+          "title": "Węzły",
+          "resourceName": "Węzeł",
           "tabs": {
             "overview": {
-              "title": "Overview",
+              "title": "Podsumowanie",
               "page": {
-                "title": "Node Overview",
+                "title": "Podsumowanie węzła",
                 "card": {
-                  "nodeDetails": "Node Details",
-                  "systemInfo": "System Information"
+                  "nodeDetails": "Szczegóły węzła",
+                  "systemInfo": "Informacje systemowe"
                 },
                 "label": {
-                  "location": "Location",
-                  "url": "Internal URL",
-                  "publicUrl": "Public URL",
-                  "sftpAddress": "SFTP Address",
-                  "backupConfiguration": "Backup Configuration",
-                  "description": "Description",
+                  "location": "Lokalizacja",
+                  "url": "Wewnętrzny URL",
+                  "publicUrl": "Publiczny URL",
+                  "sftpAddress": "Adres SFTP",
+                  "backupConfiguration": "Konfiguracja kopii zapasowej",
+                  "description": "Opis",
                   "createdAt": "Data utworzenia",
                   "inheritedFromLocation": "Dziedziczone z lokalizacji",
                   "none": "Brak",
@@ -2350,7 +2350,7 @@
                   "servers": "Serwery",
                   "architecture": "Architektura",
                   "kernelVersion": "Wersja jądra",
-                  "unavailable": "Unavailable"
+                  "unavailable": "Niedostępny"
                 },
                 "badge": {
                   "updateAvailable": "Dostępna aktualizacja"
@@ -2360,15 +2360,15 @@
             "general": {
               "page": {
                 "tooltip": {
-                  "deploymentEnabled": "Deployment Enabled",
-                  "deploymentDisabled": "Deployment Disabled",
+                  "deploymentEnabled": "Wdrożenie włączone",
+                  "deploymentDisabled": "Wdrożenie wyłączone",
                   "allInOneNode": "Węzeł wszystko-w-jednym",
                   "errorWhileFetchingVersion": "Błąd podczas pobierania wersji",
                   "updateAvailable": "{version} (Dostępna aktualizacja)",
                   "useWingsProxyUrl": "Use Wings Proxy URL"
                 },
                 "form": {
-                  "urlDescription": "Used for internal communication with the node.",
+                  "urlDescription": "Używany do wewnętrznej komunikacji z węzłem.",
                   "urlPlaceholder": "https://node.example.com:8080",
                   "publicUrlDescription": "Używane do połączeń websocket i pobierania danych.",
                   "backupConfigurationPlaceholder": "Dziedzicz z lokalizacji",
@@ -2425,75 +2425,75 @@
                   "sftpPortDescription": "Port, na którym nasłuchuje Wings dla SFTP."
                 },
                 "button": {
-                  "save": "Save Configuration",
-                  "reveal": "Reveal Configuration",
-                  "verify": "Verify Connection"
+                  "save": "Zapisz konfigurację",
+                  "reveal": "Wyświetl konfigurację",
+                  "verify": "Zweryfikuj połączenie"
                 },
                 "alert": {
-                  "couldNotReach": "Could not reach the node: {error}",
-                  "tokenWarning": "The configuration below contains the node token. Reveal it only when needed.",
+                  "couldNotReach": "Nie można dotrzeć do węzła: {error}",
+                  "tokenWarning": "Poniższa konfiguracja zawiera token węzła. Pokazuj go tylko wtedy, gdy jest to konieczne.",
                   "portMismatch": "The node URL points at port {connectPort}, but this configuration makes wings listen on port {apiPort}. Unless a reverse proxy forwards port {connectPort} to wings, the panel will not be able to reach the node.",
                   "verifyBackend": "Backend to Wings",
                   "verifyFrontend": "Frontend to Wings",
                   "verifyNotTested": "Not tested yet.",
-                  "verifySuccess": "Connection established. Wings {version} responded.",
-                  "verifyFailed": "The panel could not reach the node: {error}",
-                  "verifyFrontendFailed": "Your browser could not reach the node: {error}. The console, downloads and uploads depend on this connection. Check the (public) URL, TLS certificate and firewall."
+                  "verifySuccess": "Połączenie nawiązane. Wings {version} odpowiedziały.",
+                  "verifyFailed": "Panel nie mógł dotrzeć do węzła: {error}",
+                  "verifyFrontendFailed": "Twoja przeglądarka nie może dotrzeć do węzła: {error}. Konsola, pobieranie i wysyłanie zależą od tego połączenia. Sprawdź (publiczny) adres URL, certyfikat TLS i zaporę."
                 },
                 "toast": {
-                  "applied": "Configuration applied successfully.",
-                  "submittedNotApplied": "Configuration was submitted but not applied.",
-                  "invalidYaml": "Invalid YAML: {error}"
+                  "applied": "Konfiguracja zastosowana pomyślnie.",
+                  "submittedNotApplied": "Konfiguracja została przesłana, ale nie została zastosowana.",
+                  "invalidYaml": "Nieprawidłowy YAML: {error}"
                 }
               }
             },
             "statistics": {
-              "title": "Statistics",
+              "title": "Statystyki",
               "page": {
-                "title": "Node Statistics",
+                "title": "Statystyki węzła",
                 "card": {
-                  "resources": "Resources",
-                  "graphs": "Graphs"
+                  "resources": "Zasoby",
+                  "graphs": "Wykresy"
                 },
                 "toast": {
-                  "connectionLost": "Lost connection to the node statistics stream."
+                  "connectionLost": "Utracono połączenie ze strumieniem statystyk węzła."
                 },
                 "label": {
                   "cpu": "CPU",
-                  "memory": "Memory",
-                  "disk": "Disk",
-                  "network": "Network",
-                  "cpuThreads": "{model} ({threads} threads)",
-                  "usedByWings": "{size} used by Wings",
-                  "networkIn": "In: {in}",
-                  "networkOut": "Out: {out}"
+                  "memory": "Pamięć",
+                  "disk": "Dysk",
+                  "network": "Sieć",
+                  "cpuThreads": "{model} ({threads} wątków)",
+                  "usedByWings": "{size} używany przez wings",
+                  "networkIn": "We: {in}",
+                  "networkOut": "Wy: {out}"
                 },
                 "chart": {
-                  "cpuLoad": "CPU Load",
-                  "memoryUsage": "Memory Usage",
-                  "diskIo": "Disk I/O",
-                  "networkTraffic": "Network Traffic",
-                  "diskRead": "Disk Read",
-                  "diskWrite": "Disk Write",
-                  "inbound": "Inbound",
-                  "outbound": "Outbound",
-                  "networkInLabel": "Network In",
-                  "networkOutLabel": "Network Out"
+                  "cpuLoad": "Obciążenie CPU",
+                  "memoryUsage": "Użycie pamięci",
+                  "diskIo": "I/O Dysku",
+                  "networkTraffic": "Ruch sieciowy",
+                  "diskRead": "Odczyt dysku",
+                  "diskWrite": "Zapis dysku",
+                  "inbound": "Przychodzące",
+                  "outbound": "Wychodzące",
+                  "networkInLabel": "Sieć przychodząca",
+                  "networkOutLabel": "Sieć wychodząca"
                 }
               }
             },
             "capacity": {
-              "title": "Capacity",
+              "title": "Pojemność",
               "page": {
                 "title": "Deployment Capacity",
                 "subtitle": "Resources allocated to servers on this node, measured against the limits configured in node settings, not the physical machine capacity. Deployment only checks memory and disk.",
                 "card": {
-                  "resources": "Allocated Resources"
+                  "resources": "Alokowane zasoby"
                 },
                 "status": {
-                  "deploymentEnabled": "Deployment Enabled",
-                  "deploymentDisabled": "Deployment Disabled",
-                  "maintenanceEnabled": "Under Maintenance",
+                  "deploymentEnabled": "Wdrożenie włączone",
+                  "deploymentDisabled": "Wdrożenie wyłączone",
+                  "maintenanceEnabled": "W trakcie przerwy technicznej",
                   "maintenanceDisabled": "Nie w trakcie konserwacji"
                 },
                 "label": {
@@ -2512,9 +2512,9 @@
             "logs": {
               "title": "Logi",
               "page": {
-                "title": "Node Logs",
+                "title": "Logi węzła",
                 "form": {
-                  "logFile": "Log File",
+                  "logFile": "Plik logów",
                   "follow": "Follow"
                 },
                 "button": {
@@ -2624,7 +2624,7 @@
               }
             },
             "backups": {
-              "title": "Backups",
+              "title": "Kopie zapasowe",
               "page": {
                 "title": "Node Backups",
                 "input": {
@@ -2669,9 +2669,9 @@
               }
             },
             "servers": {
-              "title": "Servers",
+              "title": "Serwery",
               "page": {
-                "title": "Node Servers",
+                "title": "Serwery węzła",
                 "modal": {
                   "transfer": {
                     "title": "Transfer Servers",
@@ -2780,10 +2780,10 @@
                   "language": "Język",
                   "createdAt": "Data utworzenia",
                   "node": "Węzeł",
-                  "location": "Location",
-                  "memoryLimit": "Memory Limit",
-                  "diskLimit": "Disk Limit",
-                  "sftpAddress": "SFTP Address",
+                  "location": "Lokalizacja",
+                  "memoryLimit": "Limit pamięci",
+                  "diskLimit": "Limit dysku",
+                  "sftpAddress": "Adres SFTP",
                   "primaryAllocation": "Primary Allocation",
                   "none": "None",
                   "dockerImage": "Docker Image",
@@ -2792,22 +2792,22 @@
                   "timezone": "Timezone",
                   "autoKill": "Auto-Kill",
                   "cpu": "CPU",
-                  "memory": "Memory",
-                  "disk": "Disk",
+                  "memory": "Pamięć",
+                  "disk": "Dysk",
                   "swap": "Swap",
                   "allocations": "Allocations",
-                  "databases": "Databases",
+                  "databases": "Bazy danych",
                   "databaseAgents": "Agent Databases",
-                  "backups": "Backups",
-                  "schedules": "Schedules",
-                  "unlimited": "Unlimited",
+                  "backups": "Kopie zapasowe",
+                  "schedules": "Harmonogramy",
+                  "unlimited": "Bez ograniczeń",
                   "autoKillSeconds": "{seconds}s",
-                  "autoKillDisabled": "Disabled",
-                  "externalId": "External ID",
+                  "autoKillDisabled": "Wyłączono",
+                  "externalId": "Zewnętrzne ID",
                   "uuid": "UUID"
                 },
                 "badge": {
-                  "suspended": "Suspended",
+                  "suspended": "Zawieszony",
                   "transferring": "Transferring",
                   "admin": "Admin"
                 }
@@ -2874,65 +2874,65 @@
                   "hugepagesPassthroughEnabledDescription": "Enable hugepages passthrough for the server (mounts /dev/hugepages into the container).",
                   "kvmPassthroughEnabled": "Enable KVM Passthrough",
                   "kvmPassthroughEnabledDescription": "Enable KVM passthrough for the server (allows access to /dev/kvm inside the container).",
-                  "allocationsLimit": "Allocations",
-                  "databasesLimit": "Databases",
+                  "allocationsLimit": "Alokacje",
+                  "databasesLimit": "Bazy danych",
                   "databaseAgentsLimit": "Agent Databases",
-                  "backupsLimit": "Backups",
-                  "schedulesLimit": "Schedules"
+                  "backupsLimit": "Kopie zapasowe",
+                  "schedulesLimit": "Harmonogramy"
                 },
                 "modal": {
                   "confirmNoAllocation": {
                     "title": "No Primary Allocation Assigned",
                     "content": "You are creating a server without assigning any primary allocation. Are you sure you want to continue?",
                     "button": {
-                      "confirm": "Create Anyway"
+                      "confirm": "Utwórz mimo to"
                     }
                   }
                 }
               }
             },
             "allocations": {
-              "title": "Allocations",
+              "title": "Alokacje",
               "page": {
                 "title": "Server Allocations",
                 "table": {
                   "columns": {
-                    "ipAlias": "IP Alias"
+                    "ipAlias": "Alias IP"
                   }
                 },
                 "form": {
-                  "notesPlaceholder": "Notes"
+                  "notesPlaceholder": "Notatki"
                 },
                 "toast": {
-                  "updated": "Allocation updated.",
-                  "setPrimary": "Allocation set as primary.",
+                  "updated": "Alokacja zaktualizowana.",
+                  "setPrimary": "Alokacja ustawiona jako główna.",
                   "unsetPrimary": "Allocation unset as primary.",
-                  "removed": "Allocation removed.",
-                  "added": "{count} allocations added."
+                  "removed": "Alokacja usunięta.",
+                  "added": "Dodano {count} alokacji."
                 },
                 "modal": {
                   "add": {
                     "title": "Add Server Allocations",
                     "form": {
-                      "allocations": "Allocations"
+                      "allocations": "Alokacje"
                     },
                     "button": {
-                      "add": "Add {count}"
+                      "add": "Dodaj {count}"
                     }
                   },
                   "remove": {
-                    "title": "Confirm Allocation Removal",
-                    "content": "Are you sure you want to remove **{allocation}**?"
+                    "title": "Potwierdź usunięcie alokacji",
+                    "content": "Czy na pewno chcesz usunąć **{allocation}**?"
                   }
                 }
               }
             },
             "variables": {
-              "title": "Variables",
+              "title": "Zmienne",
               "page": {
-                "title": "Server Variables",
+                "title": "Zmienne serwera",
                 "toast": {
-                  "updated": "Server variables updated."
+                  "updated": "Zaktualizowano zmienne serwera."
                 }
               }
             },
@@ -2956,36 +2956,36 @@
               }
             },
             "backups": {
-              "title": "Backups",
+              "title": "Kopie zapasowe",
               "page": {
-                "title": "Server Backups",
+                "title": "Kopie zapasowe serwera",
                 "input": {
                   "partiallyDetachedOnly": "Only show partially detached backups"
                 }
               }
             },
             "databases": {
-              "title": "Databases",
+              "title": "Bazy danych",
               "page": {
                 "databases": {
-                  "title": "Classic Databases"
+                  "title": "Klasyczne bazy danych"
                 },
                 "instances": {
-                  "title": "Managed Databases"
+                  "title": "Zarządzane bazy danych"
                 }
               }
             },
             "logs": {
-              "title": "Logs",
+              "title": "Logi",
               "page": {
-                "title": "Server Logs",
+                "title": "Dziennik zdarzeń serwera",
                 "form": {
-                  "logType": "Log Type"
+                  "logType": "Typ zdarzenia"
                 },
                 "enum": {
                   "logType": {
-                    "console": "Console",
-                    "install": "Install"
+                    "console": "Konsola",
+                    "install": "Instalacja"
                   }
                 }
               }
@@ -2996,21 +2996,21 @@
                 "title": "Zarządzanie serwerem",
                 "transfer": {
                   "title": "Transfer",
-                  "content": "Transfer this server and it's data to another node within this system.",
+                  "content": "Przenieś ten serwer i dane do innego węzła w tym systemie.",
                   "toast": {
-                    "started": "Server transfer started."
+                    "started": "Transfer serwera rozpoczęty."
                   },
                   "modal": {
-                    "title": "Server Transfer",
+                    "title": "Transfer serwera",
                     "form": {
-                      "backupsToTransfer": "Backups to transfer"
+                      "backupsToTransfer": "Kopie zapasowe do przeniesienia"
                     },
                     "tooltip": {
-                      "aioNotSupported": "Transfers to the All-In-One node are not supported."
+                      "aioNotSupported": "Transfery do węzła All-In-One nie są obsługiwane."
                     },
                     "confirm": {
-                      "title": "Confirm Server Transfer",
-                      "content": "Are you sure you want to transfer **{name}** from **{from}** to **{to}**?",
+                      "title": "Potwierdź transfer serwera",
+                      "content": "Czy na pewno chcesz przenieść **{name}** z **{from}** do **{to}**?",
                       "alert": {
                         "notAllBackupsSelected": "You have not selected all backups to transfer, the remaining backups will become partially detached if the transfer completes successfully."
                       }
@@ -3105,37 +3105,37 @@
                 "resourceName": "Jajko",
                 "dropzone": {
                   "title": "Upuść pliki tutaj, aby zaimportować je jako Jajka",
-                  "subtitle": "Release to start importing"
+                  "subtitle": "Upuść, aby rozpocząć importowanie"
                 },
                 "button": {
-                  "updateFromRepository": "Update from Repository"
+                  "updateFromRepository": "Zaktualizuj z repozytorium"
                 },
                 "toast": {
-                  "imported": "Egg imported.",
-                  "moved": "Egg moved.",
-                  "movedBulk": "{eggs} moved.",
-                  "deletedBulk": "{eggs} deleted.",
+                  "imported": "Egg zaimportowany.",
+                  "moved": "Egg przeniesiony.",
+                  "movedBulk": "{eggs} przeniesiono.",
+                  "deletedBulk": "{eggs} usunięto.",
                   "updatedFromRepository": "{eggs} updated using their respective repository egg successfully.",
                   "parseFailed": "Failed to parse egg: {error}"
                 },
                 "modal": {
                   "move": {
-                    "title": "Move Egg"
+                    "title": "Przenieś jajko"
                   },
                   "moveBulk": {
-                    "title": "Move Eggs",
-                    "confirm": "Move {eggs}"
+                    "title": "Przenieś jajka",
+                    "confirm": "Przenieś {eggs}"
                   },
                   "deleteBulk": {
-                    "title": "Confirm Egg Deletion",
-                    "content": "Are you sure you want to delete `{count}` eggs?"
+                    "title": "Potwierdź usunięcie jajka",
+                    "content": "Czy na pewno chcesz usunąć `{count}` jajek?"
                   }
                 },
                 "tabs": {
                   "general": {
                     "page": {
-                      "titleCreate": "Create Egg",
-                      "titleUpdate": "Update Egg",
+                      "titleCreate": "Utwórz jajko",
+                      "titleUpdate": "Zaktualizuj jajko",
                       "card": {
                         "startupConfiguration": "Startup Configuration",
                         "stopConfiguration": "Stop Configuration",
@@ -3146,11 +3146,11 @@
                         "eggRepositoryEgg": "Egg Repository Egg",
                         "startupDone": "Startup Done",
                         "startupDoneDescription": "Console message indicating startup completion.",
-                        "stripAnsi": "Strip ANSI from startup messages",
-                        "stripAnsiDescription": "Removes ANSI control characters from the console output before matching startup completion.",
-                        "stopType": "Stop Type",
-                        "stopCommand": "Stop Command",
-                        "stopSignal": "Stop Signal",
+                        "stripAnsi": "Usuń ANSI z wiadomości startowych",
+                        "stripAnsiDescription": "Usuwa znaki kontrolne ANSI z wyjścia konsoli przed dopasowaniem do zakończenia uruchamiania.",
+                        "stopType": "Typ zatrzymania",
+                        "stopCommand": "Komenda zatrzymania",
+                        "stopSignal": "Sygnał zatrzymania",
                         "parser": "Parser",
                         "createNewFile": "Create New File",
                         "createNewFileDescription": "If enabled, the file will be created if it does not exist. If disabled, the file must already exist or the replacement will fail.",
@@ -3177,8 +3177,8 @@
                           "docker": "Docker Stop"
                         }
                       },
-                      "emptyConfigFiles": "No config files defined.",
-                      "emptyReplacements": "No replacements defined.",
+                      "emptyConfigFiles": "Brak zdefiniowanych plików konfiguracyjnych.",
+                      "emptyReplacements": "Nie zdefiniowano zamienników.",
                       "button": {
                         "addReplacement": "Add Replacement",
                         "addConfigFile": "Add Config File",
@@ -3192,7 +3192,7 @@
                       "modal": {
                         "delete": {
                           "title": "Confirm Egg Deletion",
-                          "content": "Are you sure you want to delete **{name}**?"
+                          "content": "Czy na pewno chcesz usunąć **{name}**?"
                         }
                       }
                     }
@@ -3555,11 +3555,11 @@
               }
             },
             "configuration": {
-              "title": "Configuration",
+              "title": "Konfiguracja",
               "page": {
-                "title": "Configuration",
+                "title": "Konfiguracja",
                 "section": {
-                  "initialSetup": "Initial Setup",
+                  "initialSetup": "Konfiguracja wstępna",
                   "liveConfiguration": "Konfiguracja na żywo"
                 },
                 "step": {
@@ -3625,45 +3625,45 @@
                   "disk": "Dysk",
                   "instances": "Instancje",
                   "kernelVersion": "Wersja jądra",
-                  "architecture": "Architecture",
+                  "architecture": "Architektura",
                   "unavailable": "Unavailable",
                   "noLimit": "No host limit",
-                  "free": "{size} free",
-                  "cores": "{cores} cores allocated"
+                  "free": "{size} wolne",
+                  "cores": "{cores} przydzielonych rdzeni"
                 },
                 "badge": {
-                  "updateAvailable": "Update Available"
+                  "updateAvailable": "Dostępna aktualizacja"
                 }
               }
             },
             "statistics": {
-              "title": "Statistics",
+              "title": "Statystyki",
               "page": {
                 "title": "Database Agent Host Statistics",
                 "card": {
-                  "resources": "Resources",
-                  "graphs": "Graphs"
+                  "resources": "Zasoby",
+                  "graphs": "Wykresy"
                 },
                 "label": {
                   "cpu": "CPU",
-                  "cpuThreads": "{model} ({threads} threads)",
-                  "memory": "Memory",
-                  "usedByAgent": "{size} used by the agent",
-                  "disk": "Disk",
-                  "network": "Network",
-                  "networkIn": "In: {in}",
-                  "networkOut": "Out: {out}"
+                  "cpuThreads": "{model} ({threads} wątków)",
+                  "memory": "Pamięć",
+                  "usedByAgent": "{size} używane przez agenta",
+                  "disk": "Dysk",
+                  "network": "Sieć",
+                  "networkIn": "We: {in}",
+                  "networkOut": "Wy: {out}"
                 },
                 "chart": {
-                  "cpuLoad": "CPU Load",
-                  "memoryUsage": "Memory Usage",
-                  "diskIo": "Disk I/O",
-                  "diskRead": "Disk Read",
-                  "diskWrite": "Disk Write",
-                  "networkTraffic": "Network Traffic",
-                  "networkInLabel": "Inbound",
-                  "networkOutLabel": "Outbound",
-                  "inbound": "Inbound",
+                  "cpuLoad": "Obciążenie CPU",
+                  "memoryUsage": "Użycie pamięci",
+                  "diskIo": "I/O Dysku",
+                  "diskRead": "Odczyt dysku",
+                  "diskWrite": "Zapis dysku",
+                  "networkTraffic": "Ruch sieciowy",
+                  "networkInLabel": "Przychodzące",
+                  "networkOutLabel": "Wychodzące",
+                  "inbound": "Przychodzące",
                   "outbound": "Outbound"
                 },
                 "toast": {
@@ -3733,7 +3733,7 @@
                 "modal": {
                   "delete": {
                     "title": "Confirm Database Agent Template Deletion",
-                    "content": "Are you sure you want to delete **{name}**?"
+                    "content": "Czy na pewno chcesz usunąć **{name}**?"
                   }
                 }
               }
@@ -4048,12 +4048,12 @@
               "page": {
                 "title": "Backup Configuration Backups",
                 "toast": {
-                  "downloadStarted": "Download started."
+                  "downloadStarted": "Rozpoczęto pobieranie."
                 }
               }
             },
             "locations": {
-              "title": "Locations",
+              "title": "Lokalizacje",
               "page": {
                 "title": "Backup Configuration Locations"
               }
