@@ -214,6 +214,7 @@ export default function Table({
               borderRadius: 'var(--mantine-radius-md)',
               border: '1px solid var(--mantine-color-default-border)',
               background: 'var(--mantine-color-default)',
+              overflow: 'hidden',
             }
       }
     >
