@@ -744,6 +744,8 @@ pub enum WebsocketEvent {
     OperationError,
     #[serde(rename = "operation completed")]
     OperationCompleted,
+    #[serde(rename = "operation aborted")]
+    OperationAborted,
     #[serde(rename = "file collab subscribe")]
     FileCollabSubscribe,
     #[serde(rename = "file collab unsubscribe")]

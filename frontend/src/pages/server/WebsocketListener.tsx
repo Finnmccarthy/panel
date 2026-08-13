@@ -440,6 +440,96 @@ export default function WebsocketListener() {
     removeFileOperation(uuid);
   });
 
+  useWebsocketEvent(SocketEvent.OPERATION_ABORTED, (uuid) => {
+    const { server, fileOperations } = serverStoreApi.getState();
+    const fileOperation = fileOperations.get(uuid);
+    if (!fileOperation) return;
+
+    switch (fileOperation.type) {
+      case 'compress':
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.compressing.aborted', {
+            files: tItem('file', fileOperation.filesProcessed),
+            path: fileOperation.path,
+          }).md(),
+          'error',
+        );
+
+        break;
+      case 'decompress':
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.decompressing.aborted', {
+            path: fileOperation.path,
+            destination: fileOperation.destinationPath || '/',
+          }).md(),
+          'error',
+        );
+
+        break;
+      case 'pull':
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.pulling.aborted', {
+            destination: fileOperation.destinationPath,
+          }).md(),
+          'error',
+        );
+
+        break;
+      case 'copy':
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.copying.aborted', {
+            path: fileOperation.path,
+            destination: fileOperation.destinationPath,
+          }).md(),
+          'error',
+        );
+
+        break;
+      case 'copy_many':
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.copyingMany.aborted', {
+            files: tItem('file', fileOperation.filesProcessed),
+          }).md(),
+          'error',
+        );
+
+        break;
+      case 'copy_remote':
+        if (fileOperation.destinationServer === server.uuid) {
+          addToast(
+            t('elements.serverWebsocket.listener.toast.operations.copyingRemote.abortedFrom', {
+              files: tItem('file', fileOperation.filesProcessed),
+            }).md(),
+            'error',
+          );
+        } else {
+          addToast(
+            t('elements.serverWebsocket.listener.toast.operations.copyingRemote.abortedTo', {
+              files: tItem('file', fileOperation.filesProcessed),
+            }).md(),
+            'error',
+          );
+        }
+
+        break;
+      case 'export_backup':
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.exportingBackup.aborted', {
+            destination: fileOperation.destinationPath,
+          }).md(),
+          'error',
+        );
+
+        break;
+      default:
+        fileOperation satisfies never;
+        break;
+    }
+
+    invalidateCacheKey(['server', server.uuid, 'files']);
+    failFileOperation(uuid);
+  });
+
   useWebsocketEvent(SocketEvent.OPERATION_ERROR, (uuid, error) => {
     const { server, fileOperations } = serverStoreApi.getState();
     const fileOperation = fileOperations.get(uuid);

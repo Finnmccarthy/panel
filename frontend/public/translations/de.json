@@ -685,34 +685,42 @@
             "operations": {
               "compressing": {
                 "completed": "{files} nach `{path}` komprimiert in {time}.",
-                "failed": "Komprimierung von {files} nach `{path}` fehlgeschlagen:\n{error}"
+                "failed": "Komprimierung von {files} nach `{path}` fehlgeschlagen:\n{error}",
+                "aborted": "Komprimierung von {files} nach `{path}` wurde abgebrochen."
               },
               "decompressing": {
                 "completed": "`{path}` nach `{destination}` entpackt in {time}.",
-                "failed": "Entpacken von `{path}` nach `{destination}` fehlgeschlagen:\n{error}"
+                "failed": "Entpacken von `{path}` nach `{destination}` fehlgeschlagen:\n{error}",
+                "aborted": "Entpacken von `{path}` nach `{destination}` wurde abgebrochen."
               },
               "pulling": {
                 "completed": "`{destination}` heruntergeladen in {time}.",
-                "failed": "Herunterladen von `{destination}` fehlgeschlagen:\n{error}"
+                "failed": "Herunterladen von `{destination}` fehlgeschlagen:\n{error}",
+                "aborted": "Herunterladen von `{destination}` wurde abgebrochen."
               },
               "copying": {
                 "completed": "`{path}` nach `{destination}` kopiert in {time}.",
                 "completedMany": "`{path}` nach `{destination}` kopiert ({files}) in {time}.",
-                "failed": "Kopieren von `{path}` nach `{destination}` fehlgeschlagen:\n{error}"
+                "failed": "Kopieren von `{path}` nach `{destination}` fehlgeschlagen:\n{error}",
+                "aborted": "Kopieren von `{path}` nach `{destination}` wurde abgebrochen."
               },
               "copyingMany": {
                 "completed": "{files} kopiert in {time}.",
-                "failed": "Kopieren von {files} fehlgeschlagen:\n{error}"
+                "failed": "Kopieren von {files} fehlgeschlagen:\n{error}",
+                "aborted": "Kopieren von {files} wurde abgebrochen."
               },
               "copyingRemote": {
                 "completedFrom": "{files} vom Remote-Server kopiert in {time}.",
                 "completedTo": "{files} zum Remote-Server kopiert in {time}.",
                 "failedFrom": "Kopieren von {files} vom Remote-Server fehlgeschlagen:\n{error}",
-                "failedTo": "Kopieren von {files} zum Remote-Server fehlgeschlagen:\n{error}"
+                "failedTo": "Kopieren von {files} zum Remote-Server fehlgeschlagen:\n{error}",
+                "abortedFrom": "Kopieren von {files} vom Remote-Server wurde abgebrochen.",
+                "abortedTo": "Kopieren von {files} zum Remote-Server wurde abgebrochen."
               },
               "exportingBackup": {
                 "completed": "Backup nach `{destination}` exportiert in {time}.",
-                "failed": "Exportieren des Backups nach `{destination}` fehlgeschlagen:\n{error}"
+                "failed": "Exportieren des Backups nach `{destination}` fehlgeschlagen:\n{error}",
+                "aborted": "Exportieren des Backups nach `{destination}` wurde abgebrochen."
               }
             }
           }
@@ -5097,7 +5105,8 @@
               "operations": {
                 "remoteImport": {
                   "completed": "`{database}` in {time} von `{source}` importiert.",
-                  "failed": "`{database}` konnte nicht von `{source}` importiert werden:\n{error}"
+                  "failed": "`{database}` konnte nicht von `{source}` importiert werden:\n{error}",
+                  "aborted": "Import von `{database}` von `{source}` wurde abgebrochen."
                 }
               }
             },
