@@ -617,12 +617,6 @@
           "button": {
             "viewInstallLogs": "Xem nhật ký cài đặt",
             "acknowledgeFailure": "Xác nhận lỗi cài đặt"
-          },
-          "modal": {
-            "acknowledgeFailure": {
-              "title": "Xác nhận Lỗi Cài Đặt",
-              "content": "Bằng việc xác nhận lỗi cài đặt này, bạn đang xác nhận rằng bạn đã biết về việc cài đặt thất bại và đã thực hiện các bước cần thiết để giải quyết vấn đề. Điều này sẽ cho phép bạn lấy lại quyền kiểm soát đối với máy chủ."
-            }
           }
         }
       },
@@ -2784,10 +2778,7 @@
                 "badge": {
                   "suspended": "Bị tạm đình chỉ",
                   "transferring": "Đang chuyển",
-                  "admin": "Quản trị",
-                  "installing": "Đang cài đặt",
-                  "installFailed": "Cài đặt thất bại",
-                  "restoringBackup": "Đang khôi phục sao lưu"
+                  "admin": "Quản trị"
                 }
               }
             },

@@ -617,12 +617,6 @@
           "button": {
             "viewInstallLogs": "Zobraziť denníky inštalácie",
             "acknowledgeFailure": "Potvrdiť zlyhanie"
-          },
-          "modal": {
-            "acknowledgeFailure": {
-              "title": "Potvrdiť zlyhanie inštalácie",
-              "content": "Potvrdením tohto zlyhania inštalácie potvrdzujete, že ste si vedomí neúspešnej inštalácie a podnikli ste všetky potrebné kroky na vyriešenie problému. To vám umožní znovu získať kontrolu nad serverom."
-            }
           }
         }
       },
@@ -2784,10 +2778,7 @@
                 "badge": {
                   "suspended": "Suspended",
                   "transferring": "Transferring",
-                  "admin": "Admin",
-                  "installing": "Installing",
-                  "installFailed": "Install Failed",
-                  "restoringBackup": "Restoring Backup"
+                  "admin": "Admin"
                 }
               }
             },

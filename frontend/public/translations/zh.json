@@ -617,12 +617,6 @@
           "button": {
             "viewInstallLogs": "查看安裝紀錄",
             "acknowledgeFailure": "確認失敗"
-          },
-          "modal": {
-            "acknowledgeFailure": {
-              "title": "確認安裝失敗",
-              "content": "確認此安裝失敗即表示你知道安裝失敗，並已採取必要步驟解決問題。這會讓你重新取得伺服器控制權。"
-            }
           }
         }
       },

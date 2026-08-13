@@ -617,12 +617,6 @@
           "button": {
             "viewInstallLogs": "Ver registros de instalación",
             "acknowledgeFailure": "Reconocer fallo"
-          },
-          "modal": {
-            "acknowledgeFailure": {
-              "title": "Reconocer fallo de instalación",
-              "content": "Al reconocer este fallo de instalación, confirmas que estás al tanto de que la instalación ha fallado y que has tomado las medidas necesarias para resolver el problema. Esto te permitirá recuperar el control del servidor."
-            }
           }
         }
       },

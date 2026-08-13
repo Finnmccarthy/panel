@@ -617,12 +617,6 @@
           "button": {
             "viewInstallLogs": "عرض سجلات التثبيت",
             "acknowledgeFailure": "الاعتراف بالفشل"
-          },
-          "modal": {
-            "acknowledgeFailure": {
-              "title": "الاعتراف بفشل التثبيت",
-              "content": "بالموافقة على فشل التثبيت هذا، أنت تؤكد أنك على علم بفشل التثبيت وقد اتخذت الخطوات اللازمة لحل المشكلة. سيسمح لك هذا باستعادة السيطرة على الخادم."
-            }
           }
         }
       },
@@ -2784,10 +2778,7 @@
                 "badge": {
                   "suspended": "Suspended",
                   "transferring": "Transferring",
-                  "admin": "Admin",
-                  "installing": "Installing",
-                  "installFailed": "Install Failed",
-                  "restoringBackup": "Restoring Backup"
+                  "admin": "Admin"
                 }
               }
             },
