@@ -304,6 +304,7 @@
         "deleteSourceBackups": "Quell-Backups löschen",
         "deleteSourceBackupsDescription": "Löscht die übertragenen Backups auf der Quell-Node, sobald die Übertragung abgeschlossen ist",
         "node": "Node",
+        "location": "Standort",
         "primaryAllocation": "Primäre Allocation",
         "additionalAllocations": "Zusätzliche Allocations",
         "externalId": "Externe ID",
@@ -391,7 +392,8 @@
         "disabled": "Deaktiviert",
         "successful": "Erfolgreich",
         "failed": "Fehlgeschlagen",
-        "installed": "Installiert"
+        "installed": "Installiert",
+        "systemBackup": "System"
       },
       "label": {
         "noSubdirectories": "Keine Unterverzeichnisse",
@@ -4070,6 +4072,129 @@
             }
           }
         },
+        "systemBackupPolicies": {
+          "title": "System-Backup-Richtlinien",
+          "resourceName": "System-Backup-Richtlinie",
+          "badge": {
+            "disabled": "Deaktiviert",
+            "runPending": "Ausführung ausstehend"
+          },
+          "table": {
+            "columns": {
+              "cron": "Zeitplan",
+              "backups": "Backups"
+            }
+          },
+          "form": {
+            "backupConfigurationPlaceholder": "Vom Server erben",
+            "cron": "Zeitplan",
+            "cronDescription": "Cron-Ausdruck (mit Sekunden), der bestimmt, wann Backups erstellt werden, in UTC.",
+            "retentionCount": "Anzahl behalten",
+            "retentionCountDescription": "Maximale Anzahl erfolgreicher Backups, die pro Server behalten werden. Leer lassen für kein Limit.",
+            "retentionDays": "Tage behalten",
+            "retentionDaysDescription": "Backups löschen, die älter als diese Anzahl an Tagen sind. Leer lassen für kein Limit.",
+            "parallelism": "Parallelität",
+            "parallelismDescription": "Maximale Anzahl an Backups, die diese Richtlinie gleichzeitig auf einem einzelnen Node ausführt.",
+            "enabledDescription": "Deaktivierte Richtlinien behalten ihre Backups, erstellen aber keine neuen."
+          },
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "System-Backup-Richtlinie erstellen",
+                "titleUpdate": "System-Backup-Richtlinie bearbeiten",
+                "button": {
+                  "runNow": "Jetzt ausführen"
+                },
+                "toast": {
+                  "triggered": "Ausführung angefordert. Backups werden in Kürze erstellt."
+                },
+                "modal": {
+                  "trigger": {
+                    "title": "Manuelle Ausführung bestätigen",
+                    "content": "Bist du sicher, dass du **{name}** jetzt ausführen möchtest? Jeder abgedeckte Server ohne Backup aus dieser Ausführung wird gesichert."
+                  },
+                  "delete": {
+                    "title": "Löschen der System-Backup-Richtlinie bestätigen",
+                    "content": "Bist du sicher, dass du **{name}** löschen möchtest?",
+                    "form": {
+                      "deleteBackups": "Möchtest du die von dieser Richtlinie erstellten Backups löschen?"
+                    },
+                    "alert": {
+                      "deleteBackupsWarning": "Alle von dieser Richtlinie erstellten Backups werden dauerhaft von ihren Speicher-Backends gelöscht.",
+                      "releaseWarning": "Von dieser Richtlinie erstellte Backups werden zu regulären Server-Backups. Sie zählen zum Backup-Limit jedes Servers und folgen der normalen Rotation."
+                    }
+                  }
+                }
+              }
+            },
+            "backups": {
+              "title": "Backups",
+              "page": {
+                "title": "Backups der System-Backup-Richtlinie",
+                "toast": {
+                  "downloadStarted": "Download gestartet."
+                }
+              }
+            },
+            "locations": {
+              "title": "Standorte",
+              "page": {
+                "title": "Standorte der System-Backup-Richtlinie",
+                "toast": {
+                  "added": "Standort hinzugefügt.",
+                  "removed": "Standort entfernt."
+                },
+                "modal": {
+                  "add": {
+                    "title": "Standort hinzufügen"
+                  },
+                  "remove": {
+                    "title": "Entfernen des Standorts bestätigen",
+                    "content": "Bist du sicher, dass du **{name}** aus **{policy}** entfernen möchtest?"
+                  }
+                }
+              }
+            },
+            "nodes": {
+              "title": "Nodes",
+              "page": {
+                "title": "Nodes der System-Backup-Richtlinie",
+                "toast": {
+                  "added": "Node hinzugefügt.",
+                  "removed": "Node entfernt."
+                },
+                "modal": {
+                  "add": {
+                    "title": "Node hinzufügen"
+                  },
+                  "remove": {
+                    "title": "Entfernen des Nodes bestätigen",
+                    "content": "Bist du sicher, dass du **{name}** aus **{policy}** entfernen möchtest?"
+                  }
+                }
+              }
+            },
+            "servers": {
+              "title": "Server",
+              "page": {
+                "title": "Server der System-Backup-Richtlinie",
+                "toast": {
+                  "added": "Server hinzugefügt.",
+                  "removed": "Server entfernt."
+                },
+                "modal": {
+                  "add": {
+                    "title": "Server hinzufügen"
+                  },
+                  "remove": {
+                    "title": "Entfernen des Servers bestätigen",
+                    "content": "Bist du sicher, dass du **{name}** aus **{policy}** entfernen möchtest?"
+                  }
+                }
+              }
+            }
+          }
+        },
         "mounts": {
           "title": "Mounts",
           "resourceName": "Mount",
@@ -5856,6 +5981,10 @@
             "updated": "Backup-Gruppe aktualisiert.",
             "deleted": "Backup-Gruppe gelöscht."
           }
+        },
+        "systemBackups": {
+          "title": "System-Backups",
+          "subtitle": "Backups, die automatisch vom Panel erstellt werden. Sie können nicht verändert oder gelöscht werden."
         },
         "network": {
           "title": "Netzwerk",

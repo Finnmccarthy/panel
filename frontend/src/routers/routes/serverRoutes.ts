@@ -15,6 +15,7 @@ import { lazy } from 'react';
 import type { ServerRouteDefinition } from 'shared';
 import ServerActivity from '@/pages/server/activity/ServerActivity.tsx';
 import ServerBackups from '@/pages/server/backups/ServerBackups.tsx';
+import ServerSystemBackups from '@/pages/server/backups/system/ServerSystemBackups.tsx';
 import DatabaseExplorerView from '@/pages/server/databases/explorer/DatabaseExplorerView.tsx';
 import DatabaseInstanceExplorerView from '@/pages/server/databases/instances/DatabaseInstanceExplorerView.tsx';
 import DatabaseInstanceView from '@/pages/server/databases/instances/DatabaseInstanceView.tsx';
@@ -118,6 +119,12 @@ const routes: ServerRouteDefinition[] = [
     icon: faBoxArchive,
     path: '/backups',
     element: ServerBackups,
+    permission: 'backups.read',
+  },
+  {
+    name: undefined,
+    path: '/backups/system',
+    element: ServerSystemBackups,
     permission: 'backups.read',
   },
   {

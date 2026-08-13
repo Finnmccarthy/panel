@@ -2784,10 +2784,10 @@
                 "badge": {
                   "suspended": "Suspended",
                   "transferring": "Transferring",
+                  "admin": "Admin",
                   "installing": "Installing",
                   "installFailed": "Install Failed",
-                  "restoringBackup": "Restoring Backup",
-                  "admin": "Admin"
+                  "restoringBackup": "Restoring Backup"
                 }
               }
             },

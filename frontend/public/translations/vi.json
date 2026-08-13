@@ -2784,10 +2784,10 @@
                 "badge": {
                   "suspended": "Bị tạm đình chỉ",
                   "transferring": "Đang chuyển",
+                  "admin": "Quản trị",
                   "installing": "Đang cài đặt",
                   "installFailed": "Cài đặt thất bại",
-                  "restoringBackup": "Đang khôi phục sao lưu",
-                  "admin": "Quản trị"
+                  "restoringBackup": "Đang khôi phục sao lưu"
                 }
               }
             },

@@ -760,6 +760,7 @@ export const permissionCategoryIconMapping: Record<string, IconDefinition> = {
   'backup-configurations': faFileZipper,
   backups: faBoxArchive,
   'backup-groups': faBoxArchive,
+  'system-backup-policies': faClockRotateLeft,
   control: faTerminal,
   announcements: faBullhorn,
   'database-hosts': faDatabase,

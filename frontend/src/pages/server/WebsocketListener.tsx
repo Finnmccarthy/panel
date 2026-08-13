@@ -175,6 +175,7 @@ export default function WebsocketListener() {
       completed: new Date(),
     });
     invalidateCacheKey(queryKeys.server(serverStoreApi.getState().server.uuid).backups.groups.all());
+    invalidateCacheKey(queryKeys.server(serverStoreApi.getState().server.uuid).backups.system());
   });
 
   useWebsocketEvent(SocketEvent.BACKUP_DELETED, (uuid, data) => {

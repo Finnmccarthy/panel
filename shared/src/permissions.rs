@@ -349,6 +349,25 @@ pub(crate) static BASE_ADMIN_PERMISSIONS: LazyLock<IndexMap<&'static str, Permis
                 },
             ),
             (
+                "system-backup-policies",
+                PermissionGroup {
+                    description: "Permissions that control the ability to manage system backup policies for the panel.",
+                    permissions: IndexMap::from([
+                        ("create", "Allows creating new system backup policies."),
+                        ("read", "Allows viewing system backup policies."),
+                        (
+                            "update",
+                            "Allows modifying system backup policies and their attached nodes, locations and servers.",
+                        ),
+                        ("delete", "Allows deleting system backup policies."),
+                        (
+                            "backups",
+                            "Allows viewing backups associated with a system backup policy.",
+                        ),
+                    ]),
+                },
+            ),
+            (
                 "nodes",
                 PermissionGroup {
                     description: "Permissions that control the ability to manage nodes for the panel.",

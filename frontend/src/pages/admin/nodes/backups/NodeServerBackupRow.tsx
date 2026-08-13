@@ -1,6 +1,7 @@
 import { faFileArrowDown, faFileExport, faRotateLeft, faTrash, faWarning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
+import { ContextMenuRegistry } from 'shared/src/registries/slices/contextMenu';
 import { z } from 'zod';
 import downloadNodeBackup from '@/api/admin/nodes/backups/downloadNodeBackup.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
@@ -19,15 +20,16 @@ import { bytesToString } from '@/lib/size.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import NodeBackupsDeleteModal from '../../nodes/backups/modals/NodeBackupsDeleteModal.tsx';
-import NodeBackupsExportModal from '../../nodes/backups/modals/NodeBackupsExportModal.tsx';
-import NodeBackupsRestoreModal from '../../nodes/backups/modals/NodeBackupsRestoreModal.tsx';
+import NodeBackupsDeleteModal from './modals/NodeBackupsDeleteModal.tsx';
+import NodeBackupsExportModal from './modals/NodeBackupsExportModal.tsx';
+import NodeBackupsRestoreModal from './modals/NodeBackupsRestoreModal.tsx';
 
-export default function AdminBackupConfigurationBackupRow({
-  backup,
-}: {
+type Props<P> = {
   backup: z.infer<typeof adminNodeServerBackupSchema>;
-}) {
+  downloadStartedMessage: string;
+} & ({ registry: ContextMenuRegistry<P>; registryProps: P } | { registry?: never; registryProps?: never });
+
+export default function NodeServerBackupRow<P>({ backup, downloadStartedMessage, ...contextMenu }: Props<P>) {
   const { t } = useTranslations();
   const { addToast } = useToast();
 
@@ -36,7 +38,7 @@ export default function AdminBackupConfigurationBackupRow({
   const doDownload = (archiveFormat: z.infer<typeof streamingArchiveFormat>) => {
     downloadNodeBackup(backup.node.uuid, backup.uuid, archiveFormat)
       .then(({ url }) => {
-        addToast(t('pages.admin.backupConfigurations.tabs.backups.page.toast.downloadStarted', {}), 'success');
+        addToast(downloadStartedMessage, 'success');
         window.location.href = url;
       })
       .catch((msg) => {
@@ -67,7 +69,7 @@ export default function AdminBackupConfigurationBackupRow({
         onClose={() => setOpenModal(null)}
       />
 
-      <ContextMenu
+      <ContextMenu<P>
         items={[
           {
             type: 'action',
@@ -115,6 +117,7 @@ export default function AdminBackupConfigurationBackupRow({
             canAccess: useAdminCan('nodes.backups'),
           },
         ]}
+        {...contextMenu}
       >
         {({ items, openMenu }) => (
           <TableRow
@@ -123,7 +126,16 @@ export default function AdminBackupConfigurationBackupRow({
               openMenu(e.clientX, e.clientY);
             }}
           >
-            <TableData>{backup.name}</TableData>
+            <TableData>
+              {backup.name}
+              {backup.systemBackupPolicyUuid && (
+                <TableLink className='ml-2' to={`/admin/system-backup-policies/${backup.systemBackupPolicyUuid}`}>
+                  <Badge className='cursor-pointer!' color='blue'>
+                    {t('common.badge.systemBackup', {})}
+                  </Badge>
+                </TableLink>
+              )}
+            </TableData>
 
             <TableData>
               <Code>

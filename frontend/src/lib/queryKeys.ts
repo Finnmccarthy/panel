@@ -104,6 +104,15 @@ const admin = {
     stats: (uuid: string) => ['admin', 'backup-configurations', uuid, 'stats'] as const,
   },
 
+  systemBackupPolicies: {
+    all: () => ['admin', 'system-backup-policies'] as const,
+    detail: (uuid: string) => ['admin', 'system-backup-policies', { uuid }] as const,
+    backups: (uuid: string) => ['admin', 'system-backup-policies', uuid, 'backups'] as const,
+    nodes: (uuid: string) => ['admin', 'system-backup-policies', uuid, 'nodes'] as const,
+    locations: (uuid: string) => ['admin', 'system-backup-policies', uuid, 'locations'] as const,
+    servers: (uuid: string) => ['admin', 'system-backup-policies', uuid, 'servers'] as const,
+  },
+
   oAuthProviders: {
     all: () => ['admin', 'oauth-providers'] as const,
     detail: (uuid: string) => ['admin', 'oauth-providers', { uuid }] as const,
@@ -168,6 +177,7 @@ const server = (serverUuid: string) => ({
       all: () => ['server', serverUuid, 'backups', 'groups'] as const,
       detail: (groupUuid: string) => ['server', serverUuid, 'backups', 'groups', { uuid: groupUuid }] as const,
     },
+    system: () => ['server', serverUuid, 'backups', 'system'] as const,
   },
   databases: {
     all: () => ['server', serverUuid, 'databases'] as const,
