@@ -954,64 +954,69 @@ impl DeletableModel for ServerDatabase {
         state: &crate::State,
         options: Self::DeleteOptions,
     ) -> Result<(), anyhow::Error> {
-        if self.name.contains(|c| ['"', '\'', '`'].contains(&c))
-            || self.username.contains(|c| ['"', '\'', '`'].contains(&c))
-        {
-            return Err(anyhow::anyhow!(
-                "unable to delete database with escape characters"
-            ));
-        }
-
-        let connection = self
-            .database_host
-            .clone()
-            .get_connection(&state.database)
-            .await?;
         let database_name = self.name.clone();
         let database_username = self.username.clone();
+        let mut database_host = self.database_host.clone();
         let self_clone = self.clone();
         let state_clone = state.clone();
 
         tokio::spawn(async move {
-            let run_delete = async || {
-                match connection {
+            let mut run_delete = async || {
+                if database_name.contains(|c| ['"', '\'', '`'].contains(&c))
+                    || database_username.contains(|c| ['"', '\'', '`'].contains(&c))
+                {
+                    return Err(anyhow::anyhow!(
+                        "unable to delete database with escape characters"
+                    ));
+                }
+
+                match database_host.get_connection(&state_clone.database).await? {
                     crate::models::database_host::DatabasePool::Mysql(pool) => {
-                        sqlx::query(sqlx::AssertSqlSafe(format!(
+                        let database = sqlx::query(sqlx::AssertSqlSafe(format!(
                             "DROP DATABASE IF EXISTS `{}`",
                             database_name
                         )))
                         .execute(&pool)
-                        .await?;
-                        sqlx::query(sqlx::AssertSqlSafe(format!(
+                        .await;
+                        let user = sqlx::query(sqlx::AssertSqlSafe(format!(
                             "DROP USER IF EXISTS '{}'@'%'",
                             database_username
                         )))
                         .execute(&pool)
-                        .await?;
+                        .await;
+
+                        database?;
+                        user?;
                     }
                     crate::models::database_host::DatabasePool::Postgres(pool) => {
-                        sqlx::query(sqlx::AssertSqlSafe(format!(
+                        let database = sqlx::query(sqlx::AssertSqlSafe(format!(
                             "DROP DATABASE IF EXISTS \"{}\"",
                             database_name
                         )))
                         .execute(&pool)
-                        .await?;
-                        sqlx::query(sqlx::AssertSqlSafe(format!(
+                        .await;
+                        let user = sqlx::query(sqlx::AssertSqlSafe(format!(
                             "DROP USER IF EXISTS \"{}\"",
                             database_username
                         )))
                         .execute(&pool)
-                        .await?;
+                        .await;
+
+                        database?;
+                        user?;
                     }
                     crate::models::database_host::DatabasePool::Mongodb(client) => {
                         let db = client.database(&database_name);
 
-                        db.run_command(
-                            mongodb::bson::doc! { "dropUser": database_username.as_str() },
-                        )
-                        .await?;
+                        let user = db
+                            .run_command(
+                                mongodb::bson::doc! { "dropUser": database_username.as_str() },
+                            )
+                            .await;
+                        let database = db.drop().await;
 
-                        db.drop().await?;
+                        user?;
+                        database?;
                     }
                 }
 
