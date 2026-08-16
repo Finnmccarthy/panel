@@ -303,6 +303,9 @@ importers:
 
   ../backend-extensions/dev_0x7d8_minecraftversionchanger/frontend:
     dependencies:
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^7.3.1
+        version: 7.3.1
       shared:
         specifier: workspace:*
         version: link:../../../frontend/extensions/shared
@@ -321,6 +324,9 @@ importers:
 
   extensions/dev_0x7d8_minecraftversionchanger:
     dependencies:
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^7.3.1
+        version: 7.3.1
       shared:
         specifier: workspace:*
         version: link:../shared
