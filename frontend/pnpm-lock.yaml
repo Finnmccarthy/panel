@@ -297,6 +297,9 @@ importers:
 
   ../backend-extensions/dev_0x7d8_eggchanger/frontend:
     dependencies:
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^7.3.1
+        version: 7.3.1
       shared:
         specifier: workspace:*
         version: link:../../../frontend/extensions/shared
@@ -312,12 +315,18 @@ importers:
 
   ../backend-extensions/dev_0x7d8_subdomainmanager/frontend:
     dependencies:
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^7.3.1
+        version: 7.3.1
       shared:
         specifier: workspace:*
         version: link:../../../frontend/extensions/shared
 
   extensions/dev_0x7d8_eggchanger:
     dependencies:
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^7.3.1
+        version: 7.3.1
       shared:
         specifier: workspace:*
         version: link:../shared
@@ -333,6 +342,9 @@ importers:
 
   extensions/dev_0x7d8_subdomainmanager:
     dependencies:
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^7.3.1
+        version: 7.3.1
       shared:
         specifier: workspace:*
         version: link:../shared
