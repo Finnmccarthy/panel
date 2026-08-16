@@ -1,0 +1,28 @@
+[package]
+name = "dev_0x7d8_minecraftversionchanger"
+description = "Minecraft Version Changer allows you to adjust your minecraft servers version instantly."
+authors = ["0x7d8"]
+version = "1.2.0"
+edition = { workspace = true }
+
+[dependencies]
+shared = { workspace = true }
+async-trait = { workspace = true }
+axum = { workspace = true }
+utoipa = { workspace = true }
+utoipa-axum = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+wings-api = { workspace = true }
+chrono = { workspace = true }
+anyhow = { workspace = true }
+indexmap = { workspace = true }
+tracing = { workspace = true }
+futures-util = { workspace = true }
+sqlx = { workspace = true }
+compact_str = { workspace = true }
+garde = { workspace = true }
+uuid = { workspace = true }
+tokio = { workspace = true }
+semver = { workspace = true }

@@ -2,4 +2,5 @@
 passthrough = [
     "WINGS_RELEASE",
     "WINGS_BINARY_PATH",
+    "SQLX_OFFLINE",
 ]

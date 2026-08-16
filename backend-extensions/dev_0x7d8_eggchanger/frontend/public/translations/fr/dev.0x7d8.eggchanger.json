@@ -1,0 +1,93 @@
+{
+  "items": {},
+  "translations": {
+    "elements": {
+      "extensionSettingsEditor": {
+        "noGroups": "Aucun groupe d'eggs configuré.",
+        "button": {
+          "addGroup": "Ajouter un groupe d'eggs"
+        },
+        "tooltip": {
+          "removeGroup": "Supprimer le groupe",
+          "removeEgg": "Supprimer l'egg"
+        },
+        "divider": {
+          "eggs": "Eggs (glisser pour réorganiser)",
+          "options": "Options",
+          "affectedEggs": "Eggs affectés"
+        },
+        "form": {
+          "groupName": "Nom du groupe",
+          "groupNamePlaceholder": "Nom du groupe",
+          "selectableEggs": "Eggs sélectionnables",
+          "selectableEggsPlaceholder": "Ajouter des eggs à ce groupe",
+          "affectedEggs": "Eggs affectés",
+          "affectedEggsPlaceholder": "Sélectionner les eggs affectés",
+          "affectedEggsDescription": "Les eggs qui sont affectés par la configuration de ce groupe.",
+          "forceUpdateStartup": "Forcer la mise à jour de la commande de démarrage",
+          "forceUpdateStartupDescription": "Force la mise à jour de la commande de démarrage lorsqu'un egg de ce groupe est appliqué.",
+          "forceReinstall": "Forcer la réinstallation",
+          "forceReinstallDescription": "Force une réinstallation lorsqu'un egg de ce groupe est appliqué.",
+          "forceReinstallTruncateFiles": "Forcer la suppression des fichiers lors de la réinstallation",
+          "forceReinstallTruncateFilesDescription": "Supprimer tous les fichiers avant de réinstaller.",
+          "reassignAllocations": "Réattribuer les allocations",
+          "reassignAllocationsDescription": "Lors du passage à un egg de ce groupe, si le nouvel egg a des exigences d'allocation différentes de l'ancien, réattribue automatiquement les allocations pour correspondre au nouvel egg. (Système de configuration d'Egg)"
+        }
+      }
+    },
+    "pages": {
+      "admin": {
+        "configuration": {
+          "settings": {
+            "title": "Paramètres",
+            "toast": {
+              "updated": "Paramètres mis à jour."
+            }
+          },
+          "thankYou": {
+            "title": "Merci !",
+            "description": "Merci d'avoir installé l'extension Egg Changer ! Si vous avez des questions, des retours ou des problèmes, n'hésitez pas à nous contacter sur notre serveur Discord.",
+            "alert": {
+              "newVersion": "Une nouvelle version de l'extension Egg Changer est disponible ! Veuillez la mettre à jour pour profiter de la meilleure expérience possible."
+            },
+            "table": {
+              "columns": {
+                "version": "Version",
+                "changelog": "Changements"
+              }
+            },
+            "button": {
+              "joinDiscord": "Rejoindre notre Discord",
+              "downloadFrom": "Télécharger {version} depuis {provider}"
+            }
+          }
+        }
+      },
+      "server": {
+        "settings": {
+          "eggchanger": {
+            "title": "Egg Changer",
+            "form": {
+              "egg": "Egg"
+            },
+            "modal": {
+              "title": "Changer d'Egg",
+              "content": "Êtes-vous sûr de vouloir changer l'egg du serveur pour **{eggName}** ?",
+              "toast": {
+                "changed": "Egg changé avec succès.",
+                "changedWithReinstall": "Egg changé avec succès. Réinstallation du serveur en cours..."
+              },
+              "form": {
+                "updateStartup": "Mettre à jour la commande de démarrage",
+                "updateStartupDescription": "Mettre à jour la commande de démarrage pour qu'elle corresponde au nouvel egg.",
+                "reinstall": "Réinstaller le serveur",
+                "reinstallDescription": "Réinstaller le serveur pour exécuter le script d'installation du nouvel egg."
+              }
+            },
+            "noEggs": "Aucun egg disponible vers lequel basculer."
+          }
+        }
+      }
+    }
+  }
+}

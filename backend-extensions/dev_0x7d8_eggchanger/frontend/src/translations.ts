@@ -1,0 +1,104 @@
+import { defineTranslations } from 'shared';
+
+const translations = defineTranslations({
+  items: {},
+  translations: {
+    elements: {
+      extensionSettingsEditor: {
+        noGroups: 'No egg groups configured.',
+        button: {
+          addGroup: 'Add Egg Group',
+        },
+        tooltip: {
+          removeGroup: 'Remove group',
+          removeEgg: 'Remove egg',
+        },
+        divider: {
+          eggs: 'Eggs (drag to reorder)',
+          options: 'Options',
+          affectedEggs: 'Affected Eggs',
+        },
+        form: {
+          groupName: 'Group Name',
+          groupNamePlaceholder: 'Group Name',
+          selectableEggs: 'Selectable Eggs',
+          selectableEggsPlaceholder: 'Add eggs to this group',
+          affectedEggs: 'Affected Eggs',
+          affectedEggsPlaceholder: 'Select affected eggs',
+          affectedEggsDescription: 'Eggs that are affected by this group configuration.',
+          forceUpdateStartup: 'Force Update Startup',
+          forceUpdateStartupDescription:
+            'Force the startup command to be updated when an egg in this group is applied.',
+          forceReinstall: 'Force Reinstall',
+          forceReinstallDescription: 'Force a reinstall when an egg in this group is applied.',
+          forceReinstallTruncateFiles: 'Force a truncate of files when reinstalling',
+          forceReinstallTruncateFilesDescription: 'Delete all files before reinstalling.',
+          reassignAllocations: 'Reassign Allocations',
+          reassignAllocationsDescription:
+            'When changing to an egg in this group, if the new egg has different allocation requirements than the old one, automatically reassign allocations to fit the new egg. (Egg Configuration System)',
+        },
+      },
+    },
+    pages: {
+      admin: {
+        configuration: {
+          settings: {
+            title: 'Settings',
+            toast: {
+              updated: 'Settings updated.',
+            },
+          },
+          thankYou: {
+            title: 'Thank you!',
+            description:
+              'Thank you for installing the Egg Changer extension! If you have any questions, feedback or issues, please feel free to reach out to us on our Discord server.',
+            alert: {
+              newVersion:
+                'A new version of the Egg Changer extension is available! Please update to the latest version to get the best experience.',
+            },
+            table: {
+              columns: {
+                version: 'Version',
+                changelog: 'Changelog',
+              },
+            },
+            button: {
+              joinDiscord: 'Join our Discord',
+              downloadFrom: 'Download {version} from {provider}',
+            },
+          },
+        },
+      },
+      server: {
+        settings: {
+          eggchanger: {
+            title: 'Egg Changer',
+            form: {
+              egg: 'Egg',
+            },
+            modal: {
+              title: 'Change Egg',
+              content: "Are you sure you want to change the server's egg to **{eggName}**?",
+              toast: {
+                changed: 'Egg changed successfully.',
+                changedWithReinstall: 'Egg changed successfully. Reinstalling server...',
+              },
+              form: {
+                updateStartup: 'Update Startup Command',
+                updateStartupDescription: 'Update the startup command to match the new egg.',
+                reinstall: 'Reinstall Server',
+                reinstallDescription: "Reinstall the server to run the new egg's install script.",
+              },
+            },
+            noEggs: 'No eggs available to switch to.',
+          },
+        },
+      },
+    },
+  },
+});
+
+export const useExtTranslations = translations.useTranslations.bind(translations);
+export const getExtTranslations = translations.getTranslations.bind(translations);
+
+export default translations;

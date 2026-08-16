@@ -1,0 +1,132 @@
+{
+  "items": {},
+  "translations": {
+    "common": {
+      "form": {
+        "allocation": "Zuweisung",
+        "allocationGroupPrimary": "Primär",
+        "allocationGroupOther": "Weitere"
+      }
+    },
+    "pages": {
+      "server": {
+        "subdomains": {
+          "title": "Subdomains",
+          "subtitle": "{current} von {max} Subdomains erstellt.",
+          "toast": {
+            "created": "Subdomain erstellt.",
+            "updated": "Subdomain aktualisiert.",
+            "deleted": "Subdomain gelöscht."
+          },
+          "tooltip": {
+            "limitReached": "Dieser Server ist auf {max} Subdomains begrenzt.",
+            "noDomains": "Für dieses Egg sind keine Domains konfiguriert."
+          },
+          "table": {
+            "columns": {
+              "domain": "Domain"
+            }
+          },
+          "modal": {
+            "create": { "title": "Subdomain erstellen" },
+            "update": { "title": "Subdomain bearbeiten" },
+            "delete": {
+              "title": "Subdomain löschen",
+              "content": "Möchtest du **{subdomain}.{domain}** wirklich löschen? Die DNS-Einträge werden ebenfalls entfernt."
+            }
+          },
+          "form": {
+            "subdomain": "Subdomain",
+            "domain": "Domain"
+          }
+        }
+      },
+      "admin": {
+        "servers": {
+          "featureLimits": {
+            "subdomains": "Subdomains"
+          }
+        },
+        "configuration": {
+          "domains": {
+            "title": "Domains",
+            "empty": "Keine Domains konfiguriert.",
+            "button": {
+              "add": "Domain hinzufügen",
+              "test": "Testen",
+              "edit": "Bearbeiten",
+              "viewSubdomains": "Subdomains anzeigen"
+            },
+            "toast": {
+              "created": "Domain erstellt.",
+              "updated": "Domain aktualisiert.",
+              "deleted": "Domain gelöscht.",
+              "testOk": "Anbieter-Zugangsdaten sind gültig und haben Schreibzugriff."
+            },
+            "table": {
+              "columns": {
+                "domain": "Domain",
+                "provider": "Anbieter",
+                "eggs": "Eggs"
+              }
+            },
+            "tooltip": {
+              "test": "Zugangsdaten testen",
+              "edit": "Domain bearbeiten",
+              "delete": "Domain löschen"
+            },
+            "subdomains": {
+              "title": "Subdomains – {domain}",
+              "empty": "Keine Subdomains für diese Domain.",
+              "table": {
+                "columns": {
+                  "subdomain": "Subdomain",
+                  "server": "Server"
+                }
+              }
+            },
+            "modal": {
+              "create": { "title": "Domain erstellen" },
+              "edit": { "title": "Domain bearbeiten" },
+              "delete": {
+                "title": "Domain löschen",
+                "content": "Möchtest du **{domain}** wirklich löschen? Alle zugehörigen Server-Subdomains werden ebenfalls gelöscht."
+              }
+            },
+            "form": {
+              "provider": "Anbieter",
+              "eggs": "Berechtigte Eggs",
+              "domain": "Domain",
+              "regexes": "Verbotene Subdomain-Muster",
+              "regexesDescription": "Regex-Muster, die Subdomains nicht übereinstimmen dürfen.",
+              "regexesPlaceholder": "^admin$",
+              "cloudflareToken": "API-Token",
+              "cloudflareTokenDescription": "Muss die Berechtigung dns_records:write für die Zone haben.",
+              "cloudflareZoneId": "Zonen-ID",
+              "cloudflareZoneIdDescription": "Zu finden im Cloudflare-Dashboard in der Übersicht deiner Domain.",
+              "apiDataTemplate": "DNS-Eintragsvorlage",
+              "apiDataTemplateDescription": "JSON-Vorlage für die Cloudflare-Batch-DNS-API. Verfügbare Platzhalter: {placeholders}."
+            }
+          },
+          "thankYou": {
+            "title": "Vielen Dank!",
+            "description": "Vielen Dank, dass du die Subdomain Manager-Erweiterung installiert hast! Wenn du Fragen, Feedback oder Probleme hast, kannst du uns gerne auf unserem Discord-Server kontaktieren.",
+            "alert": {
+              "newVersion": "Eine neue Version der Subdomain Manager-Erweiterung ist verfügbar! Bitte aktualisiere auf die neueste Version, um die beste Erfahrung zu erhalten."
+            },
+            "table": {
+              "columns": {
+                "version": "Version",
+                "changelog": "Änderungsprotokoll"
+              }
+            },
+            "button": {
+              "joinDiscord": "Tritt unserem Discord bei",
+              "downloadFrom": "Lade {version} von {provider} herunter"
+            }
+          }
+        }
+      }
+    }
+  }
+}

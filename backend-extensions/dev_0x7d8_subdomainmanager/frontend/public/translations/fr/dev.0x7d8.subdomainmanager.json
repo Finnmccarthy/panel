@@ -1,0 +1,132 @@
+{
+  "items": {},
+  "translations": {
+    "common": {
+      "form": {
+        "allocation": "Allocation",
+        "allocationGroupPrimary": "Principal",
+        "allocationGroupOther": "Autres"
+      }
+    },
+    "pages": {
+      "server": {
+        "subdomains": {
+          "title": "Sous-domaines",
+          "subtitle": "{current} sur {max} sous-domaines créés.",
+          "toast": {
+            "created": "Sous-domaine créé.",
+            "updated": "Sous-domaine mis à jour.",
+            "deleted": "Sous-domaine supprimé."
+          },
+          "tooltip": {
+            "limitReached": "Ce serveur est limité à {max} sous-domaines.",
+            "noDomains": "Aucun domaine n'est configuré pour cet egg."
+          },
+          "table": {
+            "columns": {
+              "domain": "Domaine"
+            }
+          },
+          "modal": {
+            "create": { "title": "Créer un sous-domaine" },
+            "update": { "title": "Modifier le sous-domaine" },
+            "delete": {
+              "title": "Supprimer le sous-domaine",
+              "content": "Êtes-vous sûr de vouloir supprimer **{subdomain}.{domain}** ? Les enregistrements DNS seront également supprimés."
+            }
+          },
+          "form": {
+            "subdomain": "Sous-domaine",
+            "domain": "Domaine"
+          }
+        }
+      },
+      "admin": {
+        "servers": {
+          "featureLimits": {
+            "subdomains": "Sous-domaines"
+          }
+        },
+        "configuration": {
+          "domains": {
+            "title": "Domaines",
+            "empty": "Aucun domaine configuré.",
+            "button": {
+              "add": "Ajouter un domaine",
+              "test": "Tester",
+              "edit": "Modifier",
+              "viewSubdomains": "Voir les sous-domaines"
+            },
+            "toast": {
+              "created": "Domaine créé.",
+              "updated": "Domaine mis à jour.",
+              "deleted": "Domaine supprimé.",
+              "testOk": "Les identifiants du fournisseur sont valides et disposent d'un accès en écriture."
+            },
+            "table": {
+              "columns": {
+                "domain": "Domaine",
+                "provider": "Fournisseur",
+                "eggs": "Eggs"
+              }
+            },
+            "tooltip": {
+              "test": "Tester les identifiants",
+              "edit": "Modifier le domaine",
+              "delete": "Supprimer le domaine"
+            },
+            "subdomains": {
+              "title": "Sous-domaines – {domain}",
+              "empty": "Aucun sous-domaine pour ce domaine.",
+              "table": {
+                "columns": {
+                  "subdomain": "Sous-domaine",
+                  "server": "Serveur"
+                }
+              }
+            },
+            "modal": {
+              "create": { "title": "Créer un domaine" },
+              "edit": { "title": "Modifier le domaine" },
+              "delete": {
+                "title": "Supprimer le domaine",
+                "content": "Êtes-vous sûr de vouloir supprimer **{domain}** ? Tous les sous-domaines de serveur associés seront également supprimés."
+              }
+            },
+            "form": {
+              "provider": "Fournisseur",
+              "eggs": "Eggs éligibles",
+              "domain": "Domaine",
+              "regexes": "Motifs de sous-domaines interdits",
+              "regexesDescription": "Expressions régulières auxquelles les sous-domaines ne doivent pas correspondre.",
+              "regexesPlaceholder": "^admin$",
+              "cloudflareToken": "Jeton API",
+              "cloudflareTokenDescription": "Doit avoir la permission dns_records:write sur la zone.",
+              "cloudflareZoneId": "ID de zone",
+              "cloudflareZoneIdDescription": "Disponible dans le tableau de bord Cloudflare dans la vue d'ensemble de votre domaine.",
+              "apiDataTemplate": "Modèle d'enregistrement DNS",
+              "apiDataTemplateDescription": "Modèle JSON pour l'API DNS par lot de Cloudflare. Variables disponibles : {placeholders}."
+            }
+          },
+          "thankYou": {
+            "title": "Merci !",
+            "description": "Merci d'avoir installé l'extension Subdomain Manager ! Si vous avez des questions, des retours ou des problèmes, n'hésitez pas à nous contacter sur notre serveur Discord.",
+            "alert": {
+              "newVersion": "Une nouvelle version de l'extension Subdomain Manager est disponible ! Veuillez mettre à jour vers la dernière version pour obtenir la meilleure expérience."
+            },
+            "table": {
+              "columns": {
+                "version": "Version",
+                "changelog": "Journal des modifications"
+              }
+            },
+            "button": {
+              "joinDiscord": "Rejoindre notre Discord",
+              "downloadFrom": "Télécharger {version} depuis {provider}"
+            }
+          }
+        }
+      }
+    }
+  }
+}

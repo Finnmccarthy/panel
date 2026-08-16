@@ -1,0 +1,155 @@
+{
+  "items": {
+    "version": {
+      "zero": "{count} Versions",
+      "one": "{count} Version",
+      "two": "{count} Versions",
+      "few": "{count} Versions",
+      "many": "{count} Versions",
+      "other": "{count} Versions"
+    },
+    "projectVersion": {
+      "zero": "{count} Versions de projet",
+      "one": "{count} Version de projet",
+      "two": "{count} Versions de projet",
+      "few": "{count} Versions de projet",
+      "many": "{count} Versions de projet",
+      "other": "{count} Versions de projet"
+    },
+    "build": {
+      "zero": "{count} Builds",
+      "one": "{count} Build",
+      "two": "{count} Builds",
+      "few": "{count} Builds",
+      "many": "{count} Builds",
+      "other": "{count} Builds"
+    }
+  },
+  "translations": {
+    "elements": {
+      "typeOrderInput": {
+        "error": {
+          "empty": "La clé ne peut pas être vide",
+          "duplicate": "La clé existe déjà"
+        },
+        "tooltip": {
+          "removeEntry": "Supprimer l'entrée"
+        },
+        "noTypes": "Pas de types",
+        "noEntries": "Pas d'entrées",
+        "selectTypes": "Sélectionner les types...",
+        "newKey": "Nouvelle clé..."
+      }
+    },
+    "pages": {
+      "admin": {
+        "configuration": {
+          "settings": {
+            "title": "Paramètres",
+            "toast": {
+              "updated": "Paramètres mis à jour."
+            },
+            "form": {
+              "mcjarsUrl": "URL MCJars",
+              "mcjarsUrlDescription": "L'URL de base pour l'API MCJars.",
+              "mcjarsApiKey": "Clé API MCJars",
+              "mcjarsApiKeyDescription": "Votre clé API MCJars. Vous pouvez obtenir une clé API depuis https://mcjars.app.",
+              "mcjarsIconBaseUrl": "URL de base des icônes MCJars",
+              "mcjarsIconBaseUrlDescription": "L'URL pour les icônes MCJars. Par exemple : https://mcjars.app/icons/",
+              "mcjarsIconFileExtension": "Extension de fichier des icônes MCJars",
+              "mcjarsIconFileExtensionDescription": "L'extension de fichier pour les icônes MCJars, sans le point. Par exemple : png",
+              "mcjarsTypeOrder": "Outrepasser l'ordre de type de version MCJars",
+              "collectInstallationStatistics": "Collecter les statistiques d'installation",
+              "collectInstallationStatisticsDescription": "Cause la collection de statistiques d'installation locales par l'extension. Ces données sont collectés localement uniquement et ne sont pas envoyées à un serveur distant. C'est utile pour vous donner un aperçu de quelles versions de Minecraft vos utilisateurs installent."
+            }
+          },
+          "thankYou": {
+            "title": "Merci !",
+            "description": "Merci d'avoir installé l'extension Minecraft Version Changer ! Si vous avez des questions, retours ou problèmes, n'hésitez pas à nous contacter sur notre serveur Discord.",
+            "alert": {
+              "newVersion": "Une nouvelle version de l'extension Minecraft Version Changer est disponible ! Veuillez mettre à jour pour obtenir la meilleure expérience."
+            },
+            "table": {
+              "columns": {
+                "version": "Version",
+                "changelog": "Changements"
+              }
+            },
+            "button": {
+              "joinDiscord": "Rejoindre notre Discord",
+              "downloadFrom": "Télécharger {version} depuis {provider}"
+            }
+          },
+          "typeEggAssignments": {
+            "title": "Attributions d'œuf par type",
+            "description": "Quand un utilisateur installe une version d'un des types sélectionnés, l'œuf du serveur sera automatiquement changé en l'œuf configuré.",
+            "noEntries": "Aucune attribution configurée.",
+            "button": {
+              "addAssignment": "Ajouter une attribution"
+            },
+            "form": {
+              "affectedTypes": "Types concernés",
+              "affectedTypesPlaceholder": "Sélectionner les types...",
+              "nest": "Nid",
+              "egg": "Œuf"
+            },
+            "tooltip": {
+              "removeAssignment": "Supprimer l'attribution"
+            }
+          },
+          "defaultTypeOrder": {
+            "title": "Ordre de type de version par défaut",
+            "description": "Ceci est l'ordre par défaut des types de version comme défini par MCJars. C'est utilisé pour déterminer l'ordre des types de version dans la liste de versions."
+          },
+          "statistics": {
+            "title": "Statistiques d'installation",
+            "description": "Cette section vous donne un aperçu des installations Minecraft de vos utilisateurs.",
+            "descriptionAmount": "Installations totales : {totalInstallations}",
+            "byType": "Par type",
+            "byVersion": "Par version",
+            "noStatistics": "Pas de statistiques disponibles."
+          }
+        }
+      },
+      "server": {
+        "versions": {
+          "title": "Versions",
+          "toast": {
+            "installed": "Version installé avec succès."
+          },
+          "tooltip": {
+            "experimental": "Expérimental",
+            "deprecated": "Déprécié"
+          },
+          "button": {
+            "viewVersions": "Voir versions"
+          },
+          "alert": {
+            "currentlyRunning": "{type} installé",
+            "installedVersion": "Version installée : {version}",
+            "installedProjectVersion": "Version de projet installée : {projectVersion}",
+            "installedBuild": "Build installé : {build}",
+            "outdatedVersion": "Votre serveur utilise actuellement une version obsolète : {type} {version}. Le dernier build est {build}."
+          },
+          "modal": {
+            "install": {
+              "title": "Installer {type} ({version})",
+              "alert": {
+                "experimental": "Cette version est expérimentale et peut contenir des bogues ou autres problèmes. Soyez sûr de créer une sauvegarde de votre serveur avant d'installer cette version."
+              },
+              "form": {
+                "buildPlaceholder": "Sélectionner un build...",
+                "acceptEula": "Acceptez-vous l'EULA Minecraft ?",
+                "acceptEulaDescription": "En activant cette option vous confirmez que vous avez lu et acceptez l'EULA Minecraft. (https://minecraft.net/eula)"
+              }
+            }
+          },
+          "stable": "Stable",
+          "experimental": "Expérimental",
+          "release": "Release",
+          "snapshot": "Snapshot"
+        }
+      }
+    }
+  }
+}

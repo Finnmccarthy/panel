@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS dev_0x7d8_minecraftversionchanger_installations;

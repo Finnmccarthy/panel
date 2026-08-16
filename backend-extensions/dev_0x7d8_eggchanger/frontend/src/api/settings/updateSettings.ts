@@ -1,0 +1,13 @@
+import { z } from 'zod';
+import { axiosInstance } from '@/api/axios.ts';
+import { transformKeysToSnakeCase } from '@/lib/transformers.ts';
+import { adminExtensionSettingsSchema } from '../../lib/schemas.ts';
+
+export default async (data: z.infer<typeof adminExtensionSettingsSchema>): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    axiosInstance
+      .put('/api/admin/extensions/dev.0x7d8.eggchanger/settings', transformKeysToSnakeCase(data))
+      .then(() => resolve())
+      .catch(reject);
+  });
+};

@@ -1,0 +1,93 @@
+{
+  "items": {},
+  "translations": {
+    "elements": {
+      "extensionSettingsEditor": {
+        "noGroups": "Keine Egg-Gruppen konfiguriert.",
+        "button": {
+          "addGroup": "Egg-Gruppe hinzufügen"
+        },
+        "tooltip": {
+          "removeGroup": "Gruppe entfernen",
+          "removeEgg": "Egg entfernen"
+        },
+        "divider": {
+          "eggs": "Eggs (zum Neuordnen ziehen)",
+          "options": "Optionen",
+          "affectedEggs": "Betroffene Eggs"
+        },
+        "form": {
+          "groupName": "Gruppenname",
+          "groupNamePlaceholder": "Gruppenname",
+          "selectableEggs": "Auswählbare Eggs",
+          "selectableEggsPlaceholder": "Eggs zu dieser Gruppe hinzufügen",
+          "affectedEggs": "Betroffene Eggs",
+          "affectedEggsPlaceholder": "Betroffene Eggs auswählen",
+          "affectedEggsDescription": "Eggs, die von dieser Gruppenkonfiguration betroffen sind.",
+          "forceUpdateStartup": "Startbefehl-Aktualisierung erzwingen",
+          "forceUpdateStartupDescription": "Erzwingt die Aktualisierung des Startbefehls, wenn ein Egg in dieser Gruppe angewendet wird.",
+          "forceReinstall": "Neuinstallation erzwingen",
+          "forceReinstallDescription": "Erzwingt eine Neuinstallation, wenn ein Egg in dieser Gruppe angewendet wird.",
+          "forceReinstallTruncateFiles": "Löschen von Dateien bei Neuinstallation erzwingen",
+          "forceReinstallTruncateFilesDescription": "Alle Dateien vor der Neuinstallation löschen.",
+          "reassignAllocations": "Zuweisungen neu zuordnen",
+          "reassignAllocationsDescription": "Wenn zu einem Egg in dieser Gruppe gewechselt wird und das neue Egg andere Zuweisungsanforderungen als das alte hat, werden die Zuweisungen automatisch neu zugeordnet, um dem neuen Egg zu entsprechen. (Egg-Konfigurationssystem)"
+        }
+      }
+    },
+    "pages": {
+      "admin": {
+        "configuration": {
+          "settings": {
+            "title": "Einstellungen",
+            "toast": {
+              "updated": "Einstellungen aktualisiert."
+            }
+          },
+          "thankYou": {
+            "title": "Vielen Dank!",
+            "description": "Vielen Dank, dass du die Egg Changer-Erweiterung installiert hast! Wenn du Fragen, Feedback oder Probleme hast, kannst du uns gerne auf unserem Discord-Server kontaktieren.",
+            "alert": {
+              "newVersion": "Eine neue Version der Egg Changer-Erweiterung ist verfügbar! Bitte aktualisiere auf die neueste Version, um die beste Erfahrung zu erhalten."
+            },
+            "table": {
+              "columns": {
+                "version": "Version",
+                "changelog": "Änderungen"
+              }
+            },
+            "button": {
+              "joinDiscord": "Unserem Discord beitreten",
+              "downloadFrom": "Download {version} von {provider}"
+            }
+          }
+        }
+      },
+      "server": {
+        "settings": {
+          "eggchanger": {
+            "title": "Egg Changer",
+            "form": {
+              "egg": "Egg"
+            },
+            "modal": {
+              "title": "Egg ändern",
+              "content": "Bist du sicher, dass du das Egg des Servers zu **{eggName}** ändern möchtest?",
+              "toast": {
+                "changed": "Egg erfolgreich geändert.",
+                "changedWithReinstall": "Egg erfolgreich geändert. Server wird neu installiert..."
+              },
+              "form": {
+                "updateStartup": "Startbefehl aktualisieren",
+                "updateStartupDescription": "Aktualisiert den Startbefehl, damit er zum neuen Egg passt.",
+                "reinstall": "Server neu installieren",
+                "reinstallDescription": "Installiert den Server neu, um das Installationsskript des neuen Eggs auszuführen."
+              }
+            },
+            "noEggs": "Keine Eggs zum Wechseln verfügbar."
+          }
+        }
+      }
+    }
+  }
+}

@@ -2398,6 +2398,87 @@ dependencies = [
 ]
 
 [[package]]
+name = "dev_0x7d8_eggchanger"
+version = "1.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "chrono",
+ "compact_str 0.10.0",
+ "futures-util",
+ "garde",
+ "indexmap 2.14.0",
+ "semver",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "shared",
+ "sqlx",
+ "tokio",
+ "tracing",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+ "wings-api",
+]
+
+[[package]]
+name = "dev_0x7d8_minecraftversionchanger"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "chrono",
+ "compact_str 0.10.0",
+ "futures-util",
+ "garde",
+ "indexmap 2.14.0",
+ "semver",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "shared",
+ "sqlx",
+ "tokio",
+ "tracing",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+ "wings-api",
+]
+
+[[package]]
+name = "dev_0x7d8_subdomainmanager"
+version = "1.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "chrono",
+ "clap",
+ "colored",
+ "compact_str 0.10.0",
+ "dotenvy",
+ "garde",
+ "indexmap 2.14.0",
+ "parking_lot",
+ "regex",
+ "reqwest",
+ "semver",
+ "serde",
+ "serde_json",
+ "shared",
+ "sqlx",
+ "tokio",
+ "tracing",
+ "utoipa",
+ "utoipa-axum",
+ "uuid",
+]
+
+[[package]]
 name = "dialoguer"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2749,6 +2830,9 @@ dependencies = [
 name = "extension-internal-list"
 version = "1.1.4"
 dependencies = [
+ "dev_0x7d8_eggchanger",
+ "dev_0x7d8_minecraftversionchanger",
+ "dev_0x7d8_subdomainmanager",
  "semver",
  "shared",
 ]

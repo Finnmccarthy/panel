@@ -6,3 +6,6 @@ edition = { workspace = true }
 [dependencies]
 shared = { workspace = true }
 semver = { workspace = true }
+dev_0x7d8_eggchanger = { path = "../dev_0x7d8_eggchanger" }
+dev_0x7d8_minecraftversionchanger = { path = "../dev_0x7d8_minecraftversionchanger" }
+dev_0x7d8_subdomainmanager = { path = "../dev_0x7d8_subdomainmanager" }

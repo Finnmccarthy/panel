@@ -1,0 +1,155 @@
+{
+  "items": {
+    "version": {
+      "zero": "{count} Versionen",
+      "one": "{count} Version",
+      "two": "{count} Versionen",
+      "few": "{count} Versionen",
+      "many": "{count} Versionen",
+      "other": "{count} Versionen"
+    },
+    "projectVersion": {
+      "zero": "{count} Projektversionen",
+      "one": "{count} Projektversion",
+      "two": "{count} Projektversionen",
+      "few": "{count} Projektversionen",
+      "many": "{count} Projektversionen",
+      "other": "{count} Projektversionen"
+    },
+    "build": {
+      "zero": "{count} Builds",
+      "one": "{count} Build",
+      "two": "{count} Builds",
+      "few": "{count} Builds",
+      "many": "{count} Builds",
+      "other": "{count} Builds"
+    }
+  },
+  "translations": {
+    "elements": {
+      "typeOrderInput": {
+        "error": {
+          "empty": "Schlüssel darf nicht leer sein",
+          "duplicate": "Schlüssel existiert bereits"
+        },
+        "tooltip": {
+          "removeEntry": "Eintrag entfernen"
+        },
+        "noTypes": "Keine Typen",
+        "noEntries": "Keine Einträge",
+        "selectTypes": "Typen auswählen...",
+        "newKey": "Neuer Schlüssel..."
+      }
+    },
+    "pages": {
+      "admin": {
+        "configuration": {
+          "settings": {
+            "title": "Einstellungen",
+            "toast": {
+              "updated": "Einstellungen aktualisiert."
+            },
+            "form": {
+              "mcjarsUrl": "MCJars-URL",
+              "mcjarsUrlDescription": "Die Basis-URL für die MCJars-API.",
+              "mcjarsApiKey": "MCJars-API-Schlüssel",
+              "mcjarsApiKeyDescription": "Dein MCJars-API-Schlüssel. Du kannst einen API-Schlüssel unter https://mcjars.app erhalten.",
+              "mcjarsIconBaseUrl": "MCJars-Icon-Basis-URL",
+              "mcjarsIconBaseUrlDescription": "Die Basis-URL für MCJars-Icons. Beispiel: https://mcjars.app/icons/",
+              "mcjarsIconFileExtension": "MCJars-Icon-Dateiendung",
+              "mcjarsIconFileExtensionDescription": "Die Dateiendung für MCJars-Icons, ohne den Punkt. Beispiel: png",
+              "mcjarsTypeOrder": "MCJars-Versionstyp-Reihenfolge überschreiben",
+              "collectInstallationStatistics": "Installationsstatistiken sammeln",
+              "collectInstallationStatisticsDescription": "Lässt die Erweiterung lokale Installationsstatistiken sammeln. Diese Daten werden nur lokal erfasst und nicht an einen Server gesendet. Sie dienen dazu, dir Einblicke in die Minecraft-Installationen der Benutzer zu geben."
+            }
+          },
+          "thankYou": {
+            "title": "Vielen Dank!",
+            "description": "Vielen Dank, dass du die Minecraft Version Changer-Erweiterung installiert hast! Wenn du Fragen, Feedback oder Probleme hast, kannst du uns gerne auf unserem Discord-Server kontaktieren.",
+            "alert": {
+              "newVersion": "Eine neue Version der Minecraft Version Changer-Erweiterung ist verfügbar! Bitte aktualisiere auf die neueste Version, um die beste Erfahrung zu erhalten."
+            },
+            "table": {
+              "columns": {
+                "version": "Version",
+                "changelog": "Änderungen"
+              }
+            },
+            "button": {
+              "joinDiscord": "Unserem Discord beitreten",
+              "downloadFrom": "Download {version} von {provider}"
+            }
+          },
+          "typeEggAssignments": {
+            "title": "Typ-Egg-Zuweisungen",
+            "description": "Wenn ein Benutzer eine Version eines der ausgewählten Typen installiert, wird das Egg des Servers automatisch auf das konfigurierte Egg geändert.",
+            "noEntries": "Keine Zuweisungen konfiguriert.",
+            "button": {
+              "addAssignment": "Zuweisung hinzufügen"
+            },
+            "form": {
+              "affectedTypes": "Betroffene Typen",
+              "affectedTypesPlaceholder": "Typen auswählen...",
+              "nest": "Nest",
+              "egg": "Egg"
+            },
+            "tooltip": {
+              "removeAssignment": "Zuweisung entfernen"
+            }
+          },
+          "defaultTypeOrder": {
+            "title": "Standard-Versionstyp-Reihenfolge",
+            "description": "Dies ist die Standardreihenfolge der Versionstypen, wie sie von MCJars definiert wird. Sie bestimmt die Reihenfolge der Versionstypen in der Versionsliste."
+          },
+          "statistics": {
+            "title": "Installationsstatistiken",
+            "description": "Dieser Abschnitt bietet Einblicke in die Minecraft-Installationen deiner Benutzer.",
+            "descriptionAmount": "Gesamte Installationen: {totalInstallations}",
+            "byType": "Nach Typ",
+            "byVersion": "Nach Version",
+            "noStatistics": "Keine Statistiken verfügbar."
+          }
+        }
+      },
+      "server": {
+        "versions": {
+          "title": "Versionen",
+          "toast": {
+            "installed": "Version erfolgreich installiert."
+          },
+          "tooltip": {
+            "experimental": "Experimentell",
+            "deprecated": "Veraltet"
+          },
+          "button": {
+            "viewVersions": "Versionen anzeigen"
+          },
+          "alert": {
+            "currentlyRunning": "Aktuell ist {type} installiert",
+            "installedVersion": "Installierte Version: {version}",
+            "installedProjectVersion": "Installierte Projektversion: {projectVersion}",
+            "installedBuild": "Installierter Build: {build}",
+            "outdatedVersion": "Dein Server verwendet derzeit eine veraltete Version von {type} {version}. Der neueste Build ist {build}."
+          },
+          "modal": {
+            "install": {
+              "title": "{type} installieren ({version})",
+              "alert": {
+                "experimental": "Diese Version ist experimentell und kann Fehler oder andere Probleme enthalten. Bitte stelle sicher, dass du ein Backup deines Servers erstellst, bevor du diese Version installierst."
+              },
+              "form": {
+                "buildPlaceholder": "Build auswählen...",
+                "acceptEula": "Möchtest du die Minecraft-EULA akzeptieren?",
+                "acceptEulaDescription": "Durch Aktivieren dieser Option bestätigst du, dass du die Minecraft-EULA gelesen hast und akzeptierst. (https://minecraft.net/eula)"
+              }
+            }
+          },
+          "stable": "Stabil",
+          "experimental": "Experimentell",
+          "release": "Release",
+          "snapshot": "Snapshot"
+        }
+      }
+    }
+  }
+}

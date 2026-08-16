@@ -6,3 +6,5 @@ backend-extensions/*/frontend/node_modules
 exported-extensions/
 postgres/
 .docker/
+/backend-extensions/node_modules/
+/backend-extensions/node_modules/

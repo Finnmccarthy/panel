@@ -1,0 +1,57 @@
+name: Build custom Calagopus image
+
+on:
+  push:
+    branches: [custom-extensions]
+  workflow_dispatch: {}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          pnpm install
+          pnpm build
+
+      - name: Cross-compile backend (amd64)
+        run: |
+          SQLX_OFFLINE=true cross build --release --target x86_64-unknown-linux-musl -p panel-rs
+          mkdir -p .docker/amd64
+          cp target/x86_64-unknown-linux-musl/release/panel-rs .docker/amd64/panel-rs
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/calagopus-panel:custom
+            ghcr.io/${{ github.repository_owner }}/calagopus-panel:${{ github.sha }}
