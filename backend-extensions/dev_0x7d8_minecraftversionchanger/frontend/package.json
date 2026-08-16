@@ -6,6 +6,7 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "shared": "workspace:*"
   }
 }
